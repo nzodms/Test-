@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 const Tabs = TabsPrimitive.Root;
 
-/** Underline style — used for page-level sections */
+/** Underline style — page-level sections. Ink underline, no accent. */
 const TabsList = React.forwardRef<
   React.ComponentRef<typeof TabsPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
@@ -29,9 +29,9 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "relative -mb-px whitespace-nowrap border-b-2 border-transparent px-3 py-2 text-sm text-ink-muted",
-      "transition-colors hover:text-ink-secondary",
-      "data-[state=active]:border-halo-400 data-[state=active]:text-ink",
+      "relative -mb-px whitespace-nowrap border-b-2 border-transparent px-3 py-2 text-sm text-ink-soft",
+      "transition-colors hover:text-ink",
+      "data-[state=active]:border-ink data-[state=active]:text-ink",
       className
     )}
     {...props}
@@ -39,7 +39,7 @@ const TabsTrigger = React.forwardRef<
 ));
 TabsTrigger.displayName = "TabsTrigger";
 
-/** Segmented style — used for compact toggles (e.g. time ranges) */
+/** Segmented style — compact toggles (time ranges, filters). */
 const TabsSegment = React.forwardRef<
   React.ComponentRef<typeof TabsPrimitive.List>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
@@ -47,7 +47,7 @@ const TabsSegment = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex items-center gap-0.5 rounded-md border border-edge bg-void/40 p-0.5",
+      "inline-flex items-center gap-0.5 rounded-sm border border-edge bg-mineral p-0.5",
       className
     )}
     {...props}
@@ -62,9 +62,9 @@ const TabsSegmentTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "rounded-sm px-2.5 py-1 text-[13px] text-ink-muted transition-colors",
-      "hover:text-ink-secondary",
-      "data-[state=active]:bg-raised data-[state=active]:text-ink data-[state=active]:shadow-[inset_0_1px_0_rgb(233_237_245/0.05)]",
+      "rounded-xs px-2.5 py-1 text-[13px] text-ink-soft transition-colors",
+      "hover:text-ink",
+      "data-[state=active]:bg-paper data-[state=active]:text-ink data-[state=active]:shadow-hairline",
       className
     )}
     {...props}

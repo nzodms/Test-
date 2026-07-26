@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { GeistSans } from "geist/font/sans";
-import { GeistMono } from "geist/font/mono";
 import { Toaster } from "sonner";
+import { instrumentSans, geistMono } from "@/lib/fonts";
+import { brand } from "@/config/brand";
 import "./globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -9,30 +9,27 @@ const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Halo — Operational intelligence for modern teams",
-    template: "%s · Halo",
+    default: `${brand.name} — ${brand.purpose}`,
+    template: `%s · ${brand.name}`,
   },
-  description:
-    "Halo centralizes your company's signals, risks, opportunities and automations in one calm, precise workspace.",
+  description: brand.description,
   openGraph: {
     type: "website",
-    siteName: "Halo",
-    title: "Halo — Operational intelligence for modern teams",
-    description:
-      "Centralize signals, risks, opportunities and automations. See what matters before it matters.",
+    siteName: brand.name,
+    title: `${brand.name} — ${brand.purpose}`,
+    description: brand.description,
     url: siteUrl,
   },
   twitter: {
     card: "summary_large_image",
-    title: "Halo — Operational intelligence for modern teams",
-    description:
-      "Centralize signals, risks, opportunities and automations. See what matters before it matters.",
+    title: `${brand.name} — ${brand.purpose}`,
+    description: brand.description,
   },
   robots: { index: true, follow: true },
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0b0e15",
+  themeColor: "#f3f1eb",
   width: "device-width",
   initialScale: 1,
 };
@@ -43,18 +40,16 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${GeistSans.variable} ${GeistMono.variable}`}
-      suppressHydrationWarning
+      className={`${instrumentSans.variable} ${geistMono.variable}`}
     >
-      <body className="min-h-dvh bg-base text-ink antialiased">
+      <body className="min-h-dvh bg-canvas text-ink antialiased">
         {children}
         <Toaster
           position="bottom-right"
-          theme="dark"
           toastOptions={{
             style: {
-              background: "var(--color-overlay)",
-              border: "1px solid var(--color-edge-strong)",
+              background: "var(--color-paper)",
+              border: "1px solid var(--color-edge)",
               color: "var(--color-ink)",
               boxShadow: "var(--shadow-float)",
             },

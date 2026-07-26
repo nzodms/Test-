@@ -19,7 +19,7 @@ const DropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        "z-50 min-w-44 overflow-hidden rounded-md border border-edge-strong bg-overlay p-1 shadow-float",
+        "z-50 min-w-44 overflow-hidden rounded-md border border-edge-strong bg-paper p-1 shadow-float",
         "data-[state=open]:animate-fade-in",
         className
       )}
@@ -36,7 +36,7 @@ const DropdownMenuSubContent = React.forwardRef<
   <DropdownMenuPrimitive.SubContent
     ref={ref}
     className={cn(
-      "z-50 min-w-40 overflow-hidden rounded-md border border-edge-strong bg-overlay p-1 shadow-float",
+      "z-50 min-w-40 overflow-hidden rounded-md border border-edge-strong bg-paper p-1 shadow-float",
       className
     )}
     {...props}
@@ -45,10 +45,10 @@ const DropdownMenuSubContent = React.forwardRef<
 DropdownMenuSubContent.displayName = "DropdownMenuSubContent";
 
 const itemClasses = cn(
-  "relative flex cursor-default select-none items-center gap-2 rounded-sm px-2.5 py-1.5 text-[13px] text-ink-secondary outline-none",
-  "data-highlighted:bg-lifted data-highlighted:text-ink",
+  "relative flex cursor-default select-none items-center gap-2 rounded-sm px-2.5 py-1.5 text-[13px] text-ink-soft outline-none",
+  "data-highlighted:bg-mineral data-highlighted:text-ink",
   "data-disabled:pointer-events-none data-disabled:opacity-45",
-  "[&_svg]:size-3.5 [&_svg]:shrink-0 [&_svg]:text-ink-muted data-highlighted:[&_svg]:text-ink-secondary"
+  "[&_svg]:size-3.5 [&_svg]:shrink-0 [&_svg]:text-ink-soft data-highlighted:[&_svg]:text-ink"
 );
 
 const DropdownMenuItem = React.forwardRef<
@@ -62,7 +62,7 @@ const DropdownMenuItem = React.forwardRef<
     className={cn(
       itemClasses,
       destructive &&
-        "text-critical data-highlighted:bg-critical/12 data-highlighted:text-critical [&_svg]:text-critical/70",
+        "text-crit data-highlighted:bg-crit/[0.07] data-highlighted:text-crit [&_svg]:text-crit/70",
       className
     )}
     {...props}
@@ -82,7 +82,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
   >
     <span className="absolute left-2.5 flex size-3.5 items-center justify-center">
       <DropdownMenuPrimitive.ItemIndicator>
-        <Check className="size-3.5 text-halo-400" />
+        <Check className="size-3.5 text-accent" />
       </DropdownMenuPrimitive.ItemIndicator>
     </span>
     {children}
@@ -111,7 +111,7 @@ const DropdownMenuLabel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.Label
     ref={ref}
-    className={cn("px-2.5 py-1.5 text-2xs font-medium uppercase tracking-wider text-ink-muted", className)}
+    className={cn("px-2.5 py-1.5 text-2xs font-medium uppercase tracking-wider text-ink-soft", className)}
     {...props}
   />
 ));
@@ -135,7 +135,7 @@ function DropdownMenuShortcut({
 }: React.HTMLAttributes<HTMLSpanElement>) {
   return (
     <span
-      className={cn("ml-auto font-mono text-2xs text-ink-muted", className)}
+      className={cn("ml-auto font-mono text-2xs text-ink-soft", className)}
       {...props}
     />
   );

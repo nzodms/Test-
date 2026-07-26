@@ -4,10 +4,8 @@ import * as React from "react";
 import * as AvatarPrimitive from "@radix-ui/react-avatar";
 import { cn, initials } from "@/lib/utils";
 
-/**
- * Demo avatars are deterministic: a person's name maps to a stable
- * hue so the same member looks identical on every page.
- */
+/** A name maps to a stable muted hue, so the same person always
+ *  renders identically. Light-surface treatment. */
 function nameHue(name: string): number {
   let h = 0;
   for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % 360;
@@ -32,13 +30,13 @@ const Avatar = React.forwardRef<
     <AvatarPrimitive.Root
       ref={ref}
       className={cn(
-        "relative flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-edge-strong font-medium",
+        "relative flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-edge font-medium",
         sizeClasses,
         className
       )}
       style={{
-        backgroundColor: `oklch(0.32 0.045 ${hue})`,
-        color: `oklch(0.85 0.06 ${hue})`,
+        backgroundColor: `oklch(0.9 0.035 ${hue})`,
+        color: `oklch(0.38 0.07 ${hue})`,
       }}
       title={name}
       {...props}

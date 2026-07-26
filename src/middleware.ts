@@ -1,49 +1,29 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-import { DEMO_SESSION_COOKIE, isSupabaseConfigured } from "@/lib/demo-mode";
+import { isSupabaseConfigured } from "@/lib/demo-mode";
 
-const PROTECTED_PREFIXES = [
-  "/overview",
-  "/signals",
-  "/intelligence",
-  "/automations",
-  "/reports",
-  "/activity",
-  "/team",
-  "/settings",
-  "/onboarding",
-];
+/**
+ * Demo mode (no Supabase env): every route is reachable — the
+ * dashboard and onboarding run on simulated data by design.
+ *
+ * Supabase configured: sessions are refreshed and /dashboard is
+ * gated behind authentication, while demo onboarding stays open.
+ */
 
-const AUTH_PAGES = ["/login", "/signup", "/forgot-password"];
+const AUTH_GATED_PREFIXES = ["/dashboard"];
 
-function isProtected(pathname: string) {
-  return PROTECTED_PREFIXES.some(
+function isGated(pathname: string) {
+  return AUTH_GATED_PREFIXES.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`)
   );
 }
 
 export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  /* ── Demo mode: a signed cookie-less local session ───────────── */
   if (!isSupabaseConfigured()) {
-    const hasDemoSession = request.cookies.has(DEMO_SESSION_COOKIE);
-    if (isProtected(pathname) && !hasDemoSession) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/login";
-      url.searchParams.set("next", pathname);
-      return NextResponse.redirect(url);
-    }
-    if (AUTH_PAGES.includes(pathname) && hasDemoSession) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/overview";
-      url.search = "";
-      return NextResponse.redirect(url);
-    }
     return NextResponse.next();
   }
 
-  /* ── Supabase: refresh the session and gate protected routes ── */
+  const { pathname } = request.nextUrl;
   let response = NextResponse.next({ request });
 
   const supabase = createServerClient(
@@ -71,16 +51,21 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (isProtected(pathname) && !user) {
+  // Demo-mode onboarding stays open even with Supabase configured.
+  const demoOnboarding =
+    pathname === "/onboarding" &&
+    request.nextUrl.searchParams.get("mode") === "demo";
+
+  if (isGated(pathname) && !user && !demoOnboarding) {
     const url = request.nextUrl.clone();
-    url.pathname = "/login";
+    url.pathname = "/sign-in";
     url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
   }
 
-  if (AUTH_PAGES.includes(pathname) && user) {
+  if (pathname === "/sign-in" && user) {
     const url = request.nextUrl.clone();
-    url.pathname = "/overview";
+    url.pathname = "/dashboard";
     url.search = "";
     return NextResponse.redirect(url);
   }

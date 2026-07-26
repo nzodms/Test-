@@ -7,13 +7,19 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        neutral: "border-edge bg-raised text-ink-secondary",
-        halo: "border-halo-500/25 bg-halo-500/10 text-halo-300",
-        positive: "border-positive/25 bg-positive/10 text-positive",
-        caution: "border-caution/25 bg-caution/10 text-caution",
-        critical: "border-critical/25 bg-critical/10 text-critical",
-        ember: "border-ember-400/30 bg-ember-400/10 text-ember-300",
-        outline: "border-edge-strong bg-transparent text-ink-muted",
+        neutral: "border-edge bg-mineral text-ink-soft",
+        accent: "border-accent/25 bg-accent-tint text-accent-deep",
+        ok: "border-ok/25 bg-ok/[0.08] text-ok",
+        warn: "border-warn/25 bg-warn/[0.08] text-warn",
+        crit: "border-crit/25 bg-crit/[0.07] text-crit",
+        outline: "border-edge-strong bg-transparent text-ink-soft",
+        /* dark scanner context */
+        scan: "border-scan-edge-strong bg-scan-high text-scan-soft",
+        "scan-accent":
+          "border-accent-bright/30 bg-accent-bright/10 text-accent-bright",
+        "scan-warn": "border-warn-bright/30 bg-warn-bright/10 text-warn-bright",
+        "scan-crit": "border-crit-bright/30 bg-crit-bright/10 text-crit-bright",
+        "scan-ok": "border-ok-bright/30 bg-ok-bright/10 text-ok-bright",
       },
     },
     defaultVariants: { variant: "neutral" },

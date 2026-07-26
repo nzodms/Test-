@@ -79,7 +79,7 @@ export async function signInWithGoogle(): Promise<AuthResult> {
   }
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
-    options: { redirectTo: `${siteUrl()}/auth/callback?next=/overview` },
+    options: { redirectTo: `${siteUrl()}/auth/callback?next=/dashboard` },
   });
   if (error) return { ok: false, error: friendly(error.message) };
   return { ok: true };
@@ -92,7 +92,7 @@ export async function requestPasswordReset(email: string): Promise<AuthResult> {
     return { ok: true };
   }
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${siteUrl()}/auth/callback?next=/settings/security`,
+    redirectTo: `${siteUrl()}/auth/callback?next=/dashboard/settings`,
   });
   if (error) return { ok: false, error: friendly(error.message) };
   return { ok: true };

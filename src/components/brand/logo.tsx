@@ -1,16 +1,20 @@
 import { cn } from "@/lib/utils";
+import { brand } from "@/config/brand";
 
 /**
- * The Halo mark: an interrupted orbit with an ember point at the
- * opening — the moment a signal breaks through.
+ * The Argus mark: a reticle — a lens that finds, centered on a
+ * single cold point. Drawn inline, one accent, no decoration.
  */
 export function LogoMark({
   className,
-  size = 28,
+  size = 24,
+  tone = "ink",
 }: {
   className?: string;
   size?: number;
+  tone?: "ink" | "scan";
 }) {
+  const stroke = tone === "ink" ? "currentColor" : "#F4F5F2";
   return (
     <svg
       width={size}
@@ -20,42 +24,41 @@ export function LogoMark({
       aria-hidden="true"
       className={cn("shrink-0", className)}
     >
-      <rect width="64" height="64" rx="14" fill="#0F131C" />
-      <rect
-        width="63"
-        height="63"
-        x="0.5"
-        y="0.5"
-        rx="13.5"
-        stroke="rgb(154 170 207 / 0.18)"
-      />
+      <g stroke={stroke} strokeWidth="4" strokeLinecap="round">
+        <line x1="32" y1="6" x2="32" y2="16" />
+        <line x1="32" y1="48" x2="32" y2="58" />
+        <line x1="6" y1="32" x2="16" y2="32" />
+        <line x1="48" y1="32" x2="58" y2="32" />
+      </g>
+      <circle cx="32" cy="32" r="13" stroke={stroke} strokeWidth="4" />
       <circle
         cx="32"
         cy="32"
-        r="17"
-        stroke="#5ECFE3"
-        strokeWidth="3.5"
-        strokeLinecap="round"
-        strokeDasharray="80 27"
-        transform="rotate(-58 32 32)"
+        r="4.5"
+        fill={tone === "ink" ? "var(--color-accent)" : "var(--color-accent-bright)"}
       />
-      <circle cx="45.5" cy="18.5" r="4" fill="#EEBC6F" />
     </svg>
   );
 }
 
 export function Logo({
   className,
-  markSize = 28,
+  tone = "ink",
 }: {
   className?: string;
-  markSize?: number;
+  tone?: "ink" | "scan";
 }) {
   return (
-    <span className={cn("inline-flex items-center gap-2.5", className)}>
-      <LogoMark size={markSize} />
-      <span className="text-title text-[17px] tracking-tight text-ink">
-        Halo
+    <span
+      className={cn(
+        "inline-flex items-center gap-2",
+        tone === "ink" ? "text-ink" : "text-scan-ink",
+        className
+      )}
+    >
+      <LogoMark size={22} tone={tone} />
+      <span className="text-[16px] font-semibold tracking-tight">
+        {brand.name}
       </span>
     </span>
   );

@@ -11,7 +11,7 @@ const Label = React.forwardRef<
   <LabelPrimitive.Root
     ref={ref}
     className={cn(
-      "text-[13px] font-medium text-ink-secondary",
+      "text-[13px] font-medium text-ink-soft",
       "peer-disabled:cursor-not-allowed peer-disabled:opacity-60",
       className
     )}
@@ -40,11 +40,11 @@ export function Field({
     <div className={cn("space-y-1.5", className)}>
       <div className="flex items-baseline justify-between">
         <Label htmlFor={htmlFor}>{label}</Label>
-        {hint ? <span className="text-xs text-ink-muted">{hint}</span> : null}
+        {hint ? <span className="text-xs text-ink-soft">{hint}</span> : null}
       </div>
       {children}
       {error ? (
-        <p className="text-[13px] text-critical" role="alert">
+        <p className="text-[13px] text-crit" role="alert">
           {error}
         </p>
       ) : null}

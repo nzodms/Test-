@@ -1,93 +1,87 @@
 @import "tailwindcss";
 
 /* ────────────────────────────────────────────────────────────────
-   OBSIDIAN HALO — design tokens
-   Single source of truth for the entire visual language.
-   Documented at /design-system (development only).
+   ARGUS — design tokens
+   "Porcelain Workspace + Black Glass Scanner"
+
+   A warm mineral light environment wrapped around a dark,
+   instrument-grade scanning surface. One cold accent, used rarely.
+   Single source of truth for color, type, radius, shadow, motion.
    ──────────────────────────────────────────────────────────────── */
 
 @theme {
-  /* ── Depth scale — graphite-blue, never pure black ─────────── */
-  --color-void: #07090e; /* page edges, deepest wells            */
-  --color-base: #0b0e15; /* main app background                  */
-  --color-surface: #10141d; /* level 1 — panels, sidebar         */
-  --color-raised: #151a26; /* level 2 — cards, rows              */
-  --color-overlay: #1b2130; /* level 3 — popovers, modals        */
-  --color-lifted: #222941; /* level 4 — active/hover on overlay  */
+  /* ── Light environment — porcelain ─────────────────────────── */
+  --color-canvas: #f3f1eb; /* page background                     */
+  --color-paper: #fbfaf7; /* raised light surface                 */
+  --color-mineral: #eae7df; /* secondary surface, wells           */
+  --color-mineral-deep: #e0dcd2; /* pressed / hover on mineral    */
+  --color-ink: #111210;
+  --color-ink-soft: #6e706b;
+  --color-ink-faint: #a3a49c;
+  --color-edge: rgb(17 18 16 / 0.1);
+  --color-edge-strong: rgb(17 18 16 / 0.18);
+  --color-edge-faint: rgb(17 18 16 / 0.05);
 
-  /* ── Ink (text) ────────────────────────────────────────────── */
-  --color-ink: #e9edf5;
-  --color-ink-secondary: #9aa5ba;
-  --color-ink-muted: #626e85;
-  --color-ink-faint: #3d4658;
+  /* ── Scanner — black glass ─────────────────────────────────── */
+  --color-scan: #0d0f11;
+  --color-scan-raised: #15181b;
+  --color-scan-high: #1c2125;
+  --color-scan-ink: #f4f5f2;
+  --color-scan-soft: #8f9699;
+  --color-scan-faint: #575f64;
+  --color-scan-edge: rgb(244 245 242 / 0.08);
+  --color-scan-edge-strong: rgb(244 245 242 / 0.15);
 
-  /* ── Halo — the cold luminous accent ───────────────────────── */
-  --color-halo-100: #d8f6fb;
-  --color-halo-200: #aeeaf4;
-  --color-halo-300: #8adfee;
-  --color-halo-400: #5ecfe3; /* primary accent                   */
-  --color-halo-500: #37b6cf; /* strong / fills                   */
-  --color-halo-600: #2593ab;
-  --color-halo-700: #1d7186;
+  /* ── Accent — cold, precise, deliberately rare ─────────────── */
+  --color-accent: #10666e; /* on light surfaces                   */
+  --color-accent-deep: #0b4c53;
+  --color-accent-bright: #45b3bd; /* on the scanner               */
+  --color-accent-tint: #e1edee; /* quiet tinted background        */
 
-  /* ── Ember — the rare warm counterpoint. Important moments only. */
-  --color-ember-300: #f6d9a8;
-  --color-ember-400: #eebc6f;
-  --color-ember-500: #e0a04a;
-
-  /* ── Semantic ──────────────────────────────────────────────── */
-  --color-positive: #63d39e;
-  --color-caution: #e6c26a;
-  --color-critical: #ef8395;
-
-  /* ── Translucent edges ─────────────────────────────────────── */
-  --color-edge: rgb(154 170 207 / 0.11);
-  --color-edge-strong: rgb(154 170 207 / 0.2);
-  --color-edge-faint: rgb(154 170 207 / 0.06);
-  --color-halo-edge: rgb(94 207 227 / 0.28);
+  /* ── Semantic — mineral, never fluorescent ─────────────────── */
+  --color-ok: #3d7a50;
+  --color-ok-bright: #86bd93;
+  --color-warn: #a3711f;
+  --color-warn-bright: #d2a44c;
+  --color-crit: #96302d;
+  --color-crit-bright: #dd7f76;
 
   /* ── Typography ────────────────────────────────────────────── */
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
 
   --text-2xs: 0.6875rem;
   --text-2xs--line-height: 1rem;
 
-  /* ── Radii ─────────────────────────────────────────────────── */
-  --radius-xs: 0.25rem;
+  /* ── Radii — varied on purpose, not one value everywhere ───── */
+  --radius-xs: 0.1875rem;
   --radius-sm: 0.375rem;
   --radius-md: 0.625rem;
-  --radius-lg: 0.875rem;
-  --radius-xl: 1.25rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
 
-  /* ── Shadows — depth without murk ──────────────────────────── */
-  --shadow-well: inset 0 1px 2px rgb(0 0 0 / 0.4);
-  --shadow-card: 0 1px 2px rgb(3 5 9 / 0.5), 0 0 0 1px rgb(154 170 207 / 0.07);
+  /* ── Shadows ───────────────────────────────────────────────── */
+  --shadow-hairline: 0 0 0 1px rgb(17 18 16 / 0.07);
+  --shadow-lift:
+    0 1px 2px rgb(17 18 16 / 0.05), 0 10px 28px -16px rgb(17 18 16 / 0.16);
   --shadow-float:
-    0 12px 32px -8px rgb(3 5 9 / 0.65), 0 2px 8px rgb(3 5 9 / 0.4),
-    0 0 0 1px rgb(154 170 207 / 0.09);
-  --shadow-modal:
-    0 32px 80px -16px rgb(3 5 9 / 0.8), 0 8px 24px rgb(3 5 9 / 0.5),
-    0 0 0 1px rgb(154 170 207 / 0.1);
+    0 2px 6px rgb(17 18 16 / 0.06), 0 24px 48px -24px rgb(17 18 16 / 0.22);
+  --shadow-scanner:
+    0 2px 4px rgb(13 15 17 / 0.3), 0 32px 80px -32px rgb(13 15 17 / 0.55),
+    inset 0 1px 0 rgb(244 245 242 / 0.06);
 
   /* ── Motion ────────────────────────────────────────────────── */
-  --ease-halo: cubic-bezier(0.32, 0.72, 0, 1);
-  --animate-fade-up: fade-up 0.5s var(--ease-halo) both;
-  --animate-fade-in: fade-in 0.4s ease-out both;
-  --animate-halo-drift: halo-drift 14s ease-in-out infinite alternate;
-  --animate-pulse-soft: pulse-soft 2.4s ease-in-out infinite;
-  --animate-shimmer: shimmer 1.8s linear infinite;
+  --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
 
-  @keyframes fade-up {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
+  --animate-caret: caret 1.1s steps(1) infinite;
+  --animate-scan-sweep: scan-sweep 2.6s var(--ease-standard) infinite;
+  --animate-pulse-quiet: pulse-quiet 2.2s ease-in-out infinite;
+  --animate-shimmer: shimmer 1.9s linear infinite;
+  --animate-fade-in: fade-in 0.32s var(--ease-enter) both;
+  --animate-fade-up: fade-up 0.4s var(--ease-enter) both;
+
   @keyframes fade-in {
     from {
       opacity: 0;
@@ -96,29 +90,14 @@
       opacity: 1;
     }
   }
-  @keyframes halo-drift {
+  @keyframes fade-up {
     from {
-      transform: translate3d(-2%, -1%, 0) scale(1);
+      opacity: 0;
+      transform: translateY(10px);
     }
     to {
-      transform: translate3d(2.5%, 2%, 0) scale(1.06);
-    }
-  }
-  @keyframes pulse-soft {
-    0%,
-    100% {
       opacity: 1;
-    }
-    50% {
-      opacity: 0.55;
-    }
-  }
-  @keyframes shimmer {
-    from {
-      background-position: 200% 0;
-    }
-    to {
-      background-position: -200% 0;
+      transform: translateY(0);
     }
   }
   @keyframes drawer-in-right {
@@ -153,6 +132,49 @@
       transform: translateX(-100%);
     }
   }
+
+  @keyframes caret {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+  @keyframes scan-sweep {
+    from {
+      transform: translateX(-120%);
+    }
+    to {
+      transform: translateX(240%);
+    }
+  }
+  @keyframes pulse-quiet {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.45;
+    }
+  }
+  @keyframes shimmer {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+  @keyframes draw-line {
+    from {
+      stroke-dashoffset: var(--draw-length, 1000);
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
 }
 
 /* ────────────────────────────────────────────────────────────────
@@ -165,32 +187,29 @@
   }
 
   html {
-    color-scheme: dark;
-    scroll-behavior: smooth;
+    color-scheme: light;
   }
 
   body {
-    background-color: var(--color-base);
+    background-color: var(--color-canvas);
     color: var(--color-ink);
     font-family: var(--font-sans);
-    font-feature-settings: "cv11", "ss01";
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     overflow-x: clip;
   }
 
   ::selection {
-    background: rgb(94 207 227 / 0.25);
-    color: var(--color-halo-100);
+    background: rgb(16 102 110 / 0.16);
+    color: var(--color-accent-deep);
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-halo-500);
+    outline: 2px solid var(--color-accent);
     outline-offset: 2px;
     border-radius: 2px;
   }
 
-  /* Numbers align in tables, KPIs and charts */
   .tabular {
     font-variant-numeric: tabular-nums;
   }
@@ -210,173 +229,187 @@
 }
 
 /* ────────────────────────────────────────────────────────────────
-   Halo Field — the signature light motif.
-   A diffuse, slightly off-center bloom wrapped in a faint
-   elliptical ring. Never a plain drop shadow, never a flat
-   gradient. Applied behind strategic zones only.
+   Surfaces
    ──────────────────────────────────────────────────────────────── */
 
-@utility halo-field {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(
-      42% 36% at var(--halo-x, 62%) var(--halo-y, 38%),
-      rgb(94 207 227 / var(--halo-strength, 0.14)),
-      transparent 72%
-    ),
-    radial-gradient(
-      58% 48% at var(--halo-x, 62%) var(--halo-y, 38%),
-      transparent 55%,
-      rgb(94 207 227 / 0.055) 61%,
-      transparent 66%
-    );
-}
-
-@utility halo-field-ember {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(
-      42% 36% at var(--halo-x, 62%) var(--halo-y, 38%),
-      rgb(238 188 111 / var(--halo-strength, 0.13)),
-      transparent 72%
-    ),
-    radial-gradient(
-      58% 48% at var(--halo-x, 62%) var(--halo-y, 38%),
-      transparent 55%,
-      rgb(238 188 111 / 0.05) 61%,
-      transparent 66%
-    );
-}
-
-/* ────────────────────────────────────────────────────────────────
-   Surfaces & edges
-   ──────────────────────────────────────────────────────────────── */
-
-/* Level-2 card: raised surface, hairline edge, faint top light */
-@utility surface-card {
-  background-color: var(--color-raised);
+/* Raised paper card in the light environment */
+@utility surface-paper {
+  background-color: var(--color-paper);
   border: 1px solid var(--color-edge);
-  box-shadow:
-    inset 0 1px 0 rgb(233 237 245 / 0.03),
-    0 1px 2px rgb(3 5 9 / 0.5);
+  box-shadow: var(--shadow-lift);
 }
 
-/* Level-1 panel: quieter, blends with the shell */
-@utility surface-panel {
-  background-color: var(--color-surface);
+/* Flat mineral surface (wells, code, quiet zones) */
+@utility surface-mineral {
+  background-color: var(--color-mineral);
   border: 1px solid var(--color-edge-faint);
 }
 
-/* Recessed well for inputs and code */
-@utility surface-well {
-  background-color: rgb(7 9 14 / 0.55);
-  border: 1px solid var(--color-edge);
-  box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.35);
+/* The black-glass instrument surface */
+@utility surface-scanner {
+  background-color: var(--color-scan);
+  border: 1px solid rgb(13 15 17 / 0.9);
+  box-shadow: var(--shadow-scanner);
+  color: var(--color-scan-ink);
 }
 
-/* Hairline divider that fades at both ends */
+/* Subtle glass reflection along the top of a scanner surface */
+@utility scanner-reflection {
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgb(244 245 242 / 0.16) 30%,
+      rgb(244 245 242 / 0.16) 70%,
+      transparent
+    );
+    pointer-events: none;
+  }
+}
+
+/* Hairline divider fading at both ends */
 @utility edge-fade-x {
   background: linear-gradient(
     90deg,
     transparent,
-    var(--color-edge-strong) 20%,
-    var(--color-edge-strong) 80%,
+    var(--color-edge-strong) 18%,
+    var(--color-edge-strong) 82%,
+    transparent
+  );
+}
+
+@utility scan-edge-fade-x {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-scan-edge-strong) 18%,
+    var(--color-scan-edge-strong) 82%,
     transparent
   );
 }
 
 /* ────────────────────────────────────────────────────────────────
-   Magnetic Focus — pointer-reactive borders.
-   Cards expose --mx / --my (pointer position) via the
-   useMagnetic hook; the border light follows the cursor.
-   ──────────────────────────────────────────────────────────────── */
-
-@utility magnetic-edge {
-  position: relative;
-  &::before {
-    content: "";
-    position: absolute;
-    inset: -1px;
-    border-radius: inherit;
-    padding: 1px;
-    background: radial-gradient(
-      180px circle at var(--mx, 50%) var(--my, 50%),
-      rgb(94 207 227 / 0.35),
-      rgb(154 170 207 / 0.08) 45%,
-      transparent 70%
-    );
-    -webkit-mask:
-      linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0;
-    transition: opacity 0.35s ease;
-    pointer-events: none;
-  }
-  &:hover::before {
-    opacity: 1;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .magnetic-edge::before {
-    display: none;
-  }
-}
-
-/* ────────────────────────────────────────────────────────────────
-   Text helpers
+   Text
    ──────────────────────────────────────────────────────────────── */
 
 @utility text-display {
-  letter-spacing: -0.025em;
-  line-height: 1.08;
+  letter-spacing: -0.022em;
+  line-height: 1.1;
   font-weight: 550;
   text-wrap: balance;
 }
 
 @utility text-title {
-  letter-spacing: -0.015em;
+  letter-spacing: -0.012em;
   font-weight: 550;
 }
 
 @utility text-label {
   font-size: 0.6875rem;
   line-height: 1rem;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.09em;
   text-transform: uppercase;
-  font-weight: 500;
-  color: var(--color-ink-muted);
+  font-weight: 550;
+  color: var(--color-ink-soft);
 }
 
-/* Skeleton shimmer */
+@utility text-label-scan {
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--color-scan-soft);
+}
+
+/* Technical data: mono, tight */
+@utility text-data {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ────────────────────────────────────────────────────────────────
+   Locked / masked content
+   ──────────────────────────────────────────────────────────────── */
+
+/* Blur applied to the content itself — cheap, targeted, no
+   full-page backdrop-filter. Pair with aria-hidden + inert on the
+   masked region. */
+@utility masked-soft {
+  filter: blur(5px) saturate(0.7);
+  user-select: none;
+  pointer-events: none;
+}
+
+@utility masked-hard {
+  filter: blur(9px) saturate(0.5);
+  user-select: none;
+  pointer-events: none;
+}
+
+/* Abstract thumbnail stand-in: soft duotone noise, never imagery */
+@utility thumb-abstract {
+  background:
+    radial-gradient(
+      120% 90% at var(--tx, 30%) var(--ty, 30%),
+      rgb(244 245 242 / 0.14),
+      transparent 60%
+    ),
+    linear-gradient(
+      var(--ta, 160deg),
+      var(--color-scan-high),
+      var(--color-scan-raised) 65%
+    );
+}
+
+/* ────────────────────────────────────────────────────────────────
+   Misc
+   ──────────────────────────────────────────────────────────────── */
+
 @utility skeleton {
   border-radius: var(--radius-sm);
   background: linear-gradient(
     100deg,
-    var(--color-raised) 40%,
-    var(--color-lifted) 50%,
-    var(--color-raised) 60%
+    var(--color-mineral) 40%,
+    var(--color-mineral-deep) 50%,
+    var(--color-mineral) 60%
   );
   background-size: 200% 100%;
-  animation: shimmer 1.8s linear infinite;
+  animation: shimmer 1.9s linear infinite;
 }
 
-/* Thin, quiet scrollbars */
 @utility scrollbar-quiet {
   scrollbar-width: thin;
-  scrollbar-color: rgb(154 170 207 / 0.18) transparent;
+  scrollbar-color: rgb(17 18 16 / 0.2) transparent;
   &::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgb(154 170 207 / 0.18);
+    background: rgb(17 18 16 / 0.2);
+    border-radius: 999px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+@utility scrollbar-quiet-dark {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(244 245 242 / 0.16) transparent;
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgb(244 245 242 / 0.16);
     border-radius: 999px;
   }
   &::-webkit-scrollbar-track {

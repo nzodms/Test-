@@ -23,12 +23,12 @@ const DrawerContent = React.forwardRef<
 >(({ className, children, side = "right", widthClassName, ...props }, ref) => (
   <DialogPrimitive.Portal>
     <DialogPrimitive.Overlay
-      className="fixed inset-0 z-50 bg-void/60 backdrop-blur-[2px] data-[state=open]:animate-fade-in"
+      className="fixed inset-0 z-50 bg-ink/25 backdrop-blur-[2px] data-[state=open]:animate-fade-in"
     />
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed inset-y-0 z-50 flex w-full flex-col border-edge-strong bg-surface shadow-modal",
+        "fixed inset-y-0 z-50 flex w-full flex-col border-edge-strong bg-paper shadow-float",
         widthClassName ?? "max-w-md",
         side === "right"
           ? "right-0 border-l data-[state=open]:animate-[drawer-in-right_0.35s_cubic-bezier(0.32,0.72,0,1)] data-[state=closed]:animate-[drawer-out-right_0.25s_ease-in_both]"
@@ -39,7 +39,7 @@ const DrawerContent = React.forwardRef<
     >
       {children}
       <DialogPrimitive.Close
-        className="absolute right-4 top-4 rounded-sm p-1 text-ink-muted transition-colors hover:bg-lifted hover:text-ink"
+        className="absolute right-4 top-4 rounded-sm p-1 text-ink-soft transition-colors hover:bg-mineral hover:text-ink"
       >
         <X className="size-4" />
         <span className="sr-only">Close</span>

@@ -9,8 +9,9 @@ import { createClient } from "@/lib/supabase/server";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/overview";
-  const safeNext = next.startsWith("/") ? next : "/overview";
+  const next = searchParams.get("next") ?? "/dashboard";
+  // Single leading slash only — "//evil.com" would be an open redirect.
+  const safeNext = /^\/(?!\/)/.test(next) ? next : "/dashboard";
 
   const supabase = await createClient();
   if (supabase && code) {

@@ -33,13 +33,13 @@ Separator.displayName = "Separator";
 const Progress = React.forwardRef<
   React.ComponentRef<typeof ProgressPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof ProgressPrimitive.Root> & {
-    tone?: "halo" | "ember" | "positive";
+    tone?: "accent" | "warn" | "ok";
   }
->(({ className, value, tone = "halo", ...props }, ref) => (
+>(({ className, value, tone = "accent", ...props }, ref) => (
   <ProgressPrimitive.Root
     ref={ref}
     className={cn(
-      "relative h-1.5 w-full overflow-hidden rounded-full bg-void/70 shadow-[inset_0_1px_1px_rgb(0_0_0/0.4)]",
+      "relative h-1.5 w-full overflow-hidden rounded-full bg-mineral-deep shadow-[inset_0_1px_1px_rgb(17_18_16/0.06)]",
       className
     )}
     {...props}
@@ -47,9 +47,9 @@ const Progress = React.forwardRef<
     <ProgressPrimitive.Indicator
       className={cn(
         "h-full rounded-full transition-transform duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]",
-        tone === "halo" && "bg-halo-500",
-        tone === "ember" && "bg-ember-400",
-        tone === "positive" && "bg-positive"
+        tone === "accent" && "bg-accent",
+        tone === "warn" && "bg-warn",
+        tone === "ok" && "bg-ok"
       )}
       style={{ transform: `translateX(-${100 - (value ?? 0)}%)` }}
     />
@@ -66,17 +66,17 @@ const Checkbox = React.forwardRef<
   <CheckboxPrimitive.Root
     ref={ref}
     className={cn(
-      "peer size-4 shrink-0 rounded-xs border border-edge-strong bg-void/50",
-      "shadow-[inset_0_1px_1px_rgb(0_0_0/0.3)] transition-colors duration-150",
-      "data-[state=checked]:border-halo-500 data-[state=checked]:bg-halo-500",
-      "data-[state=indeterminate]:border-halo-500 data-[state=indeterminate]:bg-halo-500",
-      "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-halo-500",
+      "peer size-4 shrink-0 rounded-xs border border-edge-strong bg-paper",
+      "shadow-[inset_0_1px_1px_rgb(17_18_16/0.05)] transition-colors duration-150",
+      "data-[state=checked]:border-accent data-[state=checked]:bg-accent",
+      "data-[state=indeterminate]:border-accent data-[state=indeterminate]:bg-accent",
+      "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent",
       "disabled:cursor-not-allowed disabled:opacity-50",
       className
     )}
     {...props}
   >
-    <CheckboxPrimitive.Indicator className="flex items-center justify-center text-[#04222b]">
+    <CheckboxPrimitive.Indicator className="flex items-center justify-center text-[#f6fbfb]">
       {props.checked === "indeterminate" ? (
         <Minus className="size-3" strokeWidth={3} />
       ) : (
@@ -103,7 +103,7 @@ const PopoverContent = React.forwardRef<
       align={align}
       sideOffset={sideOffset}
       className={cn(
-        "z-50 w-72 rounded-md border border-edge-strong bg-overlay p-4 shadow-float animate-fade-in outline-none",
+        "z-50 w-72 rounded-md border border-edge-strong bg-paper p-4 shadow-float animate-fade-in outline-none",
         className
       )}
       {...props}
@@ -117,7 +117,7 @@ PopoverContent.displayName = "PopoverContent";
 function Spinner({ className }: { className?: string }) {
   return (
     <svg
-      className={cn("size-4 animate-spin text-halo-400", className)}
+      className={cn("size-4 animate-spin text-accent", className)}
       viewBox="0 0 24 24"
       fill="none"
       aria-label="Loading"
