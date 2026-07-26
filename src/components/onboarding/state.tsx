@@ -92,6 +92,7 @@ export const local = {
   profilesEmpty: "No profiles added yet.",
   planned: copy.onboarding.steps.notifications.planned,
   alwaysOn: "Always on",
+  emailAddress: "Email address",
   assembly: "Workspace assembly",
   assemblyPending: "Preparing",
   loading: "Loading your setup",

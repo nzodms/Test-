@@ -87,7 +87,7 @@ export function StepNotifications({
         {state.emailEnabled ? (
           <div className="mt-4 max-w-sm">
             <Field
-              label={notifications.email}
+              label={local.emailAddress}
               htmlFor="onboarding-email"
               error={invalid || missing ? local.guards.email : undefined}
             >

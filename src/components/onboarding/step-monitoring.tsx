@@ -1,7 +1,12 @@
 "use client";
 
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsSegment, TabsSegmentTrigger } from "@/components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsSegment,
+  TabsSegmentTrigger,
+} from "@/components/ui/tabs";
 import { copy } from "@/config/product";
 import { ChoiceGroup } from "./choice-group";
 import {
@@ -76,17 +81,22 @@ export function StepMonitoring({
               <TabsSegmentTrigger
                 key={option.value}
                 value={option.value}
-                className="h-11 flex-1 px-3 sm:h-8 sm:flex-none"
+                className="h-11 flex-1 whitespace-nowrap px-2 text-[12px] sm:h-8 sm:flex-none sm:px-2.5 sm:text-[13px]"
               >
                 {option.title}
               </TabsSegmentTrigger>
             ))}
           </TabsSegment>
+          {frequencyOptions.map((option) => (
+            <TabsContent
+              key={option.value}
+              value={option.value}
+              className="mt-2 text-[13px] text-ink-soft"
+            >
+              {option.body}
+            </TabsContent>
+          ))}
         </Tabs>
-        <p className="mt-2 text-[13px] text-ink-soft">
-          {frequencyOptions.find((option) => option.value === state.frequency)
-            ?.body ?? ""}
-        </p>
       </section>
 
       <section>
