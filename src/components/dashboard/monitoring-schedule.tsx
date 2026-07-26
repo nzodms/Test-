@@ -11,7 +11,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsSegment, TabsSegmentTrigger } from "@/components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsSegment,
+  TabsSegmentTrigger,
+} from "@/components/ui/tabs";
 import { copy } from "@/config/product";
 
 import { oneOf, useStoredPrefs } from "./workspace-prefs";
@@ -146,44 +151,45 @@ export function MonitoringSchedule() {
     [update]
   );
 
-  const frequency =
-    FREQUENCIES.find((option) => option.value === prefs.frequency) ??
-    FREQUENCIES[FREQUENCIES.length - 1];
   const coverage =
     COVERAGES.find((option) => option.value === prefs.coverage) ?? COVERAGES[0];
 
   return (
     <div className="surface-mineral rounded-lg px-4 py-1 sm:px-5">
-      <div className="flex flex-col gap-3 border-b border-edge py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+      <Tabs
+        value={prefs.frequency}
+        onValueChange={(value) => save({ frequency: value as Frequency })}
+        className="flex flex-col gap-3 border-b border-edge py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6"
+      >
         <div className="min-w-0">
           <p id="schedule-frequency" className="text-[14px] font-medium text-ink">
             {text.frequency}
           </p>
-          <p className="mt-0.5 text-[13px] leading-relaxed text-ink-soft">
-            {frequency?.body}
-          </p>
+          {FREQUENCIES.map((option) => (
+            <TabsContent
+              key={option.value}
+              value={option.value}
+              className="mt-0.5 text-[13px] leading-relaxed text-ink-soft"
+            >
+              {option.body}
+            </TabsContent>
+          ))}
         </div>
-        <Tabs
-          value={prefs.frequency}
-          onValueChange={(value) => save({ frequency: value as Frequency })}
-          className="shrink-0"
+        <TabsSegment
+          aria-labelledby="schedule-frequency"
+          className="w-full shrink-0 bg-paper sm:w-auto"
         >
-          <TabsSegment
-            aria-labelledby="schedule-frequency"
-            className="w-full bg-paper sm:w-auto"
-          >
-            {FREQUENCIES.map((option) => (
-              <TabsSegmentTrigger
-                key={option.value}
-                value={option.value}
-                className="h-11 flex-1 whitespace-nowrap px-2 text-[12px] sm:h-8 sm:flex-none sm:px-2.5 sm:text-[13px]"
-              >
-                {option.label}
-              </TabsSegmentTrigger>
-            ))}
-          </TabsSegment>
-        </Tabs>
-      </div>
+          {FREQUENCIES.map((option) => (
+            <TabsSegmentTrigger
+              key={option.value}
+              value={option.value}
+              className="h-11 flex-1 whitespace-nowrap px-2 text-[12px] sm:h-8 sm:flex-none sm:px-2.5 sm:text-[13px]"
+            >
+              {option.label}
+            </TabsSegmentTrigger>
+          ))}
+        </TabsSegment>
+      </Tabs>
 
       <div className="flex flex-col gap-3 border-b border-edge py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
         <div className="min-w-0">

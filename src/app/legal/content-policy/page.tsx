@@ -112,18 +112,24 @@ export default function ContentPolicyPage() {
           control, it is out of scope — permanently, not by default.
         </p>
         <p>Five categories of source are covered:</p>
+        <ul className="space-y-3 pt-1">
+          {sources.map((source) => (
+            <li
+              key={source.kind}
+              className="flex flex-wrap items-baseline gap-3"
+            >
+              <SourceBadge
+                kind={source.kind}
+                label={source.label}
+                tone="light"
+              />
+              <span className="w-full min-w-0 text-[14px] leading-relaxed sm:w-auto sm:flex-1">
+                {source.body}
+              </span>
+            </li>
+          ))}
+        </ul>
       </Section>
-
-      <ul className="mt-4 space-y-3">
-        {sources.map((source) => (
-          <li key={source.kind} className="flex flex-wrap items-baseline gap-3">
-            <SourceBadge kind={source.kind} label={source.label} tone="light" />
-            <span className="min-w-0 flex-1 text-[14px] leading-relaxed text-ink-soft">
-              {source.body}
-            </span>
-          </li>
-        ))}
-      </ul>
 
       <Section title="How detection works">
         <p>

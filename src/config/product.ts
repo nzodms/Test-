@@ -216,7 +216,7 @@ export const copy = {
         dashboard: "Dashboard",
         dashboardBody: "Everything is always visible in the workspace.",
         integrations: "Integrations",
-        integrationsBody: "Slack and webhoophooks are planned — not yet available.",
+        integrationsBody: "Slack and webhooks are planned — not yet available.",
         planned: "Planned",
       },
       workspace: {

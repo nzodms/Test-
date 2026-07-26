@@ -162,7 +162,7 @@ export default function TakedownPolicyPage() {
           {states.map((state) => (
             <li key={state.key} className="flex flex-wrap items-baseline gap-3">
               <Badge variant={state.variant}>{state.label}</Badge>
-              <span className="min-w-0 flex-1 text-[14px] leading-relaxed text-ink-soft">
+              <span className="w-full min-w-0 text-[14px] leading-relaxed text-ink-soft sm:w-auto sm:flex-1">
                 {state.body}
               </span>
             </li>

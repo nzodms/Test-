@@ -16,7 +16,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { EmptyState } from "@/components/ui/states";
-import { Tabs, TabsSegment, TabsSegmentTrigger } from "@/components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsSegment,
+  TabsSegmentTrigger,
+} from "@/components/ui/tabs";
 import { copy } from "@/config/product";
 import { DEMO_ANCHOR, demoTakedowns } from "@/lib/demo/scan-data";
 import type { DemoTakedown, TakedownStatus } from "@/lib/demo/scan-data";
@@ -158,6 +163,88 @@ export function TakedownsWorkspace() {
 
   const empty = emptyCopy(filter);
 
+  const body =
+    visible.length === 0 ? (
+      <EmptyState
+        icon={FileText}
+        title={empty.title}
+        description={empty.body}
+        action={
+          filter === "all" ? undefined : (
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setFilter("all")}
+            >
+              {text.showAll}
+            </Button>
+          )
+        }
+      />
+    ) : (
+      <ul className="divide-y divide-edge-faint border-y border-edge">
+        {visible.map((row) => {
+          const meta = takedownMeta[row.status];
+          return (
+            <li key={row.id} className="flex items-start gap-3 py-3.5">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
+                  <span className="text-data text-ink-soft">{row.id}</span>
+                  <span className="text-data max-w-full truncate text-ink">
+                    {row.domainMasked}
+                  </span>
+                  <SourceBadge kind={row.sourceKind} tone="light" />
+                </div>
+                <p className="mt-1.5 text-2xs leading-relaxed text-ink-soft">
+                  {sourceLabels[row.sourceKind]} · {text.submitted}{" "}
+                  {row.submittedAt
+                    ? formatRelative(row.submittedAt, DEMO_ANCHOR)
+                    : text.none}{" "}
+                  · {text.updated} {formatRelative(row.updatedAt, DEMO_ANCHOR)}
+                </p>
+              </div>
+
+              <Badge
+                variant={meta.variant}
+                className="mt-0.5 shrink-0 sm:w-[7.5rem] sm:justify-center"
+              >
+                {meta.label}
+              </Badge>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    aria-label={text.actions(row.id)}
+                    className="-mt-1 size-11 shrink-0 sm:size-9"
+                  >
+                    <MoreHorizontal aria-hidden />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onSelect={() => setViewId(row.id)}>
+                    {text.view}
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    disabled={row.status === "removed"}
+                    onSelect={() => markRemoved(row.id)}
+                  >
+                    {text.markRemoved}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => resend(row)}>
+                    {row.status === "drafted" ? text.submit : text.resend}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </li>
+          );
+        })}
+      </ul>
+    );
+
   return (
     <div className="flex min-w-0 flex-col">
       <PageIntro
@@ -182,11 +269,12 @@ export function TakedownsWorkspace() {
         title={text.requests}
         description={text.requestsBody}
         className="mt-10 sm:mt-14"
-        actions={
-          <Tabs
-            value={filter}
-            onValueChange={(value) => setFilter(value as Filter)}
-          >
+      >
+        <Tabs
+          value={filter}
+          onValueChange={(value) => setFilter(value as Filter)}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
             <TabsSegment aria-label={text.filterLabel}>
               {FILTERS.map((option) => (
                 <TabsSegmentTrigger
@@ -198,95 +286,19 @@ export function TakedownsWorkspace() {
                 </TabsSegmentTrigger>
               ))}
             </TabsSegment>
-          </Tabs>
-        }
-      >
-        <p className="mb-2 text-2xs text-ink-soft" aria-live="polite">
-          {text.showing(visible.length, rows.length)}
-        </p>
+            <p className="text-2xs text-ink-soft" aria-live="polite">
+              {text.showing(visible.length, rows.length)}
+            </p>
+          </div>
 
-        {visible.length === 0 ? (
-          <EmptyState
-            icon={FileText}
-            title={empty.title}
-            description={empty.body}
-            action={
-              filter === "all" ? undefined : (
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => setFilter("all")}
-                >
-                  {text.showAll}
-                </Button>
-              )
-            }
-          />
-        ) : (
-          <ul className="divide-y divide-edge-faint border-y border-edge">
-            {visible.map((row) => {
-              const meta = takedownMeta[row.status];
-              return (
-                <li key={row.id} className="flex items-start gap-3 py-3.5">
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1.5">
-                      <span className="text-data text-ink-soft">{row.id}</span>
-                      <span className="text-data max-w-full truncate text-ink">
-                        {row.domainMasked}
-                      </span>
-                      <SourceBadge kind={row.sourceKind} tone="light" />
-                    </div>
-                    <p className="mt-1.5 text-2xs leading-relaxed text-ink-soft">
-                      {sourceLabels[row.sourceKind]} · {text.submitted}{" "}
-                      {row.submittedAt
-                        ? formatRelative(row.submittedAt, DEMO_ANCHOR)
-                        : text.none}{" "}
-                      · {text.updated}{" "}
-                      {formatRelative(row.updatedAt, DEMO_ANCHOR)}
-                    </p>
-                  </div>
-
-                  <Badge
-                    variant={meta.variant}
-                    className="mt-0.5 shrink-0 sm:w-[7.5rem] sm:justify-center"
-                  >
-                    {meta.label}
-                  </Badge>
-
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        aria-label={text.actions(row.id)}
-                        className="-mt-1 size-11 shrink-0 sm:size-9"
-                      >
-                        <MoreHorizontal aria-hidden />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuItem onSelect={() => setViewId(row.id)}>
-                        {text.view}
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        disabled={row.status === "removed"}
-                        onSelect={() => markRemoved(row.id)}
-                      >
-                        {text.markRemoved}
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onSelect={() => resend(row)}>
-                        {row.status === "drafted" ? text.submit : text.resend}
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </li>
-              );
-            })}
-          </ul>
-        )}
+          {FILTERS.map((option) => (
+            <TabsContent key={option.value} value={option.value} className="mt-4">
+              {body}
+            </TabsContent>
+          ))}
+        </Tabs>
       </Section>
+
 
       <TakedownRequestDialog
         takedown={viewing}

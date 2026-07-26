@@ -22,6 +22,9 @@ import { cn } from "@/lib/utils";
  * Everything here is temporary. It exists to make the work visible
  * for about ten seconds, then it retracts.
  */
+/** Phones show a shorter tail of the log than wide screens. */
+const LOG_LINES = 5;
+
 export function ScanInstrument({
   username,
   platform,
@@ -54,7 +57,7 @@ export function ScanInstrument({
 
   // Only the most recent operations stay on screen: this is a live
   // instrument, not a transcript.
-  const visible = events.slice(-7);
+  const visible = events.slice(-LOG_LINES);
 
   return (
     <motion.div
@@ -71,38 +74,42 @@ export function ScanInstrument({
       }}
       className="surface-scanner scanner-reflection overflow-hidden rounded-xl"
     >
-      {/* Session line */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-b border-scan-edge px-5 py-4 sm:px-8 sm:py-5">
-        <span className="relative flex size-2 shrink-0 items-center justify-center">
+      {/* Session line. On a phone the identity and the status stack
+          rather than wrapping into a ragged row, and the skip control
+          shrinks to its icon. */}
+      <div className="flex items-start gap-3 border-b border-scan-edge px-5 py-4 sm:items-center sm:px-8 sm:py-5">
+        <span className="relative mt-1.5 flex size-2 shrink-0 items-center justify-center sm:mt-0">
           <span className="absolute size-2 animate-pulse-quiet rounded-full bg-accent-bright/40" />
           <span className="size-1.5 rounded-full bg-accent-bright" />
         </span>
 
-        <p className="min-w-0 text-[15px] text-scan-ink">
-          <span className="font-mono">@{username}</span>
-          {platform ? (
-            <span className="ml-2.5 text-scan-soft">
-              {platformLabels[platform]}
-            </span>
-          ) : null}
-        </p>
+        <div className="min-w-0 flex-1 sm:flex sm:items-center sm:gap-4">
+          <p className="min-w-0 truncate text-[15px] text-scan-ink">
+            <span className="font-mono">@{username}</span>
+            {platform ? (
+              <span className="ml-2.5 text-scan-soft">
+                {platformLabels[platform]}
+              </span>
+            ) : null}
+          </p>
+          <p className="mt-0.5 text-[15px] text-scan-soft sm:mt-0">
+            {copy.scanner.statusByPhase[phase]}
+          </p>
+        </div>
 
-        <p className="text-[15px] text-scan-soft">
-          {copy.scanner.statusByPhase[phase]}
-        </p>
-
-        <div className="ml-auto flex items-center gap-3">
-          <span className="hidden text-[13px] text-scan-faint sm:inline">
+        <div className="flex shrink-0 items-center gap-3">
+          <span className="hidden text-[13px] text-scan-faint lg:inline">
             {copy.landing.demoNotice}
           </span>
           {running ? (
             <button
               type="button"
               onClick={onSkip}
-              className="inline-flex h-9 items-center gap-2 rounded-sm px-3 text-[14px] text-scan-soft transition-colors hover:bg-scan-high hover:text-scan-ink"
+              aria-label={copy.scanner.skip}
+              className="inline-flex h-9 items-center gap-2 rounded-sm px-2.5 text-[14px] text-scan-soft transition-colors hover:bg-scan-high hover:text-scan-ink sm:px-3"
             >
               <SkipForward className="size-3.5" aria-hidden />
-              {copy.scanner.skip}
+              <span className="hidden sm:inline">{copy.scanner.skip}</span>
             </button>
           ) : null}
         </div>
@@ -112,10 +119,10 @@ export function ScanInstrument({
       <div className="grid gap-10 px-5 py-7 sm:px-8 sm:py-9 lg:grid-cols-[minmax(0,1fr)_260px] lg:gap-16">
         <div
           ref={listRef}
-          className="scrollbar-quiet-dark min-h-[196px] overflow-hidden"
+          className="scrollbar-quiet-dark overflow-hidden sm:min-h-[196px]"
         >
           <ul className="space-y-0.5">
-            <AnimatePresence initial={false}>
+            <AnimatePresence initial={false} mode="popLayout">
               {visible.map((e, i) => {
                 const isLast = i === visible.length - 1;
                 return (
@@ -154,10 +161,14 @@ export function ScanInstrument({
         <div className="flex flex-col justify-between gap-8">
           <div>
             <p className="text-display text-[54px] leading-none text-scan-ink">
-              <CountUp
-                sequence={counterSequences.matches}
-                progress={countProgress}
-              />
+              {countProgress > 0 ? (
+                <CountUp
+                  sequence={counterSequences.matches}
+                  progress={countProgress}
+                />
+              ) : (
+                <span className="text-[28px] text-scan-faint">&mdash;</span>
+              )}
             </p>
             <p className="mt-2 text-[15px] text-scan-soft">
               potential matches
