@@ -55,8 +55,11 @@ export function ScanStage({
             className="grid min-h-[min(70vh,600px)] items-center gap-14 py-10 sm:py-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,300px)] lg:gap-20"
           >
             {/* Composition sits left of the measure on large screens
-                rather than floating in the middle of the viewport. */}
-            <div className="max-w-[620px]">
+                rather than floating in the middle of the viewport.
+                min-w-0 is required: grid items default to
+                min-width:auto, so the search input's intrinsic width
+                would otherwise push the column past a 320px screen. */}
+            <div className="min-w-0 max-w-[620px]">
               <motion.p
                 initial={reduced ? false : { opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}

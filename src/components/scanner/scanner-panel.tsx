@@ -223,11 +223,15 @@ export function ScannerPanel({
               tone="scan"
             />
 
-            {/* General reading stays legible — it is not sensitive. */}
-            <p className="text-2xs leading-relaxed text-scan-faint">
-              Concentrated on mirror and forum sources, rising over the
-              last three weeks.
-            </p>
+            {/* A conclusion may only appear once the analysis phase
+                that produces it has actually run. The reading itself
+                is general, so it is not locked afterwards. */}
+            {revealExposure ? (
+              <p className="text-2xs leading-relaxed text-scan-faint">
+                Concentrated on mirror and forum sources, rising over the
+                last three weeks.
+              </p>
+            ) : null}
 
             {/* Naming what verification unlocks is clearer — and more
                 honest — than blurring an arbitrary sentence. */}

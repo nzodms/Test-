@@ -62,12 +62,12 @@ export function OnboardingFlow() {
     );
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setState(restored);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     setMaxStep(restored.step);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+     
     setHydrated(true);
     if (restored.step > 1) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       setResumeVisible(true);
     }
   }, []);

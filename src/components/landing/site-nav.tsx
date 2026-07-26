@@ -23,20 +23,32 @@ const links = [
 export function SiteNav({ compact }: { compact: boolean }) {
   const reduced = useReducedMotion();
   const [open, setOpen] = React.useState(false);
+  const [scrolled, setScrolled] = React.useState(false);
+
+  // The bar is only allowed to stay transparent while it sits over
+  // the untouched top of the page. The moment anything scrolls
+  // underneath it, it takes a surface — otherwise headings track
+  // straight through it.
+  React.useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const solid = scrolled || compact || open;
 
   return (
     <motion.header
-      animate={
-        reduced ? undefined : { height: compact ? 56 : 72 }
-      }
+      animate={reduced ? undefined : { height: compact ? 56 : 72 }}
       transition={{
         duration: motionTokens.duration.slow,
         ease: motionTokens.ease.standard,
       }}
       className={cn(
-        "sticky top-0 z-40 border-b transition-colors duration-500",
-        compact
-          ? "border-edge bg-canvas/85 backdrop-blur-md"
+        "sticky top-0 z-40 border-b transition-colors duration-300",
+        solid
+          ? "border-edge bg-canvas/90 backdrop-blur-md"
           : "border-transparent bg-transparent"
       )}
       style={reduced ? { height: 64 } : undefined}

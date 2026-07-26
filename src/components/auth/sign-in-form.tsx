@@ -95,14 +95,6 @@ function SignInFormFields() {
   const [redirecting, setRedirecting] = React.useState(false);
   const [googlePending, setGooglePending] = React.useState(false);
 
-  const mounted = React.useRef(true);
-  React.useEffect(() => {
-    mounted.current = true;
-    return () => {
-      mounted.current = false;
-    };
-  }, []);
-
   const {
     register,
     handleSubmit,
@@ -118,7 +110,6 @@ function SignInFormFields() {
   async function onSubmit(values: SignInValues) {
     setServerError(null);
     const result = await signInWithPassword(values.email, values.password);
-    if (!mounted.current) return;
     if (!result.ok) {
       setServerError(result.error || text.fallbackError);
       return;
@@ -132,7 +123,6 @@ function SignInFormFields() {
     setServerError(null);
     setGooglePending(true);
     const result = await signInWithGoogle();
-    if (!mounted.current) return;
     if (!result.ok) {
       setServerError(result.error || text.fallbackError);
       setGooglePending(false);

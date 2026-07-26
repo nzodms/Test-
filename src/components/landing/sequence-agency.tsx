@@ -10,7 +10,6 @@ import {
   DEMO_ANCHOR,
   demoProfiles,
   demoTakedowns,
-  scanTotals,
 } from "@/lib/demo/scan-data";
 import { formatRelative } from "@/lib/utils";
 
@@ -107,16 +106,23 @@ export function SequenceAgency() {
               </ul>
 
               <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-scan-edge bg-scan-raised/60 px-4 py-3 sm:px-5">
+                {/* Roster-level figures only. scanTotals.highConfidence
+                    belongs to a single profile, so quoting it here
+                    would read as a roster total and contradict it. */}
                 <p className="text-2xs text-scan-soft">
-                  Across the roster ·{" "}
+                  Across{" "}
+                  <span className="tabular text-scan-ink">
+                    {demoProfiles.length}
+                  </span>{" "}
+                  profiles ·{" "}
                   <span className="tabular text-scan-ink">
                     {demoProfiles.reduce((a, p) => a + p.matches, 0)}
                   </span>{" "}
                   matches ·{" "}
                   <span className="tabular text-scan-ink">
-                    {scanTotals.highConfidence}
+                    +{demoProfiles.reduce((a, p) => a + p.newThisWeek, 0)}
                   </span>{" "}
-                  high confidence
+                  this week
                 </p>
                 <p className="ml-auto text-2xs text-scan-faint">
                   Priorities update as each scan completes
