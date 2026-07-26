@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, RotateCcw } from "lucide-react";
+import { ArrowUpRight, MoreHorizontal, RotateCcw } from "lucide-react";
 
 import { Avatar } from "@/components/ui/avatar";
 import {
@@ -62,7 +62,11 @@ export function AccountMenu({
             className
           )}
         >
-          <Avatar name={name} size="sm" />
+          {/* Not an avatar: the profile switcher next to this already
+              shows one, and two identical initials circles in one bar
+              read as a duplicated control rather than two different
+              menus. */}
+          <MoreHorizontal className="size-5" aria-hidden />
         </button>
       </DropdownMenuTrigger>
 
