@@ -69,6 +69,9 @@ export default function OnboardingPage() {
 
   React.useEffect(() => {
     const loaded = loadOnboardingState();
+    // One-time hydration of saved progress from localStorage —
+    // only readable after mount, so setState here is deliberate.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setState(loaded.completed ? { ...loaded, step: 5 } : loaded);
     setHydrated(true);
   }, []);

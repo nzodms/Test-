@@ -51,10 +51,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [hydrated, setHydrated] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [paletteOpen, setPaletteOpen] = React.useState(false);
-  const pathname = usePathname();
 
   React.useEffect(() => {
     try {
+      // One-time hydration from localStorage: the server can't know
+      // this preference, so it must be applied after mount.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setCollapsed(window.localStorage.getItem("halo-sidebar") === "collapsed");
     } catch {
       // ignore
@@ -90,11 +92,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [toggleSidebar]);
 
-  // Close the mobile drawer on navigation.
-  React.useEffect(() => {
-    setMobileOpen(false);
-  }, [pathname]);
-
   return (
     <TooltipProvider delayDuration={300}>
       <div className="flex min-h-dvh">
@@ -113,7 +110,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <Drawer open={mobileOpen} onOpenChange={setMobileOpen}>
           <DrawerContent side="left" widthClassName="max-w-[280px]" className="lg:hidden">
             <DrawerTitle className="sr-only">Navigation</DrawerTitle>
-            <SidebarContent collapsed={false} onToggle={() => setMobileOpen(false)} mobile />
+            <SidebarContent
+              collapsed={false}
+              onToggle={() => setMobileOpen(false)}
+              onNavigate={() => setMobileOpen(false)}
+              mobile
+            />
           </DrawerContent>
         </Drawer>
 
@@ -140,10 +142,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 function SidebarContent({
   collapsed,
   onToggle,
+  onNavigate,
   mobile = false,
 }: {
   collapsed: boolean;
   onToggle: () => void;
+  /** Mobile drawer: close on link click. */
+  onNavigate?: () => void;
   mobile?: boolean;
 }) {
   const pathname = usePathname();
@@ -164,6 +169,7 @@ function SidebarContent({
             <Link
               key={item.href}
               href={item.href}
+              onClick={onNavigate}
               aria-current={active ? "page" : undefined}
               className={cn(
                 "group relative flex items-center gap-3 rounded-md px-2.5 py-2 text-sm transition-colors",
@@ -203,6 +209,7 @@ function SidebarContent({
       <div className={cn("space-y-0.5 border-t border-edge px-3 py-3", collapsed && "px-2")}>
         <Link
           href={settingsNav.href}
+          onClick={onNavigate}
           aria-current={pathname.startsWith("/settings") ? "page" : undefined}
           className={cn(
             "flex items-center gap-3 rounded-md px-2.5 py-2 text-sm transition-colors",

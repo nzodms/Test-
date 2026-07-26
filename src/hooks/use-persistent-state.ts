@@ -19,6 +19,10 @@ export function usePersistentState<T>(
   React.useEffect(() => {
     try {
       const raw = window.localStorage.getItem(storageKey);
+      // One-time hydration from localStorage: the stored value can
+      // only be read after mount (SSR has no window), so this
+      // deliberate setState-in-effect is the supported pattern here.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (raw !== null) setState(JSON.parse(raw) as T);
     } catch {
       // corrupted or unavailable storage — keep fallback
