@@ -63,9 +63,23 @@ path.
 
 ## Design language — "Porcelain Workspace + Black Glass Scanner"
 
-A warm mineral light environment wrapped around a dark,
-instrument-grade scanning surface. One cold accent, used rarely enough
-that its appearance means something.
+The product moves through **three visual states**, and the order
+matters:
+
+1. **Arrival** — a light, near-empty workspace with one instrument.
+2. **Scanning** — a dark instrument opens and shows the work:
+   the operations being carried out and the count they produce.
+   Nothing else. It lasts about ten seconds.
+3. **Report** — the instrument retracts and the findings resolve into
+   an editorial brief back on the light surface.
+
+The dark panel is never the destination. It is the sound of the
+machine working, and treating it as the product is what turns a
+protection tool into a generic security dashboard.
+
+The report is built from hairlines, type scale and space — no cards,
+no outer frames, one cold accent used rarely enough that its
+appearance means something.
 
 - **Environment** — `canvas #F3F1EB`, `paper #FBFAF7`, `mineral #EAE7DF`
 - **Scanner** — `scan #0D0F11`, `scan-raised #15181B`
@@ -152,9 +166,16 @@ redirects resolve correctly.
 
 ## Deploy
 
+The project is deployment-ready but has **not** been deployed from
+this environment: the Vercel CLI has no credentials here and its
+login flow cannot reach the network. To ship it:
+
 ```bash
-npx vercel          # link + preview
-npx vercel --prod   # production
+npx vercel login
+npx vercel            # link the project + preview deploy
+npx vercel --prod     # production
 ```
 
-Deploying with no environment variables ships the working demo.
+Deploying with no environment variables ships the working demo. If
+you add Supabase credentials, also set `NEXT_PUBLIC_SITE_URL` to the
+production origin so metadata and auth redirects resolve.
