@@ -1,0 +1,385 @@
+@import "tailwindcss";
+
+/* ────────────────────────────────────────────────────────────────
+   OBSIDIAN HALO — design tokens
+   Single source of truth for the entire visual language.
+   Documented at /design-system (development only).
+   ──────────────────────────────────────────────────────────────── */
+
+@theme {
+  /* ── Depth scale — graphite-blue, never pure black ─────────── */
+  --color-void: #07090e; /* page edges, deepest wells            */
+  --color-base: #0b0e15; /* main app background                  */
+  --color-surface: #10141d; /* level 1 — panels, sidebar         */
+  --color-raised: #151a26; /* level 2 — cards, rows              */
+  --color-overlay: #1b2130; /* level 3 — popovers, modals        */
+  --color-lifted: #222941; /* level 4 — active/hover on overlay  */
+
+  /* ── Ink (text) ────────────────────────────────────────────── */
+  --color-ink: #e9edf5;
+  --color-ink-secondary: #9aa5ba;
+  --color-ink-muted: #626e85;
+  --color-ink-faint: #3d4658;
+
+  /* ── Halo — the cold luminous accent ───────────────────────── */
+  --color-halo-100: #d8f6fb;
+  --color-halo-200: #aeeaf4;
+  --color-halo-300: #8adfee;
+  --color-halo-400: #5ecfe3; /* primary accent                   */
+  --color-halo-500: #37b6cf; /* strong / fills                   */
+  --color-halo-600: #2593ab;
+  --color-halo-700: #1d7186;
+
+  /* ── Ember — the rare warm counterpoint. Important moments only. */
+  --color-ember-300: #f6d9a8;
+  --color-ember-400: #eebc6f;
+  --color-ember-500: #e0a04a;
+
+  /* ── Semantic ──────────────────────────────────────────────── */
+  --color-positive: #63d39e;
+  --color-caution: #e6c26a;
+  --color-critical: #ef8395;
+
+  /* ── Translucent edges ─────────────────────────────────────── */
+  --color-edge: rgb(154 170 207 / 0.11);
+  --color-edge-strong: rgb(154 170 207 / 0.2);
+  --color-edge-faint: rgb(154 170 207 / 0.06);
+  --color-halo-edge: rgb(94 207 227 / 0.28);
+
+  /* ── Typography ────────────────────────────────────────────── */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
+
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+
+  /* ── Radii ─────────────────────────────────────────────────── */
+  --radius-xs: 0.25rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.25rem;
+
+  /* ── Shadows — depth without murk ──────────────────────────── */
+  --shadow-well: inset 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-card: 0 1px 2px rgb(3 5 9 / 0.5), 0 0 0 1px rgb(154 170 207 / 0.07);
+  --shadow-float:
+    0 12px 32px -8px rgb(3 5 9 / 0.65), 0 2px 8px rgb(3 5 9 / 0.4),
+    0 0 0 1px rgb(154 170 207 / 0.09);
+  --shadow-modal:
+    0 32px 80px -16px rgb(3 5 9 / 0.8), 0 8px 24px rgb(3 5 9 / 0.5),
+    0 0 0 1px rgb(154 170 207 / 0.1);
+
+  /* ── Motion ────────────────────────────────────────────────── */
+  --ease-halo: cubic-bezier(0.32, 0.72, 0, 1);
+  --animate-fade-up: fade-up 0.5s var(--ease-halo) both;
+  --animate-fade-in: fade-in 0.4s ease-out both;
+  --animate-halo-drift: halo-drift 14s ease-in-out infinite alternate;
+  --animate-pulse-soft: pulse-soft 2.4s ease-in-out infinite;
+  --animate-shimmer: shimmer 1.8s linear infinite;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes halo-drift {
+    from {
+      transform: translate3d(-2%, -1%, 0) scale(1);
+    }
+    to {
+      transform: translate3d(2.5%, 2%, 0) scale(1.06);
+    }
+  }
+  @keyframes pulse-soft {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.55;
+    }
+  }
+  @keyframes shimmer {
+    from {
+      background-position: 200% 0;
+    }
+    to {
+      background-position: -200% 0;
+    }
+  }
+  @keyframes drawer-in-right {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  @keyframes drawer-in-left {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  @keyframes drawer-out-right {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(100%);
+    }
+  }
+  @keyframes drawer-out-left {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-100%);
+    }
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────
+   Base
+   ──────────────────────────────────────────────────────────────── */
+
+@layer base {
+  * {
+    border-color: var(--color-edge);
+  }
+
+  html {
+    color-scheme: dark;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-base);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "cv11", "ss01";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: rgb(94 207 227 / 0.25);
+    color: var(--color-halo-100);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-halo-500);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* Numbers align in tables, KPIs and charts */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────
+   Halo Field — the signature light motif.
+   A diffuse, slightly off-center bloom wrapped in a faint
+   elliptical ring. Never a plain drop shadow, never a flat
+   gradient. Applied behind strategic zones only.
+   ──────────────────────────────────────────────────────────────── */
+
+@utility halo-field {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      42% 36% at var(--halo-x, 62%) var(--halo-y, 38%),
+      rgb(94 207 227 / var(--halo-strength, 0.14)),
+      transparent 72%
+    ),
+    radial-gradient(
+      58% 48% at var(--halo-x, 62%) var(--halo-y, 38%),
+      transparent 55%,
+      rgb(94 207 227 / 0.055) 61%,
+      transparent 66%
+    );
+}
+
+@utility halo-field-ember {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      42% 36% at var(--halo-x, 62%) var(--halo-y, 38%),
+      rgb(238 188 111 / var(--halo-strength, 0.13)),
+      transparent 72%
+    ),
+    radial-gradient(
+      58% 48% at var(--halo-x, 62%) var(--halo-y, 38%),
+      transparent 55%,
+      rgb(238 188 111 / 0.05) 61%,
+      transparent 66%
+    );
+}
+
+/* ────────────────────────────────────────────────────────────────
+   Surfaces & edges
+   ──────────────────────────────────────────────────────────────── */
+
+/* Level-2 card: raised surface, hairline edge, faint top light */
+@utility surface-card {
+  background-color: var(--color-raised);
+  border: 1px solid var(--color-edge);
+  box-shadow:
+    inset 0 1px 0 rgb(233 237 245 / 0.03),
+    0 1px 2px rgb(3 5 9 / 0.5);
+}
+
+/* Level-1 panel: quieter, blends with the shell */
+@utility surface-panel {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-edge-faint);
+}
+
+/* Recessed well for inputs and code */
+@utility surface-well {
+  background-color: rgb(7 9 14 / 0.55);
+  border: 1px solid var(--color-edge);
+  box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.35);
+}
+
+/* Hairline divider that fades at both ends */
+@utility edge-fade-x {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--color-edge-strong) 20%,
+    var(--color-edge-strong) 80%,
+    transparent
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────
+   Magnetic Focus — pointer-reactive borders.
+   Cards expose --mx / --my (pointer position) via the
+   useMagnetic hook; the border light follows the cursor.
+   ──────────────────────────────────────────────────────────────── */
+
+@utility magnetic-edge {
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: radial-gradient(
+      180px circle at var(--mx, 50%) var(--my, 50%),
+      rgb(94 207 227 / 0.35),
+      rgb(154 170 207 / 0.08) 45%,
+      transparent 70%
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+  }
+  &:hover::before {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .magnetic-edge::before {
+    display: none;
+  }
+}
+
+/* ────────────────────────────────────────────────────────────────
+   Text helpers
+   ──────────────────────────────────────────────────────────────── */
+
+@utility text-display {
+  letter-spacing: -0.025em;
+  line-height: 1.08;
+  font-weight: 550;
+  text-wrap: balance;
+}
+
+@utility text-title {
+  letter-spacing: -0.015em;
+  font-weight: 550;
+}
+
+@utility text-label {
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+  color: var(--color-ink-muted);
+}
+
+/* Skeleton shimmer */
+@utility skeleton {
+  border-radius: var(--radius-sm);
+  background: linear-gradient(
+    100deg,
+    var(--color-raised) 40%,
+    var(--color-lifted) 50%,
+    var(--color-raised) 60%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.8s linear infinite;
+}
+
+/* Thin, quiet scrollbars */
+@utility scrollbar-quiet {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(154 170 207 / 0.18) transparent;
+  &::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: rgb(154 170 207 / 0.18);
+    border-radius: 999px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
