@@ -1,7 +1,7 @@
 import { Reveal } from "@/components/motion/reveal";
 import { Surface } from "@/components/primitives/surface";
 import { ActivityChart } from "@/components/scanner/activity-chart";
-import { ExposureMeter } from "@/components/scanner/exposure-meter";
+import { ExposureMeter } from "@/components/primitives/exposure-meter";
 import { activitySeries, exposureLevel, scanTotals } from "@/lib/demo/scan-data";
 import { formatNumber } from "@/lib/utils";
 
@@ -58,7 +58,7 @@ export function ExposureHeadline() {
             </div>
 
             <div className="mt-6 max-w-sm">
-              <ExposureMeter score={exposureLevel.score} reveal tone="light" />
+              <ExposureMeter score={exposureLevel.score} />
             </div>
 
             <p className="mt-6 max-w-[46ch] text-[15px] leading-relaxed text-ink">

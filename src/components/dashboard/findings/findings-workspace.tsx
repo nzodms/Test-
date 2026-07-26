@@ -550,7 +550,7 @@ export function FindingsWorkspace() {
             </Select>
           </div>
 
-          <div className="flex items-center justify-between gap-3 lg:ml-auto">
+          <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 lg:ml-auto">
             <div className="flex min-w-0 items-center gap-2">
               <p className="text-2xs text-ink-soft">
                 {text.showing} <span className="tabular">{filtered.length}</span>{" "}
