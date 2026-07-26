@@ -68,7 +68,11 @@ export function ScanReport({
         };
 
   return (
-    <div className="pb-28 sm:pb-16">
+    // A report is read, not scanned across a wide monitor. Holding it
+    // to a comfortable measure keeps the figure, the curve and the
+    // register in one field of view instead of stranding them at
+    // opposite edges of a 1440px screen.
+    <div className="mx-auto max-w-[1180px] pb-28 sm:pb-16">
       {/* ── Session line ─────────────────────────────────────────── */}
       <motion.div
         {...step(0)}

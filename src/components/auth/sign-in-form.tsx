@@ -226,7 +226,7 @@ function SignInFormFields() {
         <>
           <div className="flex items-center gap-3" aria-hidden>
             <span className="edge-fade-x h-px flex-1" />
-            <span className="text-2xs uppercase tracking-[0.09em] text-ink-soft">
+            <span className="text-[13px] text-ink-soft">
               {text.divider}
             </span>
             <span className="edge-fade-x h-px flex-1" />

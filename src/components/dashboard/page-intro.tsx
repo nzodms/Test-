@@ -44,7 +44,7 @@ export function PageIntro({
 }
 
 /**
- * A content group. `label` is the small uppercase marker, `title`
+ * A content group. `label` is the small section marker, `title`
  * the plain-language heading — a section can use either, both, or
  * neither when the content speaks for itself.
  */

@@ -50,8 +50,10 @@
   --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
 
-  --text-2xs: 0.6875rem;
-  --text-2xs--line-height: 1rem;
+  /* The floor for anything a person actually reads. 11px was too
+     small on a real phone; nothing drops below 12px now. */
+  --text-2xs: 0.75rem;
+  --text-2xs--line-height: 1.125rem;
 
   /* ── Radii — varied on purpose, not one value everywhere ───── */
   --radius-xs: 0.1875rem;
@@ -309,28 +311,29 @@
   font-weight: 550;
 }
 
+/* Section labels. Sentence case, not shouted: a wall of 11px caps
+   is the fastest way to make an interface look templated. Weight and
+   colour carry the hierarchy instead of letter-spacing. */
 @utility text-label {
-  font-size: 0.6875rem;
-  line-height: 1rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
-  font-weight: 550;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  letter-spacing: -0.005em;
+  font-weight: 500;
   color: var(--color-ink-soft);
 }
 
 @utility text-label-scan {
-  font-size: 0.6875rem;
-  line-height: 1rem;
-  letter-spacing: 0.09em;
-  text-transform: uppercase;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  letter-spacing: -0.005em;
   font-weight: 500;
   color: var(--color-scan-soft);
 }
 
-/* Technical data: mono, tight */
+/* Technical data: mono, tabular, still comfortably readable */
 @utility text-data {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
   letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
 }
