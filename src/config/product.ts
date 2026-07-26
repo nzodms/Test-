@@ -27,7 +27,32 @@ export const copy = {
       invalid: "That doesn't look like a username or profile URL.",
       tooShort: "Usernames have at least 3 characters.",
     },
-    demoNotice: "Demo scan — simulated results on indexed-source patterns.",
+    demoNotice: "Demo scan — simulated results",
+    coverageTitle: "What a scan opens",
+    coverage: [
+      {
+        name: "Public websites",
+        body: "Indexed pages that host or embed reposted galleries.",
+      },
+      {
+        name: "Forums",
+        body: "Threads and boards where content is shared in bulk.",
+      },
+      {
+        name: "Indexed mirrors",
+        body: "Copies that survive after the original page is removed.",
+      },
+      {
+        name: "Public channels",
+        body: "Openly readable channels and feeds that redistribute posts.",
+      },
+      {
+        name: "Archived pages",
+        body: "Snapshots kept by archiving services after deletion.",
+      },
+    ],
+    coverageNote:
+      "Argus reads only what is already publicly indexed. It never accesses private or paid content, and detailed findings stay locked until you verify the profile is yours.",
   },
 
   scanner: {

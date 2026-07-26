@@ -192,20 +192,27 @@ export function SourceBadge({
 
 /**
  * Wraps sensitive content, blurs it, and removes it from the
- * accessibility tree + tab order (inert). A small lock affordance
- * communicates state. Non-sensitive siblings stay fully legible.
+ * accessibility tree + tab order (inert). Non-sensitive siblings
+ * stay fully legible — the lock is selective, never a full-screen
+ * curtain.
+ *
+ * `showLock` is off by default on purpose: repeating a padlock on
+ * every masked item turns the lock into wallpaper. State the lock
+ * once per region instead, and let the blur carry the rest.
  */
 export function MaskedContent({
   locked,
   intensity = "soft",
   children,
   label = "Locked until verification",
+  showLock = false,
   className,
 }: {
   locked: boolean;
   intensity?: "soft" | "hard";
   children: React.ReactNode;
   label?: string;
+  showLock?: boolean;
   className?: string;
 }) {
   if (!locked) return <>{children}</>;
@@ -216,16 +223,17 @@ export function MaskedContent({
     >
       <span
         aria-hidden
-        // @ts-expect-error inert is valid HTML, types lag
-        inert=""
+        inert
         className={intensity === "soft" ? "masked-soft" : "masked-hard"}
       >
         {children}
       </span>
-      <Lock
-        className="pointer-events-none absolute left-1/2 top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 text-scan-soft"
-        aria-hidden
-      />
+      {showLock ? (
+        <Lock
+          className="pointer-events-none absolute left-1/2 top-1/2 size-3 -translate-x-1/2 -translate-y-1/2 text-scan-soft"
+          aria-hidden
+        />
+      ) : null}
       <span className="sr-only">{label}</span>
     </span>
   );

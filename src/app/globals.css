@@ -341,31 +341,56 @@
 
 /* Blur applied to the content itself — cheap, targeted, no
    full-page backdrop-filter. Pair with aria-hidden + inert on the
-   masked region. */
+   masked region.
+   Calibrated so the SHAPE survives: a masked domain still reads as
+   a domain (length, word breaks, the dot before the TLD) while
+   being impossible to resolve. Over-blurring turns it into noise,
+   which reads as a rendering fault rather than a lock. */
 @utility masked-soft {
-  filter: blur(5px) saturate(0.7);
+  filter: blur(3px);
+  opacity: 0.75;
   user-select: none;
   pointer-events: none;
 }
 
 @utility masked-hard {
-  filter: blur(9px) saturate(0.5);
+  filter: blur(6px);
+  opacity: 0.7;
   user-select: none;
   pointer-events: none;
 }
 
-/* Abstract thumbnail stand-in: soft duotone noise, never imagery */
+/* Abstract thumbnail stand-in: a structured duotone panel, never
+   imagery. Contrast is deliberate — it must read as "a preview
+   exists here", not as an empty slot. */
 @utility thumb-abstract {
   background:
     radial-gradient(
-      120% 90% at var(--tx, 30%) var(--ty, 30%),
-      rgb(244 245 242 / 0.14),
-      transparent 60%
+      100% 80% at var(--tx, 30%) var(--ty, 30%),
+      rgb(244 245 242 / 0.2),
+      transparent 62%
     ),
     linear-gradient(
       var(--ta, 160deg),
-      var(--color-scan-high),
-      var(--color-scan-raised) 65%
+      #2b333a 0%,
+      #1d2429 48%,
+      #262e35 100%
+    );
+}
+
+/* Light-environment variant of the same panel */
+@utility thumb-abstract-light {
+  background:
+    radial-gradient(
+      100% 80% at var(--tx, 30%) var(--ty, 30%),
+      rgb(17 18 16 / 0.06),
+      transparent 62%
+    ),
+    linear-gradient(
+      var(--ta, 160deg),
+      var(--color-mineral-deep) 0%,
+      var(--color-mineral) 55%,
+      var(--color-mineral-deep) 100%
     );
 }
 

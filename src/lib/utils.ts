@@ -5,7 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-/** Format a number with compact notation: 12400 → "12.4k" */
+/** Format a number with compact notation: 12400 → "12.4K" */
 export function formatCompact(value: number): string {
   return Intl.NumberFormat("en-US", {
     notation: "compact",
@@ -13,19 +13,12 @@ export function formatCompact(value: number): string {
   }).format(value);
 }
 
-/** Format a signed delta as a percentage string: 0.124 → "+12.4%" */
-export function formatDelta(ratio: number): string {
-  const pct = (ratio * 100).toFixed(1);
-  return ratio >= 0 ? `+${pct}%` : `${pct}%`;
-}
-
 export function formatNumber(value: number): string {
   return Intl.NumberFormat("en-US").format(value);
 }
 
-/** "2026-07-21T09:24:00Z" → "Jul 21, 09:24" (stable across server/client) */
-export function formatDateTime(iso: string): string {
-  const d = new Date(iso);
+/** "2026-07-21T09:24:00Z" → "Jul 21, 09:24" (UTC, SSR-stable) */
+export function formatDateTimeUTC(iso: string): string {
   return Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
@@ -33,10 +26,11 @@ export function formatDateTime(iso: string): string {
     minute: "2-digit",
     hour12: false,
     timeZone: "UTC",
-  }).format(d);
+  }).format(new Date(iso));
 }
 
-export function formatDate(iso: string): string {
+/** "2026-07-21T…" → "Jul 21" (UTC, SSR-stable) */
+export function formatDateUTC(iso: string): string {
   return Intl.DateTimeFormat("en-US", {
     month: "short",
     day: "numeric",
@@ -44,11 +38,11 @@ export function formatDate(iso: string): string {
   }).format(new Date(iso));
 }
 
-/** Relative time against the demo "now" anchor, stable for SSR. */
+/** Relative time against the demo anchor, SSR-stable. */
 export function formatRelative(iso: string, nowIso: string): string {
-  const then = new Date(iso).getTime();
-  const now = new Date(nowIso).getTime();
-  const diffMin = Math.round((now - then) / 60_000);
+  const diffMin = Math.round(
+    (new Date(nowIso).getTime() - new Date(iso).getTime()) / 60_000
+  );
   if (diffMin < 1) return "just now";
   if (diffMin < 60) return `${diffMin}m ago`;
   const diffH = Math.floor(diffMin / 60);
@@ -56,12 +50,13 @@ export function formatRelative(iso: string, nowIso: string): string {
   const diffD = Math.floor(diffH / 24);
   if (diffD === 1) return "yesterday";
   if (diffD < 7) return `${diffD}d ago`;
-  return formatDate(iso);
+  return formatDateUTC(iso);
 }
 
 export function initials(name: string): string {
   return name
-    .split(" ")
+    .split(/[\s.@_-]+/)
+    .filter(Boolean)
     .map((p) => p[0])
     .slice(0, 2)
     .join("")
