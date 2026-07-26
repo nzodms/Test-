@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import { Lock } from "lucide-react";
 import { motionTokens } from "@/lib/motion";
@@ -126,6 +127,8 @@ export function IndexRow({
   facts,
   emphasis = false,
   muted = false,
+  href,
+  hrefLabel,
   className,
   children,
 }: {
@@ -135,18 +138,31 @@ export function IndexRow({
   facts?: React.ReactNode;
   emphasis?: boolean;
   muted?: boolean;
+  /** Turns the whole entry into one target without nesting links. */
+  href?: string;
+  hrefLabel?: string;
   className?: string;
   children?: React.ReactNode;
 }) {
   return (
     <li
       className={cn(
-        "grid list-none grid-cols-[2.25rem_minmax(0,1fr)] gap-x-4 border-t border-edge py-5",
+        "group relative grid list-none grid-cols-[2.25rem_minmax(0,1fr)] gap-x-4 border-t border-edge py-5",
         "sm:grid-cols-[2.75rem_minmax(0,1fr)_auto] sm:gap-x-8",
+        href &&
+          "-mx-3 rounded-[3px] px-3 transition-colors hover:bg-page/70 has-[a:focus-visible]:bg-page/70",
         muted && "opacity-65",
         className
       )}
     >
+      {href ? (
+        <Link
+          href={href}
+          className="absolute inset-0 z-10 rounded-[3px] outline-offset-2"
+        >
+          <span className="sr-only">{hrefLabel ?? "Open"}</span>
+        </Link>
+      ) : null}
       <span
         aria-hidden
         className="pt-0.5 font-mono text-[12.5px] tabular text-ink-faint"

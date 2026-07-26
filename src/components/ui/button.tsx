@@ -3,65 +3,114 @@
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+
+/* ════════════════════════════════════════════════════════════════
+   Button — a software control, not a marketing object.
+
+   Every state is visibly different without any decorative depth:
+   rest is a flat fill, hover shifts the fill one step, pressed goes
+   one step further and loses the hairline lift, focus-visible draws
+   a real outline, disabled drops contrast and the pointer, loading
+   keeps the label in place and swaps the leading glyph so the
+   control never changes width mid-action.
+   ════════════════════════════════════════════════════════════════ */
 
 const buttonVariants = cva(
   [
     "relative inline-flex shrink-0 select-none items-center justify-center gap-2",
-    "whitespace-nowrap font-medium transition-all duration-150",
-    "disabled:pointer-events-none disabled:opacity-45",
-    "active:translate-y-px",
+    "whitespace-nowrap font-medium",
+    "transition-[background-color,border-color,color] duration-150 ease-[cubic-bezier(0.22,1,0.36,1)]",
+    "focus-visible:outline-2 focus-visible:outline-offset-2",
+    "disabled:pointer-events-none disabled:opacity-40",
     "[&_svg]:pointer-events-none [&_svg]:shrink-0",
   ],
   {
     variants: {
       variant: {
-        /* Ink on porcelain — the default strong action. */
+        /* Ink on the light environment — the default strong action. */
         primary: [
-          "bg-ink text-paper",
-          "shadow-[0_1px_2px_rgb(17_18_16/0.2),inset_0_1px_0_rgb(255_255_255/0.08)]",
-          "hover:bg-[#26281f]",
+          "bg-ink text-page",
+          "hover:bg-graphite active:bg-[#0b0c0e]",
+          "focus-visible:outline-ink",
         ],
-        /* The rare cold accent — reserved for the one action that
+        /* The cold accent — reserved for the single action that
            matters most on a given view. */
         accent: [
           "bg-accent text-[#f4fbfb]",
-          "shadow-[0_1px_2px_rgb(11_76_83/0.35),inset_0_1px_0_rgb(255_255_255/0.14)]",
-          "hover:bg-accent-deep",
+          "hover:bg-accent-deep active:bg-[#083c42]",
+          "focus-visible:outline-accent-deep",
         ],
         secondary: [
-          "bg-paper text-ink border border-edge-strong",
-          "shadow-[0_1px_2px_rgb(17_18_16/0.05)]",
-          "hover:bg-mineral",
+          "border border-edge-strong bg-page text-ink",
+          "hover:bg-mineral active:bg-mineral-deep",
+          "focus-visible:outline-accent",
         ],
-        ghost: ["text-ink-soft hover:text-ink hover:bg-mineral"],
+        ghost: [
+          "text-ink-soft",
+          "hover:bg-mineral hover:text-ink active:bg-mineral-deep",
+          "focus-visible:outline-accent",
+        ],
         outline: [
-          "border border-edge-strong text-ink-soft bg-transparent",
-          "hover:text-ink hover:border-ink/30",
+          "border border-edge-strong bg-transparent text-ink-soft",
+          "hover:border-edge-strong hover:bg-mineral hover:text-ink",
+          "active:bg-mineral-deep",
+          "focus-visible:outline-accent",
         ],
         danger: [
-          "bg-crit/[0.06] text-crit border border-crit/25",
-          "hover:bg-crit/[0.12] hover:border-crit/40",
+          "border border-crit/30 bg-transparent text-crit",
+          "hover:bg-crit/[0.08] hover:border-crit/50",
+          "active:bg-crit/[0.14]",
+          "focus-visible:outline-crit",
         ],
-        /* For use inside the black-glass scanner. */
+        /* Inside the black-glass scanner. */
         scan: [
-          "bg-scan-high text-scan-ink border border-scan-edge-strong",
-          "hover:bg-[#232931]",
+          "border border-scan-edge-strong bg-scan-high text-scan-ink",
+          "hover:bg-[#252c33] active:bg-[#171c20]",
+          "focus-visible:outline-accent-bright",
         ],
-        "scan-ghost": ["text-scan-soft hover:text-scan-ink hover:bg-scan-high"],
+        "scan-ghost": [
+          "text-scan-soft",
+          "hover:bg-scan-high hover:text-scan-ink active:bg-scan-raised",
+          "focus-visible:outline-accent-bright",
+        ],
       },
+      /* Controls stay at a 44px touch target on phones and tighten
+         to instrument sizes from the small breakpoint up. */
       size: {
-        sm: "h-8 rounded-sm px-3 text-[13px] [&_svg]:size-3.5",
-        md: "h-9 rounded-sm px-4 text-sm [&_svg]:size-4",
-        lg: "h-11 rounded-md px-5 text-[15px] [&_svg]:size-4",
-        icon: "size-9 rounded-sm [&_svg]:size-4",
-        "icon-sm": "size-8 rounded-sm [&_svg]:size-3.5",
+        sm: "h-11 rounded-xs px-3 text-[13.5px] sm:h-8 [&_svg]:size-3.5",
+        md: "h-11 rounded-sm px-4 text-sm sm:h-9 [&_svg]:size-4",
+        lg: "h-12 rounded-sm px-5 text-[15px] sm:h-11 [&_svg]:size-4",
+        icon: "size-11 rounded-sm sm:size-9 [&_svg]:size-4",
+        "icon-sm": "size-11 rounded-xs sm:size-8 [&_svg]:size-3.5",
       },
     },
     defaultVariants: { variant: "primary", size: "md" },
   }
 );
+
+/** A quiet determinate-less spinner. Rotation is the only motion,
+ *  and it exists to say the control is busy — nothing else. */
+function ButtonSpinner() {
+  return (
+    <svg viewBox="0 0 16 16" fill="none" aria-hidden className="animate-spin">
+      <circle
+        cx="8"
+        cy="8"
+        r="6.25"
+        stroke="currentColor"
+        strokeOpacity="0.3"
+        strokeWidth="1.75"
+      />
+      <path
+        d="M14.25 8A6.25 6.25 0 0 0 8 1.75"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
@@ -72,7 +121,16 @@ export interface ButtonProps
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    { className, variant, size, asChild = false, loading, children, disabled, ...props },
+    {
+      className,
+      variant,
+      size,
+      asChild = false,
+      loading = false,
+      children,
+      disabled,
+      ...props
+    },
     ref
   ) => {
     const Comp = asChild ? Slot : "button";
@@ -81,13 +139,14 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
         className={cn(buttonVariants({ variant, size }), className)}
         ref={ref}
         disabled={disabled ?? loading ?? undefined}
+        aria-busy={loading || undefined}
         {...props}
       >
         {asChild ? (
           children
         ) : (
           <>
-            {loading ? <Loader2 className="animate-spin" aria-hidden /> : null}
+            {loading ? <ButtonSpinner /> : null}
             {children}
           </>
         )}

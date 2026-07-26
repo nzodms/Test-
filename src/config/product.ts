@@ -163,7 +163,7 @@ export const copy = {
     demoBadge: "Demo mode",
     back: "Back",
     next: "Continue",
-    finish: "Open dashboard",
+    finish: "Open the file library",
     restart: "Start over",
     exit: "Save & exit",
     resume: "Resuming where you left off",

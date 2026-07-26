@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 
-import { DashboardShell } from "@/components/dashboard/shell";
+import { WorkspaceChrome } from "@/components/workspace/chrome";
 import { brand } from "@/config/brand";
-import { copy } from "@/config/product";
 
 export const metadata: Metadata = {
   title: {
-    default: copy.dashboard.demoBadge,
+    default: "File library",
     template: `%s · ${brand.name}`,
   },
   description: brand.description,
@@ -17,5 +16,5 @@ export const metadata: Metadata = {
 export default function DashboardLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  return <DashboardShell>{children}</DashboardShell>;
+  return <WorkspaceChrome>{children}</WorkspaceChrome>;
 }

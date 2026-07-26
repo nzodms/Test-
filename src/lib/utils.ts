@@ -1,5 +1,30 @@
 import { clsx, type ClassValue } from "clsx";
-import { twMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
+
+/**
+ * tailwind-merge has to be told about our own utilities.
+ *
+ * Left to its defaults it reads `text-display`, `text-figure` and the
+ * rest as font-size classes, so `cn("text-figure", "text-[58px]")`
+ * silently DROPS the first one — taking the weight, tracking and
+ * leading with it. They live in their own group instead: they only
+ * conflict with each other, never with a size or a colour.
+ */
+const twMerge = extendTailwindMerge<"argus-type">({
+  extend: {
+    classGroups: {
+      "argus-type": [
+        "text-display",
+        "text-title",
+        "text-subject",
+        "text-figure",
+        "text-label",
+        "text-label-scan",
+        "text-data",
+      ],
+    },
+  },
+});
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

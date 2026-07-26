@@ -2,27 +2,33 @@
 
 /* ────────────────────────────────────────────────────────────────
    ARGUS — design tokens
-   "Porcelain Workspace + Black Glass Scanner"
 
-   A warm mineral light environment wrapped around a dark,
-   instrument-grade scanning surface. One cold accent, used rarely.
+   A professional instrument, not a document and not an admin panel.
+   One sans family carries everything a person reads; mono is
+   reserved for values that are data. Surfaces are light and quiet,
+   the accent is used rarely, and the dark surface exists only as a
+   local analysis layer inside the scan — never as the product's
+   identity.
+
    Single source of truth for color, type, radius, shadow, motion.
    ──────────────────────────────────────────────────────────────── */
 
 @theme {
-  /* ── Light environment — porcelain ─────────────────────────── */
-  --color-canvas: #eeebe3; /* the desk the file sits on          */
-  --color-page: #fcfbf8; /* a report page — lighter than the desk */
-  --color-paper: #f8f6f1; /* secondary page / raised surface      */
-  --color-mineral: #e4e0d6; /* wells, tabs at rest                */
-  --color-mineral-deep: #d8d3c6; /* pressed                       */
-  --color-ink: #14150f; /* deep ink, not black                    */
-  --color-graphite: #4a4c44; /* rules and secondary ink           */
-  --color-ink-soft: #67695f;
-  --color-ink-faint: #9a9b90;
-  --color-edge: rgb(20 21 15 / 0.11);
-  --color-edge-strong: rgb(20 21 15 / 0.2);
-  --color-edge-faint: rgb(20 21 15 / 0.055);
+  /* ── Light environment ─────────────────────────────────────────
+     Warm enough not to feel clinical, neutral enough not to feel
+     like paper. Surfaces sit *above* the canvas, never below it. */
+  --color-canvas: #edecea; /* the ground everything sits on       */
+  --color-page: #fdfdfc; /* a working surface                     */
+  --color-paper: #f6f5f3; /* secondary surface, wells             */
+  --color-mineral: #e4e3e0; /* controls at rest                   */
+  --color-mineral-deep: #d7d6d2; /* pressed                       */
+  --color-ink: #16171a; /* near-black, very slightly cool         */
+  --color-graphite: #45474d; /* rules and secondary ink           */
+  --color-ink-soft: #62656c;
+  --color-ink-faint: #92959c;
+  --color-edge: rgb(22 23 26 / 0.11);
+  --color-edge-strong: rgb(22 23 26 / 0.2);
+  --color-edge-faint: rgb(22 23 26 / 0.055);
 
   /* ── Scanner — black glass ─────────────────────────────────── */
   --color-scan: #0d0f11;
@@ -48,9 +54,11 @@
   --color-crit: #96302d;
   --color-crit-bright: #dd7f76;
 
-  /* ── Typography ────────────────────────────────────────────── */
-  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-instrument-serif), ui-serif, Georgia, serif;
+  /* ── Typography ────────────────────────────────────────────────
+     One family. Hierarchy is size, weight and spacing — never a
+     second, more decorative face. Mono is reserved for values that
+     are data: domains, references, timestamps, session numbers. */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
 
   /* The floor for anything a person actually reads. 11px was too
@@ -66,14 +74,14 @@
   --radius-xl: 1.5rem;
 
   /* ── Shadows ───────────────────────────────────────────────── */
-  --shadow-hairline: 0 0 0 1px rgb(20 21 15 / 0.07);
+  --shadow-hairline: 0 0 0 1px rgb(22 23 26 / 0.07);
   /* A page resting on the desk: contact shadow, almost no spread. */
   --shadow-page:
-    0 1px 1px rgb(20 21 15 / 0.05), 0 6px 20px -12px rgb(20 21 15 / 0.18);
+    0 1px 1px rgb(22 23 26 / 0.05), 0 6px 20px -12px rgb(22 23 26 / 0.18);
   --shadow-lift:
-    0 1px 2px rgb(20 21 15 / 0.05), 0 10px 28px -16px rgb(20 21 15 / 0.16);
+    0 1px 2px rgb(22 23 26 / 0.05), 0 10px 28px -16px rgb(22 23 26 / 0.16);
   --shadow-float:
-    0 2px 6px rgb(20 21 15 / 0.06), 0 24px 48px -24px rgb(20 21 15 / 0.2);
+    0 2px 6px rgb(22 23 26 / 0.06), 0 24px 48px -24px rgb(22 23 26 / 0.2);
   --shadow-scanner:
     0 2px 4px rgb(13 15 17 / 0.3), 0 32px 80px -32px rgb(13 15 17 / 0.55),
     inset 0 1px 0 rgb(244 245 242 / 0.06);
@@ -358,26 +366,36 @@
   opacity: 0.86;
 }
 
-/* ── Editorial display ─────────────────────────────────────────
-   The serif appears on report titles and the file cover only, never
-   in interface chrome. */
-@utility text-report {
-  font-family: var(--font-serif);
-  font-weight: 400;
-  letter-spacing: -0.012em;
-  line-height: 1.06;
-}
-
+/* ── Display scale ─────────────────────────────────────────────
+   Three registers, all one family. `display` is for the single
+   largest thing on a screen (a figure, a subject); `title` opens a
+   section; `subject` names a record inline. Optical tracking
+   tightens as the size grows, which is what keeps large sans text
+   from looking like a marketing headline. */
 @utility text-display {
-  letter-spacing: -0.022em;
-  line-height: 1.1;
-  font-weight: 550;
-  text-wrap: balance;
+  font-weight: 560;
+  letter-spacing: -0.032em;
+  line-height: 1.02;
+  font-feature-settings: "ss01", "cv01";
 }
 
 @utility text-title {
-  letter-spacing: -0.012em;
   font-weight: 550;
+  letter-spacing: -0.018em;
+  line-height: 1.16;
+}
+
+@utility text-subject {
+  font-weight: 500;
+  letter-spacing: -0.011em;
+}
+
+/* Figures that are read as measurements, not prose. */
+@utility text-figure {
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 0.94;
+  font-variant-numeric: tabular-nums;
 }
 
 /* Section labels. Sentence case, not shouted: a wall of 11px caps

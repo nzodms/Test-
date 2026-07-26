@@ -1,30 +1,18 @@
-import { Instrument_Sans, Instrument_Serif } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 
 /**
- * Three voices, each with one job.
+ * Two voices, one family.
  *
- * Instrument Sans carries the interface. Instrument Serif — its
- * direct companion, drawn in 2023, high contrast and unmistakably
- * contemporary — is reserved for report titles and the file cover.
- * Geist Mono carries references: case numbers, timestamps, domains.
+ * Geist Sans carries everything a person reads: interface, titles,
+ * numbers, actions. It is a variable grotesque drawn for product
+ * work — nine weights, tight apertures, and numerals that hold
+ * their shape at 12px on a phone. Hierarchy comes from size,
+ * weight and spacing, never from a decorative face.
  *
- * The serif is what keeps the file from reading as another B2B
- * dashboard. It appears rarely, and never in the interface chrome.
+ * Geist Mono is strictly technical: domains, case references,
+ * timestamps, scan session numbers, status codes. It is a signal
+ * that a value is data, not prose — so it stays rare.
  */
-export const instrumentSans = Instrument_Sans({
-  subsets: ["latin"],
-  variable: "--font-instrument",
-  weight: ["400", "500", "600"],
-  display: "swap",
-});
-
-export const instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
-  variable: "--font-instrument-serif",
-  weight: "400",
-  style: ["normal", "italic"],
-  display: "swap",
-});
-
-export const geistMono = GeistMono;
+export const sans = GeistSans;
+export const mono = GeistMono;

@@ -5,9 +5,11 @@ represent them. A creator searches their public username; Argus scans
 indexed public sources for republished content, grades what it finds,
 and — once ownership is verified — helps monitor it and request removal.
 
-The landing page **is** the product: it opens as a quiet workspace with
-one instrument, becomes a running scan in place, and locks sensitive
-detail behind ownership verification.
+The landing page **is** the product. The first screen is a search
+field, not a slogan; running a scan reorganises the page around the
+work rather than replacing it; and the report that results is the same
+surface, still holding the same figures, with the parts that would let
+anyone reach the content withheld.
 
 > **Demonstration product.** No real scan is performed. All results are
 > simulated from a deterministic dataset and labelled as such in the
@@ -24,7 +26,7 @@ detail behind ownership verification.
 | Motion     | Framer Motion, `prefers-reduced-motion` aware      |
 | Forms      | React Hook Form + Zod 4                            |
 | Auth / DB  | Supabase (`@supabase/ssr`), optional               |
-| Fonts      | Instrument Sans + Geist Mono via `next/font`       |
+| Fonts      | Geist Sans + Geist Mono (self-hosted, `geist` pkg) |
 
 Charts are hand-built SVG — no chart library — so they belong to the
 design system rather than importing someone else's defaults.
@@ -61,42 +63,69 @@ pnpm build          # production build
 The route map lives in `src/config/navigation.ts`; nothing hardcodes a
 path.
 
-## Design language — "Porcelain Workspace + Black Glass Scanner"
+## Design language
 
-The product moves through **three visual states**, and the order
-matters:
+Argus is a professional instrument. Not a document, not an admin
+panel, and deliberately not something that could be re-skinned as an
+SEO tool or an analytics dashboard.
 
-1. **Arrival** — a light, near-empty workspace with one instrument.
-2. **Scanning** — a dark instrument opens and shows the work:
-   the operations being carried out and the count they produce.
-   Nothing else. It lasts about ten seconds.
-3. **Report** — the instrument retracts and the findings resolve into
-   an editorial brief back on the light surface.
+### Typography — one family
 
-The dark panel is never the destination. It is the sound of the
-machine working, and treating it as the product is what turns a
-protection tool into a generic security dashboard.
+Everything a person reads is **Geist Sans**. There is no display
+serif: hierarchy comes from size, weight, spacing and alignment, which
+is what separates a piece of software from a magazine. **Geist Mono**
+is reserved for values that are data — domains, case references,
+timestamps, scan offsets, session numbers — so its presence means
+"this is a measured value", not "this looks technical".
 
-The report is built from hairlines, type scale and space — no cards,
-no outer frames, one cold accent used rarely enough that its
-appearance means something.
+Four registers, all in `globals.css`:
 
-- **Environment** — `canvas #F3F1EB`, `paper #FBFAF7`, `mineral #EAE7DF`
-- **Scanner** — `scan #0D0F11`, `scan-raised #15181B`
-- **Accent** — `#10666E` on light, `#45B3BD` on the scanner
-- **Semantic** — mineral green / amber / deep red, never fluorescent
+| Utility        | Used for                                     |
+| -------------- | -------------------------------------------- |
+| `text-display` | the single largest thing on a screen         |
+| `text-title`   | opens a section                              |
+| `text-subject` | names a record inline                        |
+| `text-figure`  | a number read as a measurement (tabular)     |
+
+> These are custom utilities, so `tailwind-merge` is extended in
+> `src/lib/utils.ts` to keep them in their own class group. Without
+> that, `cn("text-figure", "text-[58px]")` silently drops the first
+> one and takes the weight and tracking with it.
+
+### Surfaces and colour
+
+Light, quiet, slightly warm — never flat white, never beige-paper.
+Structure comes from hairlines, spacing and alignment; almost nothing
+is wrapped in a card.
+
+- **Environment** — `canvas #EDECEA`, `page #FDFDFC`, `paper #F6F5F3`
+- **Ink** — `#16171A`, with `graphite`, `ink-soft`, `ink-faint`
+- **Accent** — `#10666E`, used rarely enough that it means something
+- **Amber** — exposure status and alerts only. **Red** — errors only.
+
+The one dark surface in the product is the comparison strip inside the
+scan's Findings stage. It is a local instrument, the width of one
+panel, alive only while matching runs. Making the dark surface the
+product's identity is exactly what turns a protection tool into a
+generic security dashboard.
 
 Every colour, radius, shadow and easing is a token in
 `src/app/globals.css`; components consume tokens only. Motion tokens
 live in `src/lib/motion.ts`.
 
-Two masking techniques are used deliberately and are not
-interchangeable: **domains are masked by character substitution**
-(`re•••••••.to`) so the shape still reads as a domain, while
-**previews are masked by blur**, since an abstract panel has no
-characters to substitute. Masked regions are `inert` and
-`aria-hidden`, so locked content is not reachable by keyboard or
-screen reader.
+### Withholding, not blurring
+
+A blurred screenshot is still the data. Redaction here is real: the
+server sends the visible head and tail of a domain plus the *length*
+of what is withheld, and the component draws a block over nothing —
+`re███████.to`. The characters never reach the browser, so there is
+nothing to recover in devtools. Where a whole region is locked it is
+also `inert` and `aria-hidden`, so it is unreachable by keyboard and
+screen reader rather than merely hard to read.
+
+What stays visible is deliberate: totals, source counts, categories,
+exposure, trend. What is withheld: exact addresses, evidence, full
+history, and every removal action.
 
 ## Architecture
 
@@ -104,15 +133,15 @@ screen reader.
 src/
   app/                  routes: landing, onboarding, sign-in, dashboard, legal
   components/
+    scan/               the signature: ProfileSearch, ScanProgress,
+                        ScanOperation, Figure, SourceEntry, FindingRow,
+                        ExposureStatus, stage panels, the report
+    workspace/          the internal product: file library + profile file
+    file/               shared record parts + the redaction primitives
     ui/                 restyled Radix primitives
-    primitives/         proprietary: Surface, DataRow, Metric,
-                        StatusIndicator, MaskedContent, SourceBadge,
-                        TimelineEntry, ProgressRail
-    scanner/            the instrument and its parts
-    landing/            arrival, sequences, nav, footer
-    onboarding/ dashboard/ motion/ brand/
+    primitives/ scanner/ landing/ onboarding/ motion/ brand/
   lib/
-    scan/               types, event timeline, single rAF controller
+    scan/               types, choreography, single rAF controller
     demo/               the deterministic dataset
     storage.ts          local persistence abstraction (swap for Supabase)
     validation.ts       username / @handle / profile-URL parsing
@@ -123,18 +152,36 @@ src/
 
 ### The scan engine
 
-The choreography is a stream of structured `ScanEvent`s built in
-`src/lib/scan/timeline.ts` and played by one controller
-(`use-scan-controller.ts`). Components read state from the controller
-and never run their own timers. A real backend can emit the same event
-shape to drive the identical interface.
+A scan is a state machine, not a loader. Phases run
 
-The controller quantizes its clock to 80 ms, so the scanner re-renders
-about twelve times a second instead of sixty — the derived values
-(counters, source fills, card counts) change no faster than that.
+```
+resolving_identity → checking_profiles → indexing_sources →
+matching_content → classifying_findings → calculating_exposure →
+building_report → complete → locked
+```
+
+and map onto the five stages a person actually sees: Identity,
+Sources, Findings, Exposure, Report.
+
+`src/lib/scan/timeline.ts` holds the phase windows, the operation
+stream and every counter curve. Nothing counts linearly to its target:
+matches follow an irregular curve (2, 9, 22, 46, 80, 123, 163, 187) so
+the crawl reads as work; sources are *detected* one kind at a time and
+then fill; findings drop into the register individually; exposure eases
+into place; report sections are laid in one after another.
+
+One controller (`use-scan-controller.ts`) samples all of it on a single
+rAF clock and produces one `ScanFrame` per painted frame. Components
+read the frame — they never run timers and never recompute a window.
+The clock is quantized to 80 ms, so a scan costs about twelve renders a
+second rather than sixty.
+
+A real backend emitting the same phases and events would drive this
+interface unchanged.
 
 Under `prefers-reduced-motion` the scan resolves immediately to its
-completed state; nothing is lost, only the animation.
+completed state; nothing is lost, only the animation. `Skip` ends it
+early, `Replay scan` runs it again.
 
 ### Data coherence
 

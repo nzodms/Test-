@@ -2,49 +2,113 @@
 
 import * as React from "react";
 import { useReducedMotion } from "framer-motion";
-import type { ScanEvent, ScanPhase } from "./types";
-import { buildScanTimeline, SCAN_DURATION_MS } from "./timeline";
+import type { ScanFrame } from "./types";
+import { PHASE_STAGE, REPORT_SECTIONS } from "./types";
+import {
+  SCAN_DURATION_MS,
+  buildScanTimeline,
+  confidenceSplitAt,
+  exposureAt,
+  findingsShownAt,
+  matchesAt,
+  phaseAt,
+  reportSectionsAt,
+  sourceCountsAt,
+  sourcesAt,
+  sourcesOpenAt,
+  windowFor,
+} from "./timeline";
+import { exposureLevel, scanTotals, sourceCoverage } from "@/lib/demo/scan-data";
 
 /**
- * The single scan controller. Given a username it schedules the
- * event stream on one rAF-driven clock, exposing the current phase,
- * fired events and elapsed time. Supports skip and replay, and
- * collapses to an instant completed state under reduced motion.
+ * The single scan controller.
  *
- * Components read state from here — they never run their own timers.
+ * One rAF clock produces one frame; every counter, every stage and
+ * every operation line is derived from elapsed time in one place.
+ * Components read the frame — they never run timers and never
+ * recompute a window.
  *
- * Every state write happens inside an animation frame, never
- * synchronously from the effect body: the first frame produces the
- * same "initializing" state a synchronous write would, one frame
- * earlier than any human can perceive, without the cascading render
- * that setState-in-effect causes.
+ * State is written only from inside an animation frame, never
+ * synchronously in the effect body, and the clock is quantized so a
+ * scan costs about twelve renders a second rather than sixty.
  */
 
-export interface ScanState {
-  phase: ScanPhase;
-  events: ScanEvent[];
-  /** elapsed ms since scan start */
-  elapsed: number;
-  /** count of fired events, for cheap memo keys */
-  firedCount: number;
-  isRunning: boolean;
-  isComplete: boolean;
-  isLocked: boolean;
-}
+const FINAL_FRAME_BASE = {
+  phase: "locked" as const,
+  stage: PHASE_STAGE.locked,
+  stageProgress: 1,
+  elapsed: SCAN_DURATION_MS,
+  matches: scanTotals.matches,
+  sources: scanTotals.sources,
+  sourcesOpen: sourceCoverage.length,
+  sourceCounts: sourceCoverage.map((s) => s.count),
+  highConfidence: scanTotals.highConfidence,
+  confidenceSplit: {
+    high: scanTotals.highConfidence,
+    likely: 62,
+    possible: scanTotals.matches - scanTotals.highConfidence - 62,
+  },
+  findingsShown: 8,
+  exposureScore: exposureLevel.score,
+  reportSections: REPORT_SECTIONS.length,
+  isRunning: false,
+  isComplete: true,
+  isLocked: true,
+};
 
-const IDLE_STATE: ScanState = {
+const IDLE_FRAME: ScanFrame = {
   phase: "idle",
-  events: [],
+  stage: -1,
+  stageProgress: 0,
   elapsed: 0,
-  firedCount: 0,
+  events: [],
+  matches: 0,
+  sources: 0,
+  sourcesOpen: 0,
+  sourceCounts: sourceCoverage.map(() => 0),
+  highConfidence: 0,
+  confidenceSplit: { high: 0, likely: 0, possible: 0 },
+  findingsShown: 0,
+  exposureScore: 0,
+  reportSections: 0,
   isRunning: false,
   isComplete: false,
   isLocked: false,
 };
 
+/** Derive one painted frame from the clock. */
+function frameAt(elapsed: number, timeline: ScanFrame["events"]): ScanFrame {
+  const done = elapsed >= SCAN_DURATION_MS;
+  if (done) return { ...FINAL_FRAME_BASE, events: timeline };
+
+  const phase = phaseAt(elapsed);
+  const w = windowFor(phase)!;
+  const span = w.to - w.from || 1;
+
+  return {
+    phase,
+    stage: PHASE_STAGE[phase],
+    stageProgress: Math.max(0, Math.min(1, (elapsed - w.from) / span)),
+    elapsed,
+    events: timeline.filter((e) => e.at <= elapsed),
+    matches: matchesAt(elapsed),
+    sources: sourcesAt(elapsed),
+    sourcesOpen: sourcesOpenAt(elapsed),
+    sourceCounts: sourceCountsAt(elapsed),
+    highConfidence: confidenceSplitAt(elapsed).high,
+    confidenceSplit: confidenceSplitAt(elapsed),
+    findingsShown: findingsShownAt(elapsed),
+    exposureScore: exposureAt(elapsed, exposureLevel.score),
+    reportSections: reportSectionsAt(elapsed, REPORT_SECTIONS.length),
+    isRunning: true,
+    isComplete: phase === "complete",
+    isLocked: false,
+  };
+}
+
 export function useScanController(username: string | null) {
   const reduced = useReducedMotion();
-  const [state, setState] = React.useState<ScanState>(IDLE_STATE);
+  const [frame, setFrame] = React.useState<ScanFrame>(IDLE_FRAME);
 
   const rafRef = React.useRef<number | null>(null);
   const skipRef = React.useRef(false);
@@ -65,26 +129,14 @@ export function useScanController(username: string | null) {
       if (reduced) {
         rafRef.current = requestAnimationFrame(() => {
           rafRef.current = null;
-          setState({
-            phase: "locked",
-            events: timeline,
-            elapsed: SCAN_DURATION_MS,
-            firedCount: timeline.length,
-            isRunning: false,
-            isComplete: true,
-            isLocked: true,
-          });
+          setFrame({ ...FINAL_FRAME_BASE, events: timeline });
         });
         return;
       }
 
-      // performance.now gives a monotonic clock without the banned
-      // Date.now, and is unaffected by wall-clock changes.
+      // performance.now is monotonic and unaffected by wall-clock
+      // changes, unlike the banned Date.now.
       const startedAt = performance.now();
-
-      // Derived values (counters, source fills, card counts) change
-      // about ten times a second at most, so quantize the clock
-      // instead of re-rendering the scanner on every frame.
       const QUANTUM = 80;
       let lastBucket = -1;
 
@@ -97,28 +149,10 @@ export function useScanController(username: string | null) {
 
         if (done || bucket !== lastBucket) {
           lastBucket = bucket;
-          const fired = timeline.filter((e) => e.at <= elapsed);
-          const lastPhase = fired.length
-            ? fired[fired.length - 1]!.phase
-            : "initializing";
-
-          setState({
-            phase: done ? "locked" : lastPhase,
-            events: fired,
-            elapsed: Math.min(elapsed, SCAN_DURATION_MS),
-            firedCount: fired.length,
-            isRunning: !done,
-            isComplete:
-              lastPhase === "complete" || lastPhase === "locked" || done,
-            isLocked: done || lastPhase === "locked",
-          });
+          setFrame(frameAt(Math.min(elapsed, SCAN_DURATION_MS), timeline));
         }
 
-        if (done) {
-          rafRef.current = null;
-        } else {
-          rafRef.current = requestAnimationFrame(tick);
-        }
+        rafRef.current = done ? null : requestAnimationFrame(tick);
       };
 
       rafRef.current = requestAnimationFrame(tick);
@@ -136,16 +170,16 @@ export function useScanController(username: string | null) {
 
   const reset = React.useCallback(() => {
     stop();
-    setState(IDLE_STATE);
+    setFrame(IDLE_FRAME);
   }, [stop]);
 
-  // Start / restart whenever the username changes. The effect only
-  // schedules frames and tears them down; it writes no state itself.
+  /* Start / restart whenever the subject changes. The effect only
+     schedules frames and tears them down; it writes no state itself. */
   React.useEffect(() => {
     if (!username) return;
     run(username);
     return stop;
   }, [username, run, stop]);
 
-  return { ...state, skip, replay, reset };
+  return { frame, skip, replay, reset };
 }

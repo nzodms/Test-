@@ -7,15 +7,16 @@ import { cn } from "@/lib/utils";
    ChoiceGroup — a real radiogroup with roving focus.
    Arrow keys move both selection and focus; only the selected
    option is in the tab order (or the first, when nothing is set).
-   Two densities: `cards` for the account decision, `rows` for
-   settings inside a step.
+
+   Visually these are entries on a record: ruled rows with the choice
+   marked in the margin. Nothing is boxed — a decision written into a
+   file does not arrive in a card.
    ════════════════════════════════════════════════════════════════ */
 
 export type ChoiceOption<T extends string> = {
   value: T;
   title: string;
   body: string;
-  icon?: React.ReactNode;
 };
 
 function SelectionMark({ selected }: { selected: boolean }) {
@@ -23,22 +24,11 @@ function SelectionMark({ selected }: { selected: boolean }) {
     <span
       aria-hidden
       className={cn(
-        "flex size-[18px] shrink-0 items-center justify-center rounded-full border transition-colors",
-        selected ? "border-accent bg-accent" : "border-edge-strong bg-paper"
+        "mt-[0.3em] flex size-[17px] shrink-0 items-center justify-center rounded-full border transition-colors duration-200",
+        selected ? "border-accent bg-accent" : "border-edge-strong bg-transparent"
       )}
     >
-      {selected ? (
-        <svg viewBox="0 0 10 10" className="size-2.5 text-[#f4fbfb]">
-          <path
-            d="M1.6 5.2 3.9 7.4 8.4 2.6"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      ) : null}
+      {selected ? <span className="size-[6px] rounded-full bg-page" /> : null}
     </span>
   );
 }
@@ -48,14 +38,12 @@ export function ChoiceGroup<T extends string>({
   options,
   value,
   onChange,
-  layout = "rows",
   className,
 }: {
   label: string;
   options: readonly ChoiceOption<T>[];
   value: T | null;
   onChange: (value: T) => void;
-  layout?: "cards" | "rows";
   className?: string;
 }) {
   const buttons = React.useRef<(HTMLButtonElement | null)[]>([]);
@@ -97,16 +85,11 @@ export function ChoiceGroup<T extends string>({
     }
   };
 
-  const cards = layout === "cards";
-
   return (
     <div
       role="radiogroup"
       aria-label={label}
-      className={cn(
-        cards ? "grid gap-3 sm:grid-cols-2" : "flex flex-col gap-2",
-        className
-      )}
+      className={cn("flex flex-col", className)}
     >
       {options.map((option, index) => {
         const selected = option.value === value;
@@ -125,50 +108,33 @@ export function ChoiceGroup<T extends string>({
             onClick={() => onChange(option.value)}
             onKeyDown={(event) => handleKeyDown(event, index)}
             className={cn(
-              "group relative w-full text-left transition-colors duration-150",
-              cards
-                ? "flex min-h-[168px] flex-col rounded-lg border p-5"
-                : "flex min-h-11 items-start gap-3 rounded-md border p-4",
-              selected
-                ? "border-accent bg-accent-tint"
-                : "border-edge bg-paper hover:border-edge-strong hover:bg-mineral/60"
+              "group relative -mx-3 flex w-[calc(100%+1.5rem)] items-start gap-3.5 rounded-xs border-t border-edge px-3 py-4 text-left",
+              "min-h-[3.75rem] transition-colors duration-200",
+              selected ? "bg-page" : "hover:bg-page/60"
             )}
           >
-            {cards ? (
-              <>
-                <span className="flex w-full items-start justify-between gap-3">
-                  <span
-                    className={cn(
-                      "block transition-colors",
-                      selected ? "text-accent" : "text-ink-soft"
-                    )}
-                  >
-                    {option.icon}
-                  </span>
-                  <SelectionMark selected={selected} />
-                </span>
-                <span className="mt-auto block pt-6">
-                  <span className="block text-title text-[17px] text-ink">
-                    {option.title}
-                  </span>
-                  <span className="mt-1 block text-[13px] leading-relaxed text-ink-soft">
-                    {option.body}
-                  </span>
-                </span>
-              </>
-            ) : (
-              <>
-                <SelectionMark selected={selected} />
-                <span className="min-w-0 flex-1">
-                  <span className="block text-[14px] font-medium text-ink">
-                    {option.title}
-                  </span>
-                  <span className="mt-0.5 block text-[13px] leading-relaxed text-ink-soft">
-                    {option.body}
-                  </span>
-                </span>
-              </>
-            )}
+            {/* The choice, marked in the margin of the rule */}
+            <span
+              aria-hidden
+              className={cn(
+                "absolute left-0 top-[-1px] h-px transition-all duration-200",
+                selected ? "w-8 bg-accent" : "w-0 bg-transparent"
+              )}
+            />
+            <SelectionMark selected={selected} />
+            <span className="min-w-0 flex-1">
+              <span
+                className={cn(
+                  "block text-[16px] text-ink transition-colors",
+                  selected && "font-medium"
+                )}
+              >
+                {option.title}
+              </span>
+              <span className="mt-1 block text-[14.5px] leading-relaxed text-ink-soft">
+                {option.body}
+              </span>
+            </span>
           </button>
         );
       })}

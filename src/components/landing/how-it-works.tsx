@@ -51,7 +51,7 @@ export function HowItWorks() {
         </div>
 
         <div className="min-w-0 max-w-[720px]">
-          <h2 className="text-report text-[30px] text-ink sm:text-[34px]">
+          <h2 className="text-display text-[30px] text-ink sm:text-[34px]">
             What a file goes through
           </h2>
 

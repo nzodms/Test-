@@ -2,9 +2,10 @@
 
 import * as React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useReducedMotion } from "framer-motion";
+import { ReportPage } from "@/components/file/file-parts";
 import { routes } from "@/config/navigation";
-import { motionTokens } from "@/lib/motion";
+import { caseReference } from "@/lib/case-ref";
 import {
   mergeStored,
   readStored,
@@ -12,26 +13,32 @@ import {
   writeStored,
 } from "@/lib/storage";
 import {
-  ActionBar,
+  FlowHeader,
   FlowSkeleton,
-  OnboardingHeader,
+  pad2,
   ResumeNote,
-  StepPanel,
+  SetupRail,
+  type RailItem,
 } from "./chrome";
-import { SummaryPanel, SummaryStrip } from "./summary-panel";
-import { StepAccount } from "./step-account";
-import { StepProfiles } from "./step-profiles";
-import { StepOwnership } from "./step-ownership";
+import { ClosedStep, OpenStep, StepActions } from "./ledger";
+import { StepUsage } from "./step-usage";
+import { StepProfile } from "./step-profile";
+import { StepRelationship } from "./step-relationship";
 import { StepMonitoring } from "./step-monitoring";
-import { StepNotifications } from "./step-notifications";
+import { StepAlerts } from "./step-alerts";
 import { StepWorkspace } from "./step-workspace";
 import {
   DEFAULT_ONBOARDING,
   ONBOARDING_KEY,
   TOTAL_STEPS,
+  firstIncompleteStep,
+  local,
   normalizeOnboarding,
   stepGuard,
   stepMeta,
+  stepName,
+  stepValue,
+  subjectUsername,
   type OnboardingState,
   type OnboardingUpdate,
 } from "./state";
@@ -39,6 +46,20 @@ import {
 /** How long a resume note stays before it fades out of the way. */
 const RESUME_MS = 6000;
 
+const STEPS = Array.from({ length: TOTAL_STEPS }, (_, i) => i + 1);
+
+/**
+ * Setting up a workspace.
+ *
+ * One page, six ruled entries. The entry being answered is open, the
+ * answered ones collapse to a line that keeps its value in view, and
+ * the rail in the margin says where in the record you are. Nothing
+ * cross-fades between steps: the page stays put and the answers
+ * accumulate down it.
+ *
+ * No authentication is involved at any point — /onboarding and
+ * /onboarding?mode=demo are both open routes.
+ */
 export function OnboardingFlow() {
   const searchParams = useSearchParams();
   const demoMode = searchParams.get("mode") === "demo";
@@ -48,9 +69,14 @@ export function OnboardingFlow() {
   const [state, setState] = React.useState<OnboardingState>(DEFAULT_ONBOARDING);
   const [hydrated, setHydrated] = React.useState(false);
   const [maxStep, setMaxStep] = React.useState(1);
-  const [direction, setDirection] = React.useState<1 | -1>(1);
   const [navigated, setNavigated] = React.useState(false);
+  const [attempted, setAttempted] = React.useState(false);
   const [resumeVisible, setResumeVisible] = React.useState(false);
+
+  const headingRef = React.useRef<HTMLHeadingElement>(null);
+  const openRef = React.useRef<HTMLDivElement>(null);
+  /** A step may take over Continue to commit what is typed. */
+  const advanceRef = React.useRef<(() => boolean) | null>(null);
 
   /* One-time hydration from localStorage. The stored value can only be
      read after mount (there is no window during SSR), so these are the
@@ -62,12 +88,9 @@ export function OnboardingFlow() {
     );
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setState(restored);
-     
     setMaxStep(restored.step);
-     
     setHydrated(true);
     if (restored.step > 1) {
-       
       setResumeVisible(true);
     }
   }, []);
@@ -90,35 +113,64 @@ export function OnboardingFlow() {
   const guard = stepGuard(state);
   const meta = stepMeta(state.step);
   const isLastStep = state.step === TOTAL_STEPS;
+  const subject = subjectUsername(state);
+  const reference = caseReference(subject);
+
+  /* Moving between entries never scrolls the page to the top: the
+     open entry is brought to the same place every time. */
+  React.useEffect(() => {
+    if (!navigated) return;
+    headingRef.current?.focus({ preventScroll: true });
+    openRef.current?.scrollIntoView({
+      behavior: reduced ? "auto" : "smooth",
+      block: "start",
+    });
+  }, [state.step, navigated, reduced]);
 
   const goTo = React.useCallback(
-    (step: number, towards: 1 | -1) => {
+    (step: number) => {
       const target = Math.min(TOTAL_STEPS, Math.max(1, step));
-      setDirection(towards);
       setNavigated(true);
+      setAttempted(false);
       setResumeVisible(false);
       setMaxStep((previous) => Math.max(previous, target));
       update((prev) => ({ ...prev, step: target }));
-      if (typeof window !== "undefined") {
-        window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
-      }
     },
-    [reduced, update]
+    [update]
   );
 
   const handleNext = React.useCallback(() => {
-    if (stepGuard(state) !== null) return;
-    goTo(state.step + 1, 1);
+    if (stepGuard(state) !== null) {
+      /* An entry can resolve its own guard — step 02 records whatever
+         is typed rather than making the person press Add first. */
+      if (advanceRef.current?.() === true) {
+        goTo(state.step + 1);
+        return;
+      }
+      setAttempted(true);
+      return;
+    }
+    /* Creating the workspace is the one move that needs the whole
+       record to hold, not just the entry in front of you. */
+    if (state.step === TOTAL_STEPS - 1) {
+      const incomplete = firstIncompleteStep(state);
+      if (incomplete !== null) {
+        goTo(incomplete);
+        setAttempted(true);
+        return;
+      }
+    }
+    goTo(state.step + 1);
   }, [goTo, state]);
 
   const handleBack = React.useCallback(() => {
-    goTo(state.step - 1, -1);
+    goTo(state.step - 1);
   }, [goTo, state.step]);
 
   const handleRestart = React.useCallback(() => {
     removeStored(ONBOARDING_KEY);
-    setDirection(-1);
     setNavigated(true);
+    setAttempted(false);
     setResumeVisible(false);
     setMaxStep(1);
     setState(DEFAULT_ONBOARDING);
@@ -133,75 +185,132 @@ export function OnboardingFlow() {
     router.push(routes.dashboard);
   }, [router, update]);
 
-  const body = renderStep(state, update, handleAssembled, handleFinish);
+  /* An entry already written stays written, even after stepping back.
+     The last entry is never jumped to — it creates the workspace. */
+  const railItems: RailItem[] = STEPS.map((step) => ({
+    label: stepName(step),
+    state:
+      step === state.step ? "active" : step <= maxStep ? "done" : "pending",
+    reachable: !isLastStep && step < TOTAL_STEPS && step <= maxStep,
+  }));
 
   return (
     <div className="min-h-dvh bg-canvas">
-      <OnboardingHeader step={state.step} demoMode={demoMode} />
+      <FlowHeader
+        reference={reference}
+        resolved={subject !== null}
+        demoMode={demoMode}
+      />
 
-      <main className="mx-auto w-full max-w-6xl px-4 pb-20 pt-8 sm:px-6 lg:pt-12">
-        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-14">
+      <main className="mx-auto w-full max-w-[1100px] px-4 pb-20 pt-7 sm:px-8 sm:pt-12">
+        <div className="grid gap-8 lg:grid-cols-[172px_minmax(0,1fr)] lg:gap-14">
+          {/* The index, in the margin — persistent across every step */}
+          <div className="hidden lg:block">
+            <div className="sticky top-28">
+              <SetupRail
+                reference={reference}
+                items={railItems}
+                onSelect={goTo}
+              />
+            </div>
+          </div>
+
           <div className="min-w-0">
             {hydrated ? (
               <>
                 <ResumeNote visible={resumeVisible} />
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.div
-                    key={state.step}
-                    initial={
-                      reduced
-                        ? { opacity: 0 }
-                        : { opacity: 0, x: direction * 18 }
-                    }
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={
-                      reduced
-                        ? { opacity: 0 }
-                        : { opacity: 0, x: direction * -18 }
-                    }
-                    transition={{
-                      duration: reduced
-                        ? motionTokens.duration.instant
-                        : motionTokens.duration.base,
-                      ease: motionTokens.ease.enter,
-                    }}
-                    className="min-w-0"
-                  >
-                    <StepPanel
+
+                {/* Small screens carry the marker inline instead */}
+                <p className="mb-4 font-mono text-[12.5px] tabular text-ink-soft lg:hidden">
+                  <span className="sr-only">
+                    {local.stepCounter(state.step)} · {reference}
+                  </span>
+                  <span aria-hidden>
+                    {pad2(state.step)} / {pad2(TOTAL_STEPS)}
+                    <span className="px-2">·</span>
+                    {reference}
+                  </span>
+                </p>
+
+                <ReportPage className="px-4 py-1 sm:px-8 sm:py-2">
+                  {isLastStep ? (
+                    <OpenStep
+                      first
+                      index={state.step}
                       title={meta.title}
-                      blurb={meta.blurb}
-                      focusOnMount={navigated}
+                      headingRef={headingRef}
+                      rootRef={openRef}
                     >
-                      {body}
-                    </StepPanel>
-                  </motion.div>
-                </AnimatePresence>
+                      <StepWorkspace
+                        state={state}
+                        onAssembled={handleAssembled}
+                        onFinish={handleFinish}
+                      />
+                    </OpenStep>
+                  ) : (
+                    STEPS.filter((step) => step < TOTAL_STEPS).map((step) => {
+                      if (step === state.step) {
+                        return (
+                          <OpenStep
+                            key={step}
+                            first={step === 1}
+                            index={step}
+                            title={meta.title}
+                            blurb={meta.blurb}
+                            headingRef={headingRef}
+                            rootRef={openRef}
+                            actions={
+                              <StepActions
+                                primaryLabel={
+                                  step === TOTAL_STEPS - 1
+                                    ? local.create
+                                    : local.next
+                                }
+                                onPrimary={handleNext}
+                                onBack={handleBack}
+                                showBack={step > 1}
+                                message={attempted ? guard : null}
+                              />
+                            }
+                          >
+                            {renderStep(state, update, advanceRef)}
+                          </OpenStep>
+                        );
+                      }
+                      return (
+                        <ClosedStep
+                          key={step}
+                          first={step === 1}
+                          index={step}
+                          name={stepName(step)}
+                          value={stepValue(step, state)}
+                          done={step <= maxStep}
+                          onOpen={() => goTo(step)}
+                        />
+                      );
+                    })
+                  )}
+                </ReportPage>
 
-                <SummaryStrip
-                  state={state}
-                  maxStep={maxStep}
-                  className="mt-9 lg:hidden"
-                />
-
-                <ActionBar
-                  step={state.step}
-                  guard={guard}
-                  isLastStep={isLastStep}
-                  onBack={handleBack}
-                  onNext={handleNext}
-                  onRestart={handleRestart}
-                />
+                {!isLastStep ? (
+                  <div className="mt-5 flex flex-col gap-1 px-1 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+                    <p className="text-[14px] text-ink-soft">
+                      {local.storageNote}
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleRestart}
+                      className="inline-flex h-11 items-center self-start rounded-xs text-[14.5px] text-ink-soft underline decoration-edge-strong underline-offset-4 transition-colors hover:text-ink"
+                    >
+                      {local.restart}
+                    </button>
+                  </div>
+                ) : null}
               </>
             ) : (
               <FlowSkeleton />
             )}
           </div>
-
-          <aside className="hidden lg:block">
-            <div className="sticky top-28">
-              <SummaryPanel state={state} maxStep={maxStep} />
-            </div>
-          </aside>
         </div>
       </main>
     </div>
@@ -211,27 +320,20 @@ export function OnboardingFlow() {
 function renderStep(
   state: OnboardingState,
   update: OnboardingUpdate,
-  onAssembled: () => void,
-  onFinish: () => void
+  advanceRef: React.RefObject<(() => boolean) | null>
 ): React.ReactNode {
   switch (state.step) {
     case 1:
-      return <StepAccount state={state} update={update} />;
+      return <StepUsage state={state} update={update} />;
     case 2:
-      return <StepProfiles state={state} update={update} />;
+      return (
+        <StepProfile state={state} update={update} advanceRef={advanceRef} />
+      );
     case 3:
-      return <StepOwnership state={state} update={update} />;
+      return <StepRelationship state={state} update={update} />;
     case 4:
       return <StepMonitoring state={state} update={update} />;
-    case 5:
-      return <StepNotifications state={state} update={update} />;
     default:
-      return (
-        <StepWorkspace
-          state={state}
-          onAssembled={onAssembled}
-          onFinish={onFinish}
-        />
-      );
+      return <StepAlerts state={state} update={update} />;
   }
 }

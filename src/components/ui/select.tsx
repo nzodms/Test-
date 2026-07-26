@@ -5,6 +5,10 @@ import * as SelectPrimitive from "@radix-ui/react-select";
 import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+/* The trigger is the same aperture as an Input — a select that does
+   not match the field beside it is the fastest way to make a form
+   look assembled out of two different products. */
+
 const Select = SelectPrimitive.Root;
 const SelectGroup = SelectPrimitive.Group;
 const SelectValue = SelectPrimitive.Value;
@@ -16,18 +20,24 @@ const SelectTrigger = React.forwardRef<
   <SelectPrimitive.Trigger
     ref={ref}
     className={cn(
-      "flex border border-edge bg-paper shadow-[inset_0_1px_2px_rgb(17_18_16/0.04)] h-9 w-full items-center justify-between gap-2 rounded-md px-3 text-sm text-ink",
-      "transition-[border-color,box-shadow] duration-200",
-      "focus:border-accent/50 focus:shadow-[0_0_0_3px_rgb(16_102_110/0.12)] focus:outline-none",
-      "disabled:cursor-not-allowed disabled:opacity-50",
-      "data-[placeholder]:text-ink-soft [&>span]:truncate",
+      "flex h-11 w-full items-center justify-between gap-2 rounded-sm px-3 sm:h-9",
+      "border border-edge bg-page text-[15px] text-ink sm:text-sm",
+      "transition-[border-color,box-shadow,background-color] duration-150",
+      "hover:border-edge-strong",
+      "focus:border-accent focus:shadow-[0_0_0_1px_var(--color-accent)] focus:outline-none",
+      "data-[state=open]:border-accent data-[state=open]:shadow-[0_0_0_1px_var(--color-accent)]",
+      "disabled:cursor-not-allowed disabled:border-edge-faint disabled:bg-mineral disabled:text-ink-faint",
+      "data-[placeholder]:text-ink-faint [&>span]:truncate",
       className
     )}
     {...props}
   >
     {children}
     <SelectPrimitive.Icon asChild>
-      <ChevronDown className="size-4 shrink-0 text-ink-soft" />
+      <ChevronDown
+        className="size-4 shrink-0 text-ink-soft transition-transform duration-150"
+        aria-hidden
+      />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ));
@@ -41,10 +51,12 @@ const SelectContent = React.forwardRef<
     <SelectPrimitive.Content
       ref={ref}
       position={position}
-      sideOffset={6}
+      sideOffset={5}
       className={cn(
         "z-50 max-h-72 min-w-[var(--radix-select-trigger-width)] overflow-y-auto scrollbar-quiet",
-        "rounded-md border border-edge-strong bg-paper p-1 shadow-float animate-fade-in",
+        "rounded-sm border border-edge-strong bg-page p-1",
+        "shadow-[0_8px_24px_-14px_rgb(22_23_26/0.4)]",
+        "data-[state=open]:animate-fade-in",
         className
       )}
       {...props}
@@ -62,9 +74,11 @@ const SelectItem = React.forwardRef<
   <SelectPrimitive.Item
     ref={ref}
     className={cn(
-      "relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-2.5 pr-8 text-[13px] text-ink-soft outline-none",
+      "relative flex min-h-10 cursor-default select-none items-center rounded-xs sm:min-h-8",
+      "py-1.5 pl-2.5 pr-8 text-sm text-ink-soft outline-none",
       "data-highlighted:bg-mineral data-highlighted:text-ink",
-      "data-disabled:pointer-events-none data-disabled:opacity-45",
+      "data-[state=checked]:text-ink",
+      "data-disabled:pointer-events-none data-disabled:text-ink-faint",
       className
     )}
     {...props}
@@ -72,7 +86,7 @@ const SelectItem = React.forwardRef<
     <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
     <span className="absolute right-2.5 flex size-3.5 items-center justify-center">
       <SelectPrimitive.ItemIndicator>
-        <Check className="size-3.5 text-accent" />
+        <Check className="size-3.5 text-accent" aria-hidden />
       </SelectPrimitive.ItemIndicator>
     </span>
   </SelectPrimitive.Item>
@@ -86,7 +100,7 @@ const SelectLabel = React.forwardRef<
   <SelectPrimitive.Label
     ref={ref}
     className={cn(
-      "px-2.5 py-1.5 text-[13px] font-medium text-ink-soft",
+      "px-2.5 pb-1 pt-2 text-[13.5px] font-medium text-ink-soft",
       className
     )}
     {...props}

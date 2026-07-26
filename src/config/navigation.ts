@@ -7,25 +7,20 @@ export const routes = {
   signIn: "/sign-in",
   onboarding: "/onboarding",
   onboardingDemo: "/onboarding?mode=demo",
+  /** The file library. Individual files live at /dashboard/<reference>. */
   dashboard: "/dashboard",
-  findings: "/dashboard/findings",
-  sources: "/dashboard/sources",
-  monitoring: "/dashboard/monitoring",
-  takedowns: "/dashboard/takedowns",
-  profiles: "/dashboard/profiles",
-  settings: "/dashboard/settings",
   privacy: "/legal/privacy",
   terms: "/legal/terms",
   contentPolicy: "/legal/content-policy",
   takedownPolicy: "/legal/takedown-policy",
 } as const;
 
-export const dashboardNav = [
-  { label: "Overview", href: routes.dashboard },
-  { label: "Findings", href: routes.findings },
-  { label: "Sources", href: routes.sources },
-  { label: "Monitoring", href: routes.monitoring },
-  { label: "Takedowns", href: routes.takedowns },
-  { label: "Profiles", href: routes.profiles },
-  { label: "Settings", href: routes.settings },
+/** A file's own index — the tabs printed along the top of a record. */
+export const fileSections = [
+  "Profile file",
+  "Status",
+  "Findings",
+  "Sources",
+  "Timeline",
+  "Actions",
 ] as const;

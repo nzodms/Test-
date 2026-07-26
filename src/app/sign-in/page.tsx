@@ -2,32 +2,38 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { SignInForm } from "@/components/auth/sign-in-form";
-import { Logo } from "@/components/brand/logo";
-import { Badge } from "@/components/ui/badge";
-import { DataRow, Metric, SourceBadge } from "@/components/primitives";
-import { Surface } from "@/components/primitives/surface";
-import { Reveal } from "@/components/motion/reveal";
+import { LogoMark } from "@/components/brand/logo";
+import { ReportPage, VerificationSeal } from "@/components/file/file-parts";
+import { Redacted } from "@/components/file/redacted";
 import { brand } from "@/config/brand";
 import { routes } from "@/config/navigation";
 import { copy } from "@/config/product";
-import {
-  DEMO_ANCHOR,
-  featuredMatches,
-  scanTotals,
-} from "@/lib/demo/scan-data";
-import { formatDateTimeUTC, formatNumber, formatRelative } from "@/lib/utils";
-
-/* ────────────────────────────────────────────────────────────────
-   Strings local to this surface only.
-   ──────────────────────────────────────────────────────────────── */
+import { caseReference } from "@/lib/case-ref";
+import { DEMO_ANCHOR, scanTotals } from "@/lib/demo/scan-data";
+import { cn, formatLongDateUTC } from "@/lib/utils";
 
 const text = {
-  heading: "Sign in to your workspace",
-  purpose: "Review findings, monitoring and removal requests in one place.",
-  home: "Back to home",
-  sessionMeta: formatDateTimeUTC(DEMO_ANCHOR),
-  metricHint: `Across ${formatNumber(scanTotals.sources)} indexed sources`,
+  heading: "Open your workspace",
+  purpose:
+    "Findings, sources, evidence and removal requests are held in one workspace. Signing in is what opens it.",
+  reportLabel: "Profile exposure report",
+  subjectAria: "Profile name withheld",
+  generated: "Generated",
+  sealedNote:
+    "Sealed values are withheld at the source: the characters are never sent to this page, so there is nothing to recover.",
+  libraryNote: (matches: number) =>
+    `${matches} findings sit behind covers like this one across the demonstration library.`,
+  noWorkspace: "No workspace yet?",
+  openDemo: "Set one up with demonstration data",
+  home: "Back to the public scan",
 } as const;
+
+const facts: readonly { label: string; chars: number }[] = [
+  { label: "potential matches", chars: 4 },
+  { label: "indexed public sources", chars: 3 },
+  { label: "high-confidence findings", chars: 3 },
+  { label: "exposure status", chars: 7 },
+];
 
 export const metadata: Metadata = {
   title: copy.nav.signIn,
@@ -35,129 +41,166 @@ export const metadata: Metadata = {
   robots: { index: false, follow: true },
 };
 
-/** The three ledger lines shown in the instrument panel. */
-const panelRows = featuredMatches.slice(0, 3);
-
+/**
+ * An access request against a sealed report.
+ *
+ * Not a login box beside a marketing panel: the cover of a report
+ * the visitor cannot read, with the request to open it printed
+ * alongside. Every value on that cover is withheld at the source —
+ * the characters are never sent, so there is nothing to recover.
+ */
 export default function SignInPage() {
   return (
     <main className="min-h-dvh bg-canvas">
-      <div className="mx-auto grid w-full max-w-[1280px] grid-cols-1 lg:min-h-dvh lg:grid-cols-[1.1fr_0.9fr]">
-        {/* ── Form column — porcelain ─────────────────────────── */}
-        <div className="flex min-h-dvh flex-col px-5 py-8 sm:px-8 lg:min-h-0 lg:px-14 lg:py-10">
-          <header className="mx-auto w-full max-w-[400px]">
-            <Link
-              href={routes.home}
-              aria-label={`${brand.name} — ${text.home}`}
-              className="inline-flex rounded-sm"
-            >
-              <Logo />
-            </Link>
-          </header>
+      <div className="mx-auto w-full max-w-[1100px] px-4 py-6 sm:px-8 sm:py-9">
+        <div className="flex items-center justify-between gap-4">
+          <Link
+            href={routes.home}
+            aria-label={`${brand.name} — home`}
+            className="inline-flex h-11 items-center gap-2.5 rounded-xs"
+          >
+            <LogoMark size={19} />
+            <span className="text-[16.5px] font-medium tracking-tight text-ink">
+              {brand.name}
+            </span>
+          </Link>
+          <Link
+            href={routes.home}
+            className="inline-flex h-11 items-center rounded-xs text-[14.5px] text-ink-soft transition-colors hover:text-ink"
+          >
+            {text.home}
+          </Link>
+        </div>
 
-          <div className="mx-auto flex w-full max-w-[400px] flex-1 flex-col justify-center py-14 lg:py-16">
-            <h1 className="text-title text-2xl text-ink">{text.heading}</h1>
-            <p className="mt-2.5 text-sm leading-relaxed text-ink-soft">
+        <div className="mt-10 grid gap-14 lg:mt-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)] lg:gap-20">
+          {/* ── The request ───────────────────────────────────────── */}
+          <div className="min-w-0 max-w-[460px]">
+            <h1 className="text-display text-[32px] text-ink sm:text-[40px] lg:text-[46px]">
+              {text.heading}
+            </h1>
+            <p className="mt-4 max-w-[46ch] text-[15.5px] leading-relaxed text-ink-soft">
               {text.purpose}
             </p>
 
             <div className="mt-9">
               <SignInForm />
             </div>
-          </div>
 
-          <footer className="mx-auto w-full max-w-[400px] space-y-3 border-t border-edge-faint pt-5">
-            <div className="flex flex-wrap items-center gap-x-4 text-[13px]">
+            <p className="mt-8 border-t border-edge pt-6 text-[15.5px] leading-relaxed text-ink">
+              {text.noWorkspace}{" "}
               <Link
                 href={routes.onboardingDemo}
-                className="inline-flex min-h-11 items-center rounded-sm font-medium text-ink underline decoration-edge-strong underline-offset-4 transition-colors hover:decoration-ink sm:min-h-0"
+                className="font-medium text-ink underline decoration-edge-strong underline-offset-4 transition-colors hover:decoration-ink"
               >
-                {copy.nav.demo}
+                {text.openDemo}
               </Link>
-              <Link
-                href={routes.home}
-                className="inline-flex min-h-11 items-center rounded-sm text-ink-soft transition-colors hover:text-ink sm:min-h-0"
-              >
-                {text.home}
-              </Link>
-            </div>
+            </p>
 
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-2xs text-ink-soft">
+            {/* The cover, condensed, where there is no second column */}
+            <SealedCover compact className="mt-10 lg:hidden" />
+
+            <div className="mt-9 flex flex-wrap items-center gap-x-7 gap-y-1 border-t border-edge pt-4 text-[14.5px] text-ink-soft">
               <Link
                 href={routes.privacy}
-                className="inline-flex min-h-9 items-center rounded-sm transition-colors hover:text-ink sm:min-h-0"
+                className="inline-flex min-h-11 items-center rounded-xs transition-colors hover:text-ink"
               >
                 {copy.legal.footerLinks.privacy}
               </Link>
               <Link
                 href={routes.terms}
-                className="inline-flex min-h-9 items-center rounded-sm transition-colors hover:text-ink sm:min-h-0"
+                className="inline-flex min-h-11 items-center rounded-xs transition-colors hover:text-ink"
               >
                 {copy.legal.footerLinks.terms}
               </Link>
+              <Link
+                href={routes.contentPolicy}
+                className="inline-flex min-h-11 items-center rounded-xs transition-colors hover:text-ink"
+              >
+                {copy.legal.footerLinks.contentPolicy}
+              </Link>
             </div>
-          </footer>
-        </div>
+          </div>
 
-        {/* ── Instrument column — the only dark surface here ───── */}
-        <aside className="hidden lg:flex lg:flex-col lg:justify-center lg:border-l lg:border-edge lg:px-14 lg:py-10">
-          <Reveal className="mx-auto w-full max-w-[400px]">
-            <Surface
-              tone="scanner"
-              reflection
-              className="rounded-lg px-5 py-5"
-            >
-              <div className="flex items-baseline justify-between gap-3">
-                <p className="text-label-scan">{copy.scanner.sessionLabel}</p>
-                <p className="shrink-0 text-data text-scan-faint">
-                  {text.sessionMeta}
-                </p>
-              </div>
+          {/* ── The sealed cover ──────────────────────────────────── */}
+          <aside className="hidden lg:block">
+            <ReportPage className="px-9 py-10">
+              <SealedCover />
+            </ReportPage>
 
-              <div
-                aria-hidden
-                className="scan-edge-fade-x mt-3.5 h-px w-full"
-              />
-
-              <ul className="mt-1 divide-y divide-scan-edge">
-                {panelRows.map((match) => (
-                  <li key={match.id}>
-                    <DataRow
-                      status="complete"
-                      label={match.domainMasked}
-                      mono
-                      meta={formatRelative(match.detectedAt, DEMO_ANCHOR)}
-                      trailing={
-                        <SourceBadge kind={match.sourceKind} tone="scan" />
-                      }
-                    />
-                  </li>
-                ))}
-              </ul>
-
-              <div
-                aria-hidden
-                className="scan-edge-fade-x mb-4 mt-1 h-px w-full"
-              />
-
-              <div className="flex items-end justify-between gap-4">
-                <Metric
-                  tone="scan"
-                  label={copy.scanner.kpis.matches}
-                  value={formatNumber(scanTotals.matches)}
-                  hint={text.metricHint}
-                />
-                <Badge variant="scan-ok" dot className="shrink-0">
-                  {copy.scanner.complete}
-                </Badge>
-              </div>
-            </Surface>
-
-            <p className="mt-4 text-xs text-ink-soft">
-              {copy.legal.positioning[2]}
+            <p className="mt-5 px-1 text-[14px] leading-relaxed text-ink-soft">
+              {text.sealedNote}{" "}
+              <span className="tabular">
+                {text.libraryNote(scanTotals.matches)}
+              </span>
             </p>
-          </Reveal>
-        </aside>
+          </aside>
+        </div>
       </div>
     </main>
+  );
+}
+
+/**
+ * The cover itself. `compact` is the phone reading of the same
+ * document: fewer facts, no page beneath it, same withholding.
+ */
+function SealedCover({
+  compact = false,
+  className,
+}: {
+  compact?: boolean;
+  className?: string;
+}) {
+  const shown = compact ? facts.slice(0, 3) : facts;
+
+  return (
+    <div className={cn("min-w-0", className)}>
+      <div className="flex items-baseline justify-between gap-5 border-b border-edge pb-3.5">
+        <p className="text-[14.5px] text-ink-soft">{text.reportLabel}</p>
+        <p className="shrink-0 font-mono text-[12.5px] text-ink-soft">
+          {caseReference(null)}
+        </p>
+      </div>
+
+      <p
+        className={cn(
+          "text-display mt-7 flex items-baseline gap-1 text-ink",
+          compact ? "text-[26px]" : "text-[40px]"
+        )}
+        aria-label={text.subjectAria}
+      >
+        @<Redacted chars={11} className="!h-[0.6em]" />
+      </p>
+
+      <dl className="mt-7">
+        {shown.map((fact) => (
+          <div
+            key={fact.label}
+            className="flex items-baseline justify-between gap-6 border-t border-edge py-3.5"
+          >
+            <dt className="text-[15px] text-ink-soft">{fact.label}</dt>
+            <dd>
+              <Redacted chars={fact.chars} className="!h-[0.85em]" />
+            </dd>
+          </div>
+        ))}
+      </dl>
+
+      {compact ? (
+        <p className="mt-5 text-[14px] leading-relaxed text-ink-soft">
+          {text.sealedNote}
+        </p>
+      ) : (
+        <div className="mt-8 border-t border-edge pt-5">
+          <div className="flex items-baseline justify-between gap-6">
+            <p className="text-[14px] text-ink-soft">{text.generated}</p>
+            <p className="whitespace-nowrap font-mono text-[13px] text-ink">
+              {formatLongDateUTC(DEMO_ANCHOR)}
+            </p>
+          </div>
+          <VerificationSeal state="required" className="mt-5" />
+        </div>
+      )}
+    </div>
   );
 }

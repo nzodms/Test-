@@ -5,18 +5,18 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Eye, EyeOff, TriangleAlert } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Field } from "@/components/ui/label";
+import { Label } from "@/components/ui/label";
 import { copy } from "@/config/product";
 import { routes } from "@/config/navigation";
+import { cn } from "@/lib/utils";
 import { isDemoClient, signInWithGoogle, signInWithPassword } from "@/lib/auth";
 
 /* ────────────────────────────────────────────────────────────────
-   Strings that belong to this surface only. Everything shared
-   comes from @/config/product.
+   Strings that belong to this surface only.
    ──────────────────────────────────────────────────────────────── */
 
 const text = {
@@ -27,9 +27,9 @@ const text = {
   hidePassword: "Hide password",
   divider: "or",
   google: "Continue with Google",
-  demoTitle: copy.onboarding.demoBadge,
+  demoTitle: "Demo mode — no authentication is configured",
   demoNote:
-    "No authentication backend is configured. Any email and password opens the demo workspace, and nothing you enter here is stored.",
+    "Any email and password opens the demo workspace. Nothing you type here is sent or stored.",
   fallbackError: "Sign-in could not be completed. Please try again.",
   emailInvalid: "Enter a valid email address.",
   passwordRequired: "Enter your password.",
@@ -55,6 +55,36 @@ function resolveNext(raw: string | null): string {
   if (raw.startsWith("/\\")) return routes.dashboard;
   return raw;
 }
+
+/* ── Field — 14px labels, 16px controls on a phone ─────────────── */
+
+function AuthField({
+  label,
+  htmlFor,
+  error,
+  children,
+}: {
+  label: string;
+  htmlFor: string;
+  error?: string | undefined;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="min-w-0">
+      <Label htmlFor={htmlFor} className="text-[14px] text-ink-soft">
+        {label}
+      </Label>
+      <div className="mt-2">{children}</div>
+      {error ? (
+        <p role="alert" className="mt-2 text-[14px] leading-snug text-crit">
+          {error}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+const control = "h-12 text-[16px] sm:h-11 sm:text-[14.5px]";
 
 /* ── Google mark — drawn inline, no remote asset ───────────────── */
 
@@ -133,33 +163,30 @@ function SignInFormFields() {
   }
 
   return (
-    <div className="space-y-6">
+    <div>
+      {/* A note in the margin of the request, not a boxed banner. */}
       {demo ? (
-        <div className="rounded-sm border border-edge-faint bg-mineral px-3.5 py-3">
-          <p className="text-label">{text.demoTitle}</p>
-          <p className="mt-1.5 text-xs leading-relaxed text-ink-soft">
+        <div className="mb-8 border-l-2 border-accent/50 pl-4">
+          <p className="text-[15px] font-medium leading-snug text-ink">
+            {text.demoTitle}
+          </p>
+          <p className="mt-1.5 text-[14.5px] leading-relaxed text-ink-soft">
             {text.demoNote}
           </p>
         </div>
       ) : null}
 
-      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
+      <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
         {serverError ? (
-          <div
+          <p
             role="alert"
-            className="flex items-start gap-2.5 rounded-sm border border-crit/25 bg-crit/[0.03] px-3 py-2.5"
+            className="border-l-2 border-crit pl-4 text-[14.5px] leading-relaxed text-crit"
           >
-            <TriangleAlert
-              className="mt-px size-3.5 shrink-0 text-crit"
-              aria-hidden
-            />
-            <p className="min-w-0 break-words text-[13px] leading-relaxed text-crit">
-              {serverError}
-            </p>
-          </div>
+            {serverError}
+          </p>
         ) : null}
 
-        <Field
+        <AuthField
           label={text.emailLabel}
           htmlFor="sign-in-email"
           error={errors.email?.message}
@@ -173,12 +200,12 @@ function SignInFormFields() {
             spellCheck={false}
             placeholder={text.emailPlaceholder}
             aria-invalid={errors.email ? true : undefined}
-            className="h-11 sm:h-10"
+            className={control}
             {...register("email")}
           />
-        </Field>
+        </AuthField>
 
-        <Field
+        <AuthField
           label={text.passwordLabel}
           htmlFor="sign-in-password"
           error={errors.password?.message}
@@ -191,7 +218,7 @@ function SignInFormFields() {
               autoCapitalize="none"
               spellCheck={false}
               aria-invalid={errors.password ? true : undefined}
-              className="h-11 pr-12 sm:h-10"
+              className={cn(control, "pr-14")}
               {...register("password")}
             />
             <button
@@ -200,7 +227,7 @@ function SignInFormFields() {
               aria-pressed={showPassword}
               aria-controls="sign-in-password"
               aria-label={showPassword ? text.hidePassword : text.showPassword}
-              className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-sm text-ink-soft transition-colors hover:text-ink sm:w-10"
+              className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-sm text-ink-soft transition-colors hover:text-ink sm:w-11"
             >
               {showPassword ? (
                 <EyeOff className="size-4" aria-hidden />
@@ -209,12 +236,12 @@ function SignInFormFields() {
               )}
             </button>
           </div>
-        </Field>
+        </AuthField>
 
         <Button
           type="submit"
           size="lg"
-          className="w-full"
+          className="h-12 w-full text-[15.5px] sm:h-11"
           loading={busy}
           disabled={locked}
         >
@@ -224,11 +251,9 @@ function SignInFormFields() {
 
       {!demo ? (
         <>
-          <div className="flex items-center gap-3" aria-hidden>
+          <div className="my-6 flex items-center gap-4" aria-hidden>
             <span className="edge-fade-x h-px flex-1" />
-            <span className="text-[13px] text-ink-soft">
-              {text.divider}
-            </span>
+            <span className="text-[14px] text-ink-soft">{text.divider}</span>
             <span className="edge-fade-x h-px flex-1" />
           </div>
 
@@ -236,7 +261,7 @@ function SignInFormFields() {
             type="button"
             variant="secondary"
             size="lg"
-            className="w-full"
+            className="h-12 w-full text-[15.5px] sm:h-11"
             onClick={onGoogle}
             loading={googlePending}
             disabled={locked}

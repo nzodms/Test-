@@ -14,7 +14,7 @@ const TabsList = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "flex items-center gap-1 overflow-x-auto scrollbar-quiet border-b border-edge",
+      "flex items-stretch gap-1 overflow-x-auto scrollbar-quiet border-b border-edge",
       className
     )}
     {...props}
@@ -29,9 +29,13 @@ const TabsTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "relative -mb-px whitespace-nowrap border-b-2 border-transparent px-3 py-2 text-sm text-ink-soft",
-      "transition-colors hover:text-ink",
-      "data-[state=active]:border-ink data-[state=active]:text-ink",
+      "relative -mb-px inline-flex min-h-11 items-center whitespace-nowrap sm:min-h-9",
+      "border-b-2 border-transparent px-3 text-sm text-ink-soft",
+      "transition-colors duration-150",
+      "hover:border-edge-strong hover:text-ink",
+      "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent",
+      "data-[state=active]:border-ink data-[state=active]:font-medium data-[state=active]:text-ink",
+      "disabled:pointer-events-none disabled:text-ink-faint",
       className
     )}
     {...props}
@@ -47,7 +51,7 @@ const TabsSegment = React.forwardRef<
   <TabsPrimitive.List
     ref={ref}
     className={cn(
-      "inline-flex items-center gap-0.5 rounded-sm border border-edge bg-mineral p-0.5",
+      "inline-flex items-stretch gap-px rounded-sm border border-edge bg-mineral p-px",
       className
     )}
     {...props}
@@ -62,9 +66,13 @@ const TabsSegmentTrigger = React.forwardRef<
   <TabsPrimitive.Trigger
     ref={ref}
     className={cn(
-      "rounded-xs px-2.5 py-1 text-[13px] text-ink-soft transition-colors",
-      "hover:text-ink",
-      "data-[state=active]:bg-paper data-[state=active]:text-ink data-[state=active]:shadow-hairline",
+      "inline-flex min-h-10 items-center rounded-[3px] border border-transparent px-3 sm:min-h-7",
+      "text-[13.5px] text-ink-soft transition-colors duration-150",
+      "hover:bg-mineral-deep hover:text-ink",
+      "focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent",
+      "data-[state=active]:border-edge data-[state=active]:bg-page",
+      "data-[state=active]:font-medium data-[state=active]:text-ink",
+      "disabled:pointer-events-none disabled:text-ink-faint",
       className
     )}
     {...props}

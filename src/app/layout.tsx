@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Toaster } from "sonner";
-import { instrumentSans, instrumentSerif, geistMono } from "@/lib/fonts";
+import { sans, mono } from "@/lib/fonts";
 import { brand } from "@/config/brand";
 import "./globals.css";
 
@@ -29,7 +29,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#f3f1eb",
+  themeColor: "#edecea",
   width: "device-width",
   initialScale: 1,
 };
@@ -40,7 +40,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${instrumentSans.variable} ${instrumentSerif.variable} ${geistMono.variable}`}
+      className={`${sans.variable} ${mono.variable}`}
     >
       <body className="min-h-dvh bg-canvas text-ink antialiased">
         {children}

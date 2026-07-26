@@ -5,11 +5,11 @@
  */
 export const motionTokens = {
   duration: {
-    instant: 0.12,
+    instant: 0.1,
     fast: 0.18,
-    base: 0.32,
-    slow: 0.55,
-    reveal: 0.8,
+    base: 0.28,
+    slow: 0.45,
+    reveal: 0.7,
   },
   ease: {
     standard: [0.22, 1, 0.36, 1] as const,

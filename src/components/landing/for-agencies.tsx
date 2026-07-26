@@ -1,8 +1,11 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { ReportPage } from "@/components/file/file-parts";
-import { demoProfiles, demoTakedowns, DEMO_ANCHOR } from "@/lib/demo/scan-data";
+import { exposureLabels, fileLibrary } from "@/lib/demo/files";
+import { DEMO_ANCHOR } from "@/lib/demo/scan-data";
+import { routes } from "@/config/navigation";
 import { formatRelative, cn } from "@/lib/utils";
 
 const EXPOSURE_TONE = {
@@ -20,9 +23,9 @@ const EXPOSURE_TONE = {
  * visitor has just seen created for themselves, multiplied.
  */
 export function ForAgencies({ onOpenSample }: { onOpenSample: () => void }) {
-  const pending = demoTakedowns.filter(
-    (t) => t.status === "drafted" || t.status === "submitted"
-  ).length;
+  /* The same library the workspace opens, so the two never disagree. */
+  const files = fileLibrary.slice(0, 4);
+  const pending = fileLibrary.reduce((a, f) => a + f.awaitingReview, 0);
 
   return (
     <section
@@ -39,7 +42,7 @@ export function ForAgencies({ onOpenSample }: { onOpenSample: () => void }) {
 
           <div className="min-w-0">
             <div className="max-w-[560px]">
-              <h2 className="text-report text-[30px] text-ink sm:text-[34px]">
+              <h2 className="text-display text-[30px] text-ink sm:text-[34px]">
                 A shelf of files, ordered by what needs attention
               </h2>
               <p className="mt-4 text-[16px] leading-relaxed text-ink-soft">
@@ -53,14 +56,14 @@ export function ForAgencies({ onOpenSample }: { onOpenSample: () => void }) {
               <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-b border-edge pb-4">
                 <p className="text-[15px] text-ink">Active files</p>
                 <p className="font-mono text-[12.5px] text-ink-faint">
-                  {pending} awaiting action
+                  {pending} findings awaiting a decision
                 </p>
               </div>
 
               <ul>
-                {demoProfiles.map((p, i) => (
+                {files.map((f, i) => (
                   <li
-                    key={p.id}
+                    key={f.ref}
                     className="grid grid-cols-[2.25rem_minmax(0,1fr)_auto] items-baseline gap-x-4 border-b border-edge-faint py-4 last:border-b-0 sm:gap-x-8"
                   >
                     <span className="font-mono text-[12.5px] tabular text-ink-faint">
@@ -68,31 +71,27 @@ export function ForAgencies({ onOpenSample }: { onOpenSample: () => void }) {
                     </span>
                     <div className="min-w-0">
                       <p className="truncate text-[16px] text-ink">
-                        @{p.username}
+                        @{f.username}
                       </p>
                       <p className="mt-0.5 text-[14px] text-ink-soft">
-                        {p.platform}
+                        {f.platform}
                         <span className="px-1.5 text-ink-faint">·</span>
-                        scanned {formatRelative(p.lastScan, DEMO_ANCHOR)}
+                        {f.verified
+                          ? `scanned ${formatRelative(f.lastScan, DEMO_ANCHOR)}`
+                          : "sealed until verification"}
                       </p>
                     </div>
                     <div className="text-right">
                       <p className="tabular text-[17px] text-ink">
-                        {p.matches}
+                        {f.findings}
                       </p>
                       <p
                         className={cn(
                           "mt-0.5 text-[13.5px]",
-                          EXPOSURE_TONE[p.exposure]
+                          EXPOSURE_TONE[f.exposure]
                         )}
                       >
-                        {p.exposure === "low"
-                          ? "Low"
-                          : p.exposure === "moderate"
-                            ? "Moderate"
-                            : p.exposure === "elevated"
-                              ? "Elevated"
-                              : "High"}
+                        {exposureLabels[f.exposure]}
                       </p>
                     </div>
                   </li>
@@ -100,13 +99,21 @@ export function ForAgencies({ onOpenSample }: { onOpenSample: () => void }) {
               </ul>
             </ReportPage>
 
-            <button
-              type="button"
-              onClick={onOpenSample}
-              className="mt-7 h-11 text-[15px] text-ink underline decoration-edge-strong underline-offset-[5px] transition-colors hover:decoration-ink"
-            >
-              Open a sample file
-            </button>
+            <div className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-3">
+              <button
+                type="button"
+                onClick={onOpenSample}
+                className="h-11 text-[15px] text-ink underline decoration-edge-strong underline-offset-[5px] transition-colors hover:decoration-ink"
+              >
+                Open a sample file
+              </button>
+              <Link
+                href={routes.dashboard}
+                className="flex h-11 items-center text-[15px] text-ink-soft transition-colors hover:text-ink"
+              >
+                Look inside the demo library
+              </Link>
+            </div>
           </div>
         </div>
       </div>

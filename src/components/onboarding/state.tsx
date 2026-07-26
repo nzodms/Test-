@@ -1,11 +1,13 @@
 import { z } from "zod";
-import { copy } from "@/config/product";
 import { platformLabels, type Platform } from "@/lib/validation";
 
 /* ════════════════════════════════════════════════════════════════
    Onboarding state — the single shape persisted under
    `argus:v1:onboarding`. Everything here is pure: no window access,
    no timers, safe to import from server or client.
+
+   The stored shape is deliberately unchanged: a workspace opened in
+   an earlier session still resumes. Only the labels around it moved.
    ════════════════════════════════════════════════════════════════ */
 
 export const ONBOARDING_KEY = "onboarding";
@@ -57,54 +59,164 @@ export const DEFAULT_ONBOARDING: OnboardingState = {
   completed: false,
 };
 
-/* ── Local copy — strings the shared config does not define ─────── */
+/* ── Copy ────────────────────────────────────────────────────────
+   Defined here rather than in the shared product config: these
+   strings belong to this flow only, and the flow owns its wording. */
 
 export const local = {
+  /* Chrome */
+  documentTitle: "Workspace setup",
+  headerLine: "Workspace setup",
+  exit: "Save and exit",
+  back: "Back",
+  next: "Continue",
+  create: "Create workspace",
+  restart: "Start over",
+  storageNote: "Answers are kept in this browser only.",
+  resume: "Resuming where you left off.",
+  loading: "Loading your setup",
+  demoMarker: "DEMO",
+  demoNote:
+    "Demonstration setup. Nothing is submitted and no scan is performed.",
+  railLabel: "Setup steps",
+  change: "Change",
+  notSet: "Not set",
+
   stepNames: [
-    "Account",
-    "Profiles",
-    "Ownership",
+    "Usage",
+    "Profile",
+    "Relationship",
     "Monitoring",
-    "Notifications",
+    "Alerts",
     "Workspace",
   ],
   stepCounter: (step: number) => `Step ${step} of ${TOTAL_STEPS}`,
-  summaryTitle: "Your workspace",
-  summaryPending: "Not set",
-  account: "Account",
+
+  /* 01 — Usage */
+  usage: {
+    title: "How will you use Argus?",
+    blurb: "This shapes the workspace. It can be changed later.",
+    legend: "How you will use Argus",
+    creator: "Creator",
+    creatorBody: "Protect your own public profile and content.",
+    agency: "Agency",
+    agencyBody: "Protect the profiles of the creators you represent.",
+  },
+
+  /* 02 — Profile */
+  profile: {
+    title: "Add the public profile you want to protect",
+    blurb:
+      "A public username, handle or profile URL. Argus reads indexed public sources only.",
+    username: "Username",
+    usernamePlaceholder: "username, @handle or profile URL",
+    platform: "Platform",
+    url: "Profile URL (optional)",
+    urlPlaceholder: "https://",
+    add: "Add profile",
+    addAnother: "Add another profile",
+    cancelAdd: "Cancel",
+    onFile: "Profile on file",
+    onFilePlural: "Profiles on file",
+    remove: (username: string) => `Remove ${username}`,
+    duplicate: "That profile is already on file.",
+    invalidUrl: "That does not look like a profile URL.",
+    errors: {
+      empty: "Enter a username, @handle or profile URL.",
+      invalid: "That does not look like a username or profile URL.",
+      tooShort: "Usernames have at least 3 characters.",
+    },
+  },
+
+  /* 03 — Relationship */
+  relationship: {
+    title: "Confirm your relationship to this profile",
+    blurb:
+      "Findings and removal requests are released only to a verified owner.",
+    subjectLabel: "Profile",
+    subjectNone: "No profile added yet",
+    creatorClaim: "I confirm this is my own public profile.",
+    agencyClaim:
+      "I confirm I am authorised to act for the owner of this profile.",
+    demoBody:
+      "Ownership verification is required before any removal request is sent. In this demonstration setup no verification is performed, nothing is submitted, and no scan is run.",
+    methodsHeading: "How ownership will be verified",
+    methods: [
+      {
+        name: "Profile link",
+        body: "A temporary code placed in your public bio.",
+      },
+      { name: "One-time code", body: "A code sent through the platform." },
+      {
+        name: "Connected account",
+        body: "Sign-in through a linked social account.",
+      },
+      { name: "Manual review", body: "Our team checks documentation you provide." },
+    ],
+    methodsNote: "None of these are available yet.",
+    confirmed: "Confirmed — verification pending",
+  },
+
+  /* 04 — Monitoring */
+  monitoring: {
+    title: "Choose what Argus should monitor",
+    blurb: "How wide each pass goes, and how often it runs.",
+    coverageHeading: "Indexed public sources",
+    coverageLegend: "Source coverage",
+    frequencyHeading: "How often Argus re-scans",
+    frequencyLegend: "Scan frequency",
+  },
+
+  /* 05 — Alerts */
+  alerts: {
+    title: "Choose how you want to be notified",
+    blurb: "Only the channels you turn on. Nothing else.",
+    highConfidence: "High-confidence alerts",
+    highConfidenceBody:
+      "Immediate notice when a match is very likely your content.",
+    weekly: "Weekly summary",
+    weeklyBody: "A short digest of new detections and changes.",
+    email: "Email",
+    emailBody: "Alerts and summaries sent to your inbox.",
+    emailAddress: "Email address",
+    workspace: "Workspace",
+    workspaceBody: "Every finding stays visible in the workspace.",
+    alwaysOn: "Always on",
+    integrations: "Slack and webhooks",
+    integrationsBody: "Planned. Not available yet.",
+  },
+
+  /* 06 — Workspace */
+  workspace: {
+    title: "Preparing your workspace",
+    assembly: "Workspace assembly",
+    lines: [
+      "Creating workspace",
+      "Adding profile",
+      "Preparing monitoring",
+      "Configuring alerts",
+      "Workspace ready",
+    ],
+    ready: "Workspace ready",
+    redirecting: "Opening your workspace",
+    open: "Open workspace",
+    pending: "Preparing",
+  },
+
+  /* Derived values */
   profilesNone: "None yet",
-  frequency: "Frequency",
-  coverage: "Coverage",
-  alerts: "Alerts",
-  reach: "Reach you at",
-  dashboardOnly: "Dashboard only",
-  alertsOff: "Summary only",
+  reachWorkspace: "Workspace only",
   alertsBoth: "High confidence, weekly summary",
   alertsHigh: "High confidence",
   alertsWeekly: "Weekly summary",
-  alertsNone: "None",
-  addAnother: "Add another profile at any time from the workspace.",
-  usernamePlaceholder: "username, @handle or profile URL",
-  urlPlaceholder: "https://",
-  duplicate: "That profile is already on the list.",
-  invalidUrl: "That doesn't look like a profile URL.",
-  removeProfile: (username: string) => `Remove ${username}`,
-  profilesEmpty: "No profiles added yet.",
-  planned: copy.onboarding.steps.notifications.planned,
-  alwaysOn: "Always on",
-  emailAddress: "Email address",
-  assembly: "Workspace assembly",
-  assemblyPending: "Preparing",
-  loading: "Loading your setup",
+  alertsNone: "No alerts",
+
   guards: {
-    account: "Choose Creator or Agency to continue.",
-    profiles: copy.onboarding.steps.profiles.empty,
-    ownership: "Confirm you want to continue in demo mode.",
+    usage: "Choose Creator or Agency to continue.",
+    profile: "Add the profile you want to protect to continue.",
+    relationship: "Confirm your relationship to this profile to continue.",
     email: "Enter a valid email address, or turn email off.",
   },
-  frequencyLegend: "Scan frequency",
-  coverageLegend: "Source coverage",
-  accountLegend: copy.onboarding.steps.account.title,
 } as const;
 
 export const frequencyOptions: readonly {
@@ -145,29 +257,28 @@ export function stepName(step: number): string {
 }
 
 export function stepMeta(step: number): { title: string; blurb?: string } {
-  const steps = copy.onboarding.steps;
   switch (step) {
     case 1:
-      return { title: steps.account.title, blurb: steps.account.blurb };
+      return { title: local.usage.title, blurb: local.usage.blurb };
     case 2:
-      return { title: steps.profiles.title, blurb: steps.profiles.blurb };
+      return { title: local.profile.title, blurb: local.profile.blurb };
     case 3:
-      return { title: steps.ownership.title, blurb: steps.ownership.blurb };
-    case 4:
-      return { title: steps.monitoring.title, blurb: steps.monitoring.blurb };
-    case 5:
       return {
-        title: steps.notifications.title,
-        blurb: steps.notifications.blurb,
+        title: local.relationship.title,
+        blurb: local.relationship.blurb,
       };
+    case 4:
+      return { title: local.monitoring.title, blurb: local.monitoring.blurb };
+    case 5:
+      return { title: local.alerts.title, blurb: local.alerts.blurb };
     default:
-      return { title: steps.workspace.title };
+      return { title: local.workspace.title };
   }
 }
 
 export function accountLabel(type: AccountType | null): string | null {
-  if (type === "creator") return copy.onboarding.steps.account.creator;
-  if (type === "agency") return copy.onboarding.steps.account.agency;
+  if (type === "creator") return local.usage.creator;
+  if (type === "agency") return local.usage.agency;
   return null;
 }
 
@@ -192,7 +303,45 @@ export function alertsLabel(state: OnboardingState): string {
 
 export function reachLabel(state: OnboardingState): string {
   const email = state.email.trim();
-  return state.emailEnabled && email.length > 0 ? email : local.dashboardOnly;
+  return state.emailEnabled && email.length > 0 ? email : local.reachWorkspace;
+}
+
+/** The subject of the file: the first profile added, if any. */
+export function subjectUsername(state: OnboardingState): string | null {
+  return state.profiles[0]?.username ?? null;
+}
+
+export function profileLine(state: OnboardingState): string | null {
+  const first = state.profiles[0];
+  if (!first) return null;
+  const head = `@${first.username} · ${platformLabels[first.platform]}`;
+  const extra = state.profiles.length - 1;
+  return extra > 0 ? `${head} · +${extra} more` : head;
+}
+
+/**
+ * What a completed step reads as once it collapses back into the
+ * ledger. This is the summary that stays visible while the rest of
+ * the setup is filled in.
+ */
+export function stepValue(
+  step: number,
+  state: OnboardingState
+): string | null {
+  switch (step) {
+    case 1:
+      return accountLabel(state.accountType);
+    case 2:
+      return profileLine(state);
+    case 3:
+      return state.demoAcknowledged ? local.relationship.confirmed : null;
+    case 4:
+      return `${coverageLabel(state.coverage)} · ${frequencyLabel(state.frequency)}`;
+    case 5:
+      return `${alertsLabel(state)} · ${reachLabel(state)}`;
+    default:
+      return null;
+  }
 }
 
 /* ── Validation ─────────────────────────────────────────────────── */
@@ -208,20 +357,33 @@ export function isEmailAddress(value: string): boolean {
   return emailSchema.safeParse(value.trim()).success;
 }
 
-/** The reason Continue is unavailable, or null when the step is valid. */
+/** The reason the step cannot be left yet, or null when it is valid. */
 export function stepGuard(state: OnboardingState): string | null {
   switch (state.step) {
     case 1:
-      return state.accountType === null ? local.guards.account : null;
+      return state.accountType === null ? local.guards.usage : null;
     case 2:
-      return state.profiles.length === 0 ? local.guards.profiles : null;
+      return state.profiles.length === 0 ? local.guards.profile : null;
     case 3:
-      return state.demoAcknowledged ? null : local.guards.ownership;
+      return state.demoAcknowledged ? null : local.guards.relationship;
     case 5:
       return isEmailValid(state) ? null : local.guards.email;
     default:
       return null;
   }
+}
+
+/**
+ * The first entry that is still incomplete, or null when the whole
+ * record holds. Stepping back through the rail can leave an earlier
+ * entry unset, so this is checked once more before the workspace is
+ * created.
+ */
+export function firstIncompleteStep(state: OnboardingState): number | null {
+  for (let step = 1; step < TOTAL_STEPS; step++) {
+    if (stepGuard({ ...state, step }) !== null) return step;
+  }
+  return null;
 }
 
 /* ── Stored-value hardening ─────────────────────────────────────── */

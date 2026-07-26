@@ -54,8 +54,12 @@ export default function LegalLayout({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-[68ch] flex-1 px-5 pt-14 pb-24 sm:pt-20 sm:pb-32">
-        {children}
+      {/* The document sits on a page, on the desk — the same surface
+          every other record in the product is printed on. */}
+      <main className="mx-auto w-full max-w-[76ch] flex-1 px-5 pb-24 pt-10 sm:pb-32 sm:pt-14">
+        <div className="report-page rounded-[3px] px-6 py-12 sm:px-12 sm:py-16">
+          {children}
+        </div>
       </main>
 
       <footer className="border-t border-edge bg-paper/60">
