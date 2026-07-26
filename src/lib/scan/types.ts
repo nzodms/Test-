@@ -51,10 +51,24 @@ export interface SourceCoverage {
   count: number;
 }
 
+/**
+ * What a redacted domain sends to the client: the visible head and
+ * tail, plus the LENGTH of what is withheld. The withheld characters
+ * are never transmitted, so the redaction cannot be lifted in the
+ * browser — it is a protection, not a visual effect.
+ */
+export interface DomainRedaction {
+  head: string;
+  tail: string;
+  hidden: number;
+}
+
 export interface DemoMatch {
   id: string;
-  /** masked domain for display, e.g. "re•••••.to" */
+  /** compact masked form, for tight contexts */
   domainMasked: string;
+  /** the form a real backend sends while ownership is unverified */
+  redaction: DomainRedaction;
   /** full domain, only shown to verified owners */
   domainFull: string;
   sourceKind: SourceKind;

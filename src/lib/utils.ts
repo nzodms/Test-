@@ -53,6 +53,16 @@ export function formatRelative(iso: string, nowIso: string): string {
   return formatDateUTC(iso);
 }
 
+/** "2026-07-24T…" → "24 July 2026" — how a file is dated. */
+export function formatLongDateUTC(iso: string): string {
+  return Intl.DateTimeFormat("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(new Date(iso));
+}
+
 export function initials(name: string): string {
   return name
     .split(/[\s.@_-]+/)

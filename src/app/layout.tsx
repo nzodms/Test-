@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Toaster } from "sonner";
-import { instrumentSans, geistMono } from "@/lib/fonts";
+import { instrumentSans, instrumentSerif, geistMono } from "@/lib/fonts";
 import { brand } from "@/config/brand";
 import "./globals.css";
 
@@ -40,7 +40,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${instrumentSans.variable} ${geistMono.variable}`}
+      className={`${instrumentSans.variable} ${instrumentSerif.variable} ${geistMono.variable}`}
     >
       <body className="min-h-dvh bg-canvas text-ink antialiased">
         {children}

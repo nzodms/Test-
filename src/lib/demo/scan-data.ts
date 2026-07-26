@@ -1,8 +1,22 @@
 import type {
   ActivityPoint,
   DemoMatch,
+  DomainRedaction,
   SourceCoverage,
 } from "@/lib/scan/types";
+
+/**
+ * Split a domain into what a viewer may see and how much is
+ * withheld. A real backend would compute this server-side and never
+ * send the middle at all.
+ */
+function redact(domain: string): DomainRedaction {
+  const dot = domain.lastIndexOf(".");
+  const tld = domain.slice(dot); // ".to"
+  const name = domain.slice(0, dot);
+  const head = name.slice(0, 2);
+  return { head, tail: tld, hidden: Math.max(3, name.length - 2) };
+}
 
 /* ════════════════════════════════════════════════════════════════
    DEMO SCAN DATA — single source of truth.
@@ -133,6 +147,7 @@ function buildMatches(): DemoMatch[] {
     out.push({
       id: `MATCH-${1000 + i}`,
       domainMasked: t.domainMasked,
+      redaction: redact(t.domainFull),
       domainFull: t.domainFull,
       sourceKind: t.sourceKind,
       matchType: t.matchType,
@@ -162,6 +177,7 @@ function buildMatches(): DemoMatch[] {
     out.push({
       id: `MATCH-${1000 + i}`,
       domainMasked: t.domainMasked,
+      redaction: redact(t.domainFull),
       domainFull: t.domainFull,
       sourceKind: t.sourceKind,
       matchType: t.matchType,

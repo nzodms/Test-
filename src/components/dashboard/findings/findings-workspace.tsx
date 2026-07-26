@@ -7,7 +7,7 @@ import { toast } from "sonner";
 
 import { PageIntro } from "@/components/dashboard/page-intro";
 import { Metric, SourceBadge } from "@/components/primitives";
-import { AbstractThumb } from "@/components/scanner/abstract-thumb";
+import { EvidenceBlock } from "@/components/file/evidence-block";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -459,13 +459,11 @@ export function FindingsWorkspace() {
 
           <div className="flex gap-8 border-t border-edge-faint pt-4 sm:border-l sm:border-t-0 sm:pl-8 sm:pt-0">
             <Metric
-              tone="light"
               label={text.highConfidence}
               value={highInQueue}
               hint={text.highConfidenceHint}
             />
             <Metric
-              tone="light"
               label={text.detectedTotal}
               value={formatNumber(scanTotals.matches)}
               hint={text.detectedTotalHint(scanTotals.sources)}
@@ -700,8 +698,7 @@ export function FindingsWorkspace() {
                               aria-label={text.openOne(match.domainFull)}
                               className="flex min-w-0 items-center gap-3 text-left"
                             >
-                              <AbstractThumb
-                                tone="light"
+                              <EvidenceBlock
                                 seed={match.thumbSeed}
                                 className="size-8 shrink-0"
                               />
@@ -718,7 +715,7 @@ export function FindingsWorkspace() {
 
                           <TableCell className="hidden lg:table-cell">
                             <span className="inline-flex items-center gap-2">
-                              <SourceBadge kind={match.sourceKind} tone="light" />
+                              <SourceBadge kind={match.sourceKind} />
                               <span className="sr-only">
                                 {sourceLabels[match.sourceKind]}
                               </span>
@@ -778,8 +775,7 @@ export function FindingsWorkspace() {
                         aria-label={text.openOne(match.domainFull)}
                         className="block w-full"
                       >
-                        <AbstractThumb
-                          tone="light"
+                        <EvidenceBlock
                           seed={match.thumbSeed}
                           className="aspect-[16/10] w-full rounded-none"
                         />
@@ -817,7 +813,7 @@ export function FindingsWorkspace() {
                           <span className="tabular text-2xs text-ink-soft">
                             {match.confidenceScore}
                           </span>
-                          <SourceBadge kind={match.sourceKind} tone="light" />
+                          <SourceBadge kind={match.sourceKind} />
                           <span className="sr-only">
                             {sourceLabels[match.sourceKind]}
                           </span>
@@ -932,8 +928,7 @@ function FindingDrawer({
             </DrawerHeader>
 
             <DrawerBody className="space-y-6">
-              <AbstractThumb
-                tone="light"
+              <EvidenceBlock
                 seed={match.thumbSeed}
                 className="aspect-[16/9] w-full rounded-md"
               />
@@ -941,7 +936,7 @@ function FindingDrawer({
               <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-3 text-[13px]">
                 <dt className="text-ink-soft">{text.drawerSource}</dt>
                 <dd className="flex min-w-0 flex-wrap items-center gap-2 text-ink">
-                  <SourceBadge kind={match.sourceKind} tone="light" />
+                  <SourceBadge kind={match.sourceKind} />
                   <span className="truncate">
                     {sourceLabels[match.sourceKind]}
                   </span>

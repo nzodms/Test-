@@ -3,7 +3,7 @@ import { ChevronRight } from "lucide-react";
 
 import { Section } from "@/components/dashboard/page-intro";
 import { SourceBadge } from "@/components/primitives";
-import { AbstractThumb } from "@/components/scanner/abstract-thumb";
+import { EvidenceBlock } from "@/components/file/evidence-block";
 import { Badge } from "@/components/ui/badge";
 import { routes } from "@/config/navigation";
 import { DEMO_ANCHOR, demoMatches } from "@/lib/demo/scan-data";
@@ -56,10 +56,8 @@ export function RecentDetections() {
                 href={routes.findings}
                 className="flex min-h-[60px] items-center gap-3 px-3 py-3 transition-colors hover:bg-mineral/60 sm:gap-4 sm:px-5"
               >
-                <AbstractThumb
+                <EvidenceBlock
                   seed={match.thumbSeed}
-                  locked={false}
-                  tone="light"
                   className="size-10 shrink-0"
                 />
 
@@ -69,7 +67,7 @@ export function RecentDetections() {
                   </p>
                   <div className="mt-1 flex min-w-0 items-center gap-2">
                     <span className="hidden shrink-0 sm:inline-flex">
-                      <SourceBadge kind={match.sourceKind} tone="light" />
+                      <SourceBadge kind={match.sourceKind} />
                     </span>
                     <span className="truncate text-[13px] text-ink-soft">
                       {match.matchType}

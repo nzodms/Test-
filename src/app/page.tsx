@@ -4,46 +4,34 @@ import * as React from "react";
 import { useReducedMotion } from "framer-motion";
 import { SiteNav } from "@/components/landing/site-nav";
 import { SiteFooter } from "@/components/landing/site-footer";
-import { ScanStage, type ScanSession } from "@/components/landing/scan-stage";
-import { SequenceFound } from "@/components/landing/sequence-found";
-import { SequenceWorkflow } from "@/components/landing/sequence-workflow";
-import { SequenceMonitoring } from "@/components/landing/sequence-monitoring";
-import { SequenceAgency } from "@/components/landing/sequence-agency";
-import { SequenceFinal } from "@/components/landing/sequence-final";
+import { CaseFile, type FileSession } from "@/components/file/case-file";
+import { HowItWorks } from "@/components/landing/how-it-works";
+import { ForAgencies } from "@/components/landing/for-agencies";
 import type { Platform } from "@/lib/validation";
 
 /**
- * The landing is the product. It opens on a quiet workspace with a
- * single instrument, becomes a running scan in place, then continues
- * into four editorial sequences that extend the same interface.
+ * The landing is a file.
+ *
+ * It opens as an empty record with an intake field, becomes the scan
+ * being written, and ends as a completed report. Two short sections
+ * follow for readers who scroll past the file — no marketing rhythm
+ * of eyebrow, headline, paragraph, preview, repeat.
  */
 export default function HomePage() {
   const reduced = useReducedMotion();
-  const [session, setSession] = React.useState<ScanSession | null>(null);
-  const stageRef = React.useRef<HTMLElement>(null);
+  const [session, setSession] = React.useState<FileSession | null>(null);
+  const topRef = React.useRef<HTMLDivElement>(null);
 
-  const start = React.useCallback(
+  const open = React.useCallback(
     (username: string, platform: Platform | null, raw: string) => {
       setSession({ username, platform, raw });
     },
     []
   );
 
-  /** Started from the closing sequence — bring the stage back into view. */
-  const startFromFooter = React.useCallback(
-    (username: string, platform: Platform | null, raw: string) => {
-      setSession({ username, platform, raw });
-      stageRef.current?.scrollIntoView({
-        behavior: reduced ? "auto" : "smooth",
-        block: "start",
-      });
-    },
-    [reduced]
-  );
-
-  const reset = React.useCallback(() => {
+  const close = React.useCallback(() => {
     setSession(null);
-    stageRef.current?.scrollIntoView({
+    topRef.current?.scrollIntoView({
       behavior: reduced ? "auto" : "smooth",
       block: "start",
     });
@@ -51,19 +39,17 @@ export default function HomePage() {
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <SiteNav compact={session !== null} />
-      <main className="flex-1">
-        <ScanStage
-          session={session}
-          onStart={start}
-          onReset={reset}
-          stageRef={stageRef}
-        />
-        <SequenceFound />
-        <SequenceWorkflow />
-        <SequenceMonitoring />
-        <SequenceAgency />
-        <SequenceFinal onScan={startFromFooter} />
+      <SiteNav scanning={session !== null} />
+      <main ref={topRef} className="flex-1 scroll-mt-16">
+        <CaseFile session={session} onOpen={open} onClose={close} />
+        {/* The supporting reading only exists while no file is open;
+            once a scan is running, the file is the page. */}
+        {session === null ? (
+          <>
+            <HowItWorks />
+            <ForAgencies onOpenSample={() => open("grn.louann", "onlyfans", "grn.louann")} />
+          </>
+        ) : null}
       </main>
       <SiteFooter />
     </div>

@@ -11,16 +11,18 @@
 
 @theme {
   /* ── Light environment — porcelain ─────────────────────────── */
-  --color-canvas: #f3f1eb; /* page background                     */
-  --color-paper: #fbfaf7; /* raised light surface                 */
-  --color-mineral: #eae7df; /* secondary surface, wells           */
-  --color-mineral-deep: #e0dcd2; /* pressed / hover on mineral    */
-  --color-ink: #111210;
-  --color-ink-soft: #6e706b;
-  --color-ink-faint: #a3a49c;
-  --color-edge: rgb(17 18 16 / 0.1);
-  --color-edge-strong: rgb(17 18 16 / 0.18);
-  --color-edge-faint: rgb(17 18 16 / 0.05);
+  --color-canvas: #eeebe3; /* the desk the file sits on          */
+  --color-page: #fcfbf8; /* a report page — lighter than the desk */
+  --color-paper: #f8f6f1; /* secondary page / raised surface      */
+  --color-mineral: #e4e0d6; /* wells, tabs at rest                */
+  --color-mineral-deep: #d8d3c6; /* pressed                       */
+  --color-ink: #14150f; /* deep ink, not black                    */
+  --color-graphite: #4a4c44; /* rules and secondary ink           */
+  --color-ink-soft: #67695f;
+  --color-ink-faint: #9a9b90;
+  --color-edge: rgb(20 21 15 / 0.11);
+  --color-edge-strong: rgb(20 21 15 / 0.2);
+  --color-edge-faint: rgb(20 21 15 / 0.055);
 
   /* ── Scanner — black glass ─────────────────────────────────── */
   --color-scan: #0d0f11;
@@ -48,6 +50,7 @@
 
   /* ── Typography ────────────────────────────────────────────── */
   --font-sans: var(--font-instrument), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-instrument-serif), ui-serif, Georgia, serif;
   --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
 
   /* The floor for anything a person actually reads. 11px was too
@@ -63,11 +66,14 @@
   --radius-xl: 1.5rem;
 
   /* ── Shadows ───────────────────────────────────────────────── */
-  --shadow-hairline: 0 0 0 1px rgb(17 18 16 / 0.07);
+  --shadow-hairline: 0 0 0 1px rgb(20 21 15 / 0.07);
+  /* A page resting on the desk: contact shadow, almost no spread. */
+  --shadow-page:
+    0 1px 1px rgb(20 21 15 / 0.05), 0 6px 20px -12px rgb(20 21 15 / 0.18);
   --shadow-lift:
-    0 1px 2px rgb(17 18 16 / 0.05), 0 10px 28px -16px rgb(17 18 16 / 0.16);
+    0 1px 2px rgb(20 21 15 / 0.05), 0 10px 28px -16px rgb(20 21 15 / 0.16);
   --shadow-float:
-    0 2px 6px rgb(17 18 16 / 0.06), 0 24px 48px -24px rgb(17 18 16 / 0.22);
+    0 2px 6px rgb(20 21 15 / 0.06), 0 24px 48px -24px rgb(20 21 15 / 0.2);
   --shadow-scanner:
     0 2px 4px rgb(13 15 17 / 0.3), 0 32px 80px -32px rgb(13 15 17 / 0.55),
     inset 0 1px 0 rgb(244 245 242 / 0.06);
@@ -234,6 +240,46 @@
    Surfaces
    ──────────────────────────────────────────────────────────────── */
 
+/* ── Document surfaces ─────────────────────────────────────────
+   A report page sits on the desk. The ::after rule draws the edges
+   of the pages stacked beneath it — the single cheapest signal that
+   this is a file with depth rather than a card with a shadow. */
+@utility report-page {
+  position: relative;
+  background-color: var(--color-page);
+  border: 1px solid var(--color-edge);
+  box-shadow: var(--shadow-page);
+}
+
+@utility report-page-stacked {
+  position: relative;
+  background-color: var(--color-page);
+  border: 1px solid var(--color-edge);
+  box-shadow: var(--shadow-page);
+  &::after {
+    content: "";
+    position: absolute;
+    inset: auto 10px -7px 10px;
+    height: 7px;
+    border: 1px solid var(--color-edge);
+    border-top: 0;
+    border-radius: 0 0 3px 3px;
+    background-color: var(--color-paper);
+    z-index: -1;
+  }
+  &::before {
+    content: "";
+    position: absolute;
+    inset: auto 20px -13px 20px;
+    height: 7px;
+    border: 1px solid var(--color-edge-faint);
+    border-top: 0;
+    border-radius: 0 0 3px 3px;
+    background-color: var(--color-mineral);
+    z-index: -2;
+  }
+}
+
 /* Raised paper card in the light environment */
 @utility surface-paper {
   background-color: var(--color-paper);
@@ -298,6 +344,29 @@
 /* ────────────────────────────────────────────────────────────────
    Text
    ──────────────────────────────────────────────────────────────── */
+
+/* ── Redaction ─────────────────────────────────────────────────
+   A solid ink block, not a blur. Nothing is hidden underneath: the
+   component is given a width, never the withheld string, so the
+   protected value is not in the document at all. */
+@utility redaction-block {
+  display: inline-block;
+  vertical-align: -0.11em;
+  height: 0.92em;
+  border-radius: 1.5px;
+  background-color: var(--color-ink);
+  opacity: 0.86;
+}
+
+/* ── Editorial display ─────────────────────────────────────────
+   The serif appears on report titles and the file cover only, never
+   in interface chrome. */
+@utility text-report {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  letter-spacing: -0.012em;
+  line-height: 1.06;
+}
 
 @utility text-display {
   letter-spacing: -0.022em;
