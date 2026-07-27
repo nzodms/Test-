@@ -10,6 +10,7 @@ import {
   local,
   type OnboardingState,
   type OnboardingUpdate,
+  type RegisterAdvance,
 } from "./state";
 
 const TOUCH_TARGET =
@@ -64,15 +65,32 @@ function Row({
 export function StepAlerts({
   state,
   update,
+  registerAdvance,
 }: {
   state: OnboardingState;
   update: OnboardingUpdate;
+  /** Continue reports the email problem at the field, not 200px below it. */
+  registerAdvance: RegisterAdvance;
 }) {
   const [touched, setTouched] = React.useState(false);
+  const emailRef = React.useRef<HTMLInputElement>(null);
   const trimmed = state.email.trim();
+  const emailOk = !state.emailEnabled || isEmailAddress(trimmed);
   const invalid =
     state.emailEnabled && touched && trimmed.length > 0 && !isEmailAddress(trimmed);
   const missing = state.emailEnabled && touched && trimmed.length === 0;
+
+  /* Re-registered every render so the hook always sees the current
+     address. Returning false means: this entry has said why. */
+  React.useEffect(() => {
+    const attempt = () => {
+      if (emailOk) return true;
+      setTouched(true);
+      emailRef.current?.focus();
+      return false;
+    };
+    return registerAdvance(attempt);
+  });
 
   return (
     <div>
@@ -134,6 +152,7 @@ export function StepAlerts({
             >
               <Input
                 id="setup-email-address"
+                ref={emailRef}
                 type="email"
                 inputMode="email"
                 autoComplete="email"

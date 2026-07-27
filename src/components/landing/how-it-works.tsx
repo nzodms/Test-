@@ -1,82 +1,81 @@
-import { TimelineMark } from "@/components/file/file-parts";
-import { VerificationSeal } from "@/components/file/file-parts";
+import { brand } from "@/config/brand";
 
-/**
- * What a file goes through, as the file's own timeline.
- *
- * Not a feature section: the same chronological device the workspace
- * uses, applied to the process itself.
- */
+/* ────────────────────────────────────────────────────────────────
+   What happens after a match.
+
+   Composition: one rule laid across the section with the five stages
+   hanging off it as ticks. It is a sequence, so it is drawn as one —
+   not as five bordered boxes, and not as alternating text and image.
+   On a phone the same rule stands up and the stages hang off its
+   left edge instead.
+   ──────────────────────────────────────────────────────────────── */
+
 const STAGES = [
   {
     stamp: "Detection",
-    title: "A match is found on an indexed public source",
     detail:
-      "Graded for confidence and filed against the profile it belongs to.",
+      "A match is found on an indexed public source, graded for confidence, and filed against the profile it belongs to.",
   },
   {
     stamp: "Review",
-    title: "You confirm whether the match is your content",
-    detail: "One decision, recorded in the file with its timestamp.",
+    detail:
+      "You confirm whether the match is your content. One decision, recorded with its timestamp.",
   },
   {
     stamp: "Verification",
-    title: "Ownership is verified once",
     detail:
-      "Exact sources, evidence and removal actions open from that point on.",
+      "Ownership is verified once. Exact sources, evidence and removal actions open from that point on.",
   },
   {
     stamp: "Removal",
-    title: "A request is prepared with its evidence attached",
-    detail: "Its state is tracked to an outcome, not assumed.",
+    detail:
+      "A request is prepared with its evidence attached, then tracked to an outcome rather than assumed.",
   },
   {
     stamp: "Monitoring",
-    title: "The source stays under observation",
-    detail: "Content that reappears is filed against the original case.",
+    detail:
+      "The source stays under observation. Content that reappears is filed against the original case.",
   },
-];
+] as const;
 
 export function HowItWorks() {
   return (
     <section
       id="how-it-works"
-      className="mx-auto w-full max-w-[1240px] scroll-mt-20 px-5 pb-24 pt-16 sm:px-8 sm:pb-32"
+      className="mx-auto w-full max-w-[1240px] scroll-mt-20 px-5 pb-24 pt-16 sm:px-8 sm:pb-28"
     >
-      <div className="grid gap-12 lg:grid-cols-[152px_minmax(0,1fr)] lg:gap-14">
-        <div className="hidden lg:block">
-          <p className="border-t border-ink/20 pt-3 font-mono text-[12px] text-ink-faint">
-            Process
-          </p>
-        </div>
+      <h2 className="text-display max-w-[18ch] text-[30px] text-ink sm:text-[34px]">
+        What happens after a match
+      </h2>
 
-        <div className="min-w-0 max-w-[720px]">
-          <h2 className="text-display text-[30px] text-ink sm:text-[34px]">
-            What a file goes through
-          </h2>
-
-          <ol className="mt-10">
-            {STAGES.map((s, i) => (
-              <TimelineMark
-                key={s.stamp}
-                stamp={s.stamp}
-                title={s.title}
-                detail={s.detail}
-                last={i === STAGES.length - 1}
-              />
-            ))}
-          </ol>
-
-          <div className="mt-10 border-t border-edge pt-6">
-            <VerificationSeal state="required" />
-            <p className="mt-3 max-w-md text-[14.5px] leading-relaxed text-ink-soft">
-              Argus reads indexed public sources only. It never accesses
-              private or paid content, and detailed findings open to the
-              profile owner alone.
+      <ol
+        aria-label="Process stages"
+        className="mt-12 grid gap-y-9 border-l border-edge-strong pl-6 sm:mt-14 sm:grid-cols-3 sm:gap-x-10 sm:gap-y-11 sm:border-l-0 sm:border-t sm:border-t-edge-strong sm:pl-0 lg:grid-cols-5 lg:gap-x-8"
+      >
+        {STAGES.map((stage, i) => (
+          <li key={stage.stamp} className="relative sm:pt-6">
+            <span
+              aria-hidden
+              className="absolute -left-6 top-2.5 h-px w-3.5 bg-edge-strong sm:left-0 sm:top-0 sm:h-3.5 sm:w-px"
+            />
+            <p className="font-mono text-[12.5px] tabular text-ink-soft">
+              {String(i + 1).padStart(2, "0")}
             </p>
-          </div>
-        </div>
-      </div>
+            <h3 className="text-subject mt-2 text-[17px] text-ink">
+              {stage.stamp}
+            </h3>
+            <p className="mt-2 max-w-[42ch] text-[14.5px] leading-relaxed text-ink-soft">
+              {stage.detail}
+            </p>
+          </li>
+        ))}
+      </ol>
+
+      <p className="mt-14 max-w-[60ch] border-l-2 border-edge-strong pl-5 text-[15px] leading-relaxed text-graphite">
+        {brand.name} reads indexed public sources only. It never accesses
+        private or paid content, and ownership verification is required before
+        an exact source is shown to anyone.
+      </p>
     </section>
   );
 }

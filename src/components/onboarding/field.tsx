@@ -7,9 +7,11 @@ import { cn } from "@/lib/utils";
 /**
  * A labelled control inside the setup ledger.
  *
- * Local rather than shared: this flow needs a 14px label and a 14px
- * error — the shared field runs smaller than is comfortable on a
- * phone, and errors here have to be readable at arm's length.
+ * Local only because the ledger needs a 16px control on a phone —
+ * anything under 16px makes iOS zoom the page mid-flow. The label
+ * and error treatment is deliberately the shared one (14px medium
+ * ink, 14px error) so a field here does not read as a different
+ * product from a field anywhere else.
  */
 export function SetupField({
   label,
@@ -29,7 +31,7 @@ export function SetupField({
   return (
     <div className={cn("min-w-0", className)}>
       <div className="flex flex-wrap items-baseline justify-between gap-x-4">
-        <Label htmlFor={htmlFor} className="text-[14px] text-ink-soft">
+        <Label htmlFor={htmlFor} className="text-[14px] font-medium text-ink">
           {label}
         </Label>
         {hint ? <span className="text-[14px] text-ink-soft">{hint}</span> : null}

@@ -108,11 +108,9 @@ export type RailItem = {
 };
 
 export function SetupRail({
-  reference,
   items,
   onSelect,
 }: {
-  reference: string;
   items: RailItem[];
   onSelect: (step: number) => void;
 }) {
@@ -123,24 +121,23 @@ export function SetupRail({
         className="absolute left-0 top-1 h-[calc(100%-0.75rem)] w-px bg-edge"
       />
 
-      <p className="pl-4 font-mono text-[12.5px] tracking-[0.04em] text-ink-soft">
-        {reference}
-      </p>
-
-      <ol className="mt-5">
+      <ol>
         {items.map((item, i) => {
           const step = i + 1;
           const inner = (
             <>
+              {/* The mark grows along the rule rather than animating
+                  its own width — transform only, no reflow. */}
               <span
                 aria-hidden
                 className={cn(
-                  "absolute left-0 top-[1.4rem] h-px transition-all duration-200",
+                  "absolute left-0 top-[1.4rem] h-px w-3.5 origin-left",
+                  "transition-[transform,background-color] duration-200",
                   item.state === "active"
-                    ? "w-3.5 bg-accent"
+                    ? "scale-x-100 bg-accent"
                     : item.state === "done"
-                      ? "w-2.5 bg-graphite"
-                      : "w-1.5 bg-edge-strong"
+                      ? "scale-x-[0.7] bg-graphite"
+                      : "scale-x-[0.4] bg-edge-strong"
                 )}
               />
               <span className="block font-mono text-[12.5px] tabular text-ink-soft">

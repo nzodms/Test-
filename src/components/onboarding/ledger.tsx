@@ -113,11 +113,19 @@ export function OpenStep({
         first && "border-t-0"
       )}
     >
-      {/* Where you are, marked in the margin of the rule. */}
-      <span
+      {/* Where you are, marked in the margin of the rule. The mark
+          draws itself along the rule when the entry opens: the one
+          movement on the page, and it says which entry took over. */}
+      <motion.span
         aria-hidden
+        initial={reduced ? false : { scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{
+          duration: motionTokens.duration.base,
+          ease: motionTokens.ease.enter,
+        }}
         className={cn(
-          "absolute left-0 h-px w-10 bg-accent",
+          "absolute left-0 h-px w-10 origin-left bg-accent",
           first ? "top-0" : "-top-px"
         )}
       />
@@ -143,15 +151,17 @@ export function OpenStep({
             </p>
           ) : null}
 
-          {/* Only the answering surface moves, and only once. */}
+          {/* The answering surface only resolves — it does not rise.
+              A translated fade repeated on all six entries would be
+              the same gesture six times over, saying nothing the
+              margin mark has not already said. */}
           <motion.div
-            key={index}
-            initial={reduced ? { opacity: 0 } : { opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{
               duration: reduced
                 ? motionTokens.duration.instant
-                : motionTokens.duration.base,
+                : motionTokens.duration.fast,
               ease: motionTokens.ease.enter,
             }}
           >

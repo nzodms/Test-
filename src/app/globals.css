@@ -4,47 +4,58 @@
    ARGUS — design tokens
 
    A professional instrument, not a document and not an admin panel.
+
+   Two environments. The RESTING one is cool, light and neutral: it
+   carries reading, deciding and navigating. The ACTIVE one is deep
+   and precise: it appears when Argus is genuinely working, the page
+   reorganises around it, and it recedes when the work is done. Teal
+   is the signature — progression, live data, selection, the one
+   essential action — and never decoration.
+
    One sans family carries everything a person reads; mono is
-   reserved for values that are data. Surfaces are light and quiet,
-   the accent is used rarely, and the dark surface exists only as a
-   local analysis layer inside the scan — never as the product's
-   identity.
+   reserved for values that are data.
 
    Single source of truth for color, type, radius, shadow, motion.
    ──────────────────────────────────────────────────────────────── */
 
 @theme {
-  /* ── Light environment ─────────────────────────────────────────
-     Warm enough not to feel clinical, neutral enough not to feel
-     like paper. Surfaces sit *above* the canvas, never below it. */
-  --color-canvas: #edecea; /* the ground everything sits on       */
-  --color-page: #fdfdfc; /* a working surface                     */
-  --color-paper: #f6f5f3; /* secondary surface, wells             */
-  --color-mineral: #e4e3e0; /* controls at rest                   */
-  --color-mineral-deep: #d7d6d2; /* pressed                       */
-  --color-ink: #16171a; /* near-black, very slightly cool         */
-  --color-graphite: #45474d; /* rules and secondary ink           */
-  --color-ink-soft: #62656c;
-  --color-ink-faint: #92959c;
-  --color-edge: rgb(22 23 26 / 0.11);
-  --color-edge-strong: rgb(22 23 26 / 0.2);
-  --color-edge-faint: rgb(22 23 26 / 0.055);
+  /* ── Resting environment — cool, light, neutral ────────────────
+     Where you read, decide and navigate. Slightly cool so the teal
+     belongs to it rather than sitting on top of it, and light enough
+     that the active surface reads as a genuine change of state. */
+  --color-canvas: #eff0f2; /* the ground everything sits on       */
+  --color-page: #ffffff; /* a working surface                     */
+  --color-paper: #f7f8f9; /* secondary surface, wells             */
+  --color-mineral: #e6e8ea; /* controls at rest                   */
+  --color-mineral-deep: #d6d9dd; /* pressed                       */
+  --color-ink: #14161a; /* near-black, cool                       */
+  --color-graphite: #414650; /* rules and secondary ink           */
+  --color-ink-soft: #5e646e;
+  --color-ink-faint: #8d939d;
+  --color-edge: rgb(20 22 26 / 0.11);
+  --color-edge-strong: rgb(20 22 26 / 0.19);
+  --color-edge-faint: rgb(20 22 26 / 0.055);
 
-  /* ── Scanner — black glass ─────────────────────────────────── */
-  --color-scan: #0d0f11;
-  --color-scan-raised: #15181b;
-  --color-scan-high: #1c2125;
-  --color-scan-ink: #f4f5f2;
-  --color-scan-soft: #8f9699;
-  --color-scan-faint: #575f64;
-  --color-scan-edge: rgb(244 245 242 / 0.08);
-  --color-scan-edge-strong: rgb(244 245 242 / 0.15);
+  /* ── Active environment — where the work happens ───────────────
+     Deep, cool and precise. This is not a card dropped on the page:
+     it is the surface the page reorganises around while Argus is
+     actually working, and it recedes when the work is done. */
+  --color-scan: #0e1114;
+  --color-scan-raised: #161a1f;
+  --color-scan-high: #1e242a;
+  --color-scan-ink: #f2f5f7;
+  --color-scan-soft: #99a2ac;
+  --color-scan-faint: #626c77;
+  --color-scan-edge: rgb(242 245 247 / 0.09);
+  --color-scan-edge-strong: rgb(242 245 247 / 0.17);
 
-  /* ── Accent — cold, precise, deliberately rare ─────────────── */
-  --color-accent: #10666e; /* on light surfaces                   */
-  --color-accent-deep: #0b4c53;
-  --color-accent-bright: #45b3bd; /* on the scanner               */
-  --color-accent-tint: #e1edee; /* quiet tinted background        */
+  /* ── Signature — teal. Progression, live data, selection ───────
+     Never decoration: if it is teal, something is active, selected,
+     measured or essential. */
+  --color-accent: #0d6b73; /* on light surfaces                   */
+  --color-accent-deep: #084d54;
+  --color-accent-bright: #35c2cc; /* on the active surface        */
+  --color-accent-tint: #dcecee; /* quiet tinted background        */
 
   /* ── Semantic — mineral, never fluorescent ─────────────────── */
   --color-ok: #3d7a50;
@@ -74,17 +85,17 @@
   --radius-xl: 1.5rem;
 
   /* ── Shadows ───────────────────────────────────────────────── */
-  --shadow-hairline: 0 0 0 1px rgb(22 23 26 / 0.07);
+  --shadow-hairline: 0 0 0 1px rgb(20 22 26 / 0.07);
   /* A page resting on the desk: contact shadow, almost no spread. */
   --shadow-page:
-    0 1px 1px rgb(22 23 26 / 0.05), 0 6px 20px -12px rgb(22 23 26 / 0.18);
+    0 1px 1px rgb(20 22 26 / 0.05), 0 6px 20px -12px rgb(20 22 26 / 0.18);
   --shadow-lift:
-    0 1px 2px rgb(22 23 26 / 0.05), 0 10px 28px -16px rgb(22 23 26 / 0.16);
+    0 1px 2px rgb(20 22 26 / 0.05), 0 10px 28px -16px rgb(20 22 26 / 0.16);
   --shadow-float:
-    0 2px 6px rgb(22 23 26 / 0.06), 0 24px 48px -24px rgb(22 23 26 / 0.2);
+    0 2px 6px rgb(20 22 26 / 0.06), 0 24px 48px -24px rgb(20 22 26 / 0.2);
   --shadow-scanner:
-    0 2px 4px rgb(13 15 17 / 0.3), 0 32px 80px -32px rgb(13 15 17 / 0.55),
-    inset 0 1px 0 rgb(244 245 242 / 0.06);
+    0 2px 4px rgb(8 11 14 / 0.3), 0 32px 80px -32px rgb(8 11 14 / 0.55),
+    inset 0 1px 0 rgb(242 245 247 / 0.06);
 
   /* ── Motion ────────────────────────────────────────────────── */
   --ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
@@ -216,7 +227,7 @@
   }
 
   ::selection {
-    background: rgb(16 102 110 / 0.16);
+    background: rgb(13 107 115 / 0.17);
     color: var(--color-accent-deep);
   }
 
@@ -247,6 +258,88 @@
 /* ────────────────────────────────────────────────────────────────
    Surfaces
    ──────────────────────────────────────────────────────────────── */
+
+/* ── The active surface ────────────────────────────────────────
+   Argus working, rather than Argus waiting.
+
+   This does not restyle its children: it re-points the token layer
+   for the subtree, so `text-ink`, `border-edge`, `bg-page` and the
+   rest resolve to their deep-surface equivalents automatically. One
+   class turns a region of the product from resting to active, and
+   nothing inside it needs to know which environment it is in.
+
+   The signature colour brightens here — teal on near-black is the
+   same signal as teal on white, at the contrast that surface needs. */
+@utility surface-active {
+  --color-page: var(--color-scan-raised);
+  --color-paper: var(--color-scan-high);
+  --color-canvas: var(--color-scan);
+  --color-mineral: rgb(242 245 247 / 0.07);
+  --color-mineral-deep: rgb(242 245 247 / 0.13);
+  --color-ink: var(--color-scan-ink);
+  --color-graphite: var(--color-scan-soft);
+  --color-ink-soft: var(--color-scan-soft);
+  --color-ink-faint: var(--color-scan-faint);
+  --color-edge: var(--color-scan-edge);
+  --color-edge-strong: var(--color-scan-edge-strong);
+  --color-edge-faint: rgb(242 245 247 / 0.05);
+  --color-accent: var(--color-accent-bright);
+  --color-accent-tint: rgb(53 194 204 / 0.12);
+  --color-ok: var(--color-ok-bright);
+  --color-warn: var(--color-warn-bright);
+  --color-crit: var(--color-crit-bright);
+
+  background-color: var(--color-scan);
+  color: var(--color-scan-ink);
+  color-scheme: dark;
+
+  & ::selection {
+    background: rgb(53 194 204 / 0.24);
+    color: var(--color-scan-ink);
+  }
+
+  & :focus-visible {
+    outline-color: var(--color-accent-bright);
+  }
+
+  /* Withheld text inverts with the surface, but must not shout: a
+     redaction is an absence, and a bright bar reads as an object. */
+  & .redaction-block {
+    background-color: rgb(242 245 247 / 0.26);
+    opacity: 1;
+  }
+}
+
+/* The same region, light. Pairing this with `surface-active` on a
+   toggled class lets one container hold the scan and then the report:
+   the content never unmounts, the environment around it changes. */
+@utility surface-resting {
+  background-color: var(--color-page);
+  color: var(--color-ink);
+}
+
+/* Crossing between the two environments. Colour is the only thing
+   that moves, so the transition can be broad without being costly —
+   and it is dropped entirely under reduced motion. */
+@utility surface-shift {
+  transition:
+    background-color 480ms var(--ease-standard),
+    box-shadow 480ms var(--ease-standard);
+
+  & *:not(svg *) {
+    transition:
+      color 380ms var(--ease-standard),
+      background-color 380ms var(--ease-standard),
+      border-color 380ms var(--ease-standard);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+    & * {
+      transition: none;
+    }
+  }
+}
 
 /* ── Document surfaces ─────────────────────────────────────────
    A report page sits on the desk. The ::after rule draws the edges
@@ -304,7 +397,7 @@
 /* The black-glass instrument surface */
 @utility surface-scanner {
   background-color: var(--color-scan);
-  border: 1px solid rgb(13 15 17 / 0.9);
+  border: 1px solid rgb(8 11 14 / 0.9);
   box-shadow: var(--shadow-scanner);
   color: var(--color-scan-ink);
 }
@@ -320,8 +413,8 @@
     background: linear-gradient(
       90deg,
       transparent,
-      rgb(244 245 242 / 0.16) 30%,
-      rgb(244 245 242 / 0.16) 70%,
+      rgb(242 245 247 / 0.16) 30%,
+      rgb(242 245 247 / 0.16) 70%,
       transparent
     );
     pointer-events: none;
@@ -457,7 +550,7 @@
   background:
     radial-gradient(
       100% 80% at var(--tx, 30%) var(--ty, 30%),
-      rgb(244 245 242 / 0.2),
+      rgb(242 245 247 / 0.2),
       transparent 62%
     ),
     linear-gradient(
@@ -518,13 +611,13 @@
 
 @utility scrollbar-quiet-dark {
   scrollbar-width: thin;
-  scrollbar-color: rgb(244 245 242 / 0.16) transparent;
+  scrollbar-color: rgb(242 245 247 / 0.16) transparent;
   &::-webkit-scrollbar {
     width: 6px;
     height: 6px;
   }
   &::-webkit-scrollbar-thumb {
-    background: rgb(244 245 242 / 0.16);
+    background: rgb(242 245 247 / 0.16);
     border-radius: 999px;
   }
   &::-webkit-scrollbar-track {

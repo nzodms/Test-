@@ -71,7 +71,7 @@ function AuthField({
 }) {
   return (
     <div className="min-w-0">
-      <Label htmlFor={htmlFor} className="text-[14px] text-ink-soft">
+      <Label htmlFor={htmlFor} className="text-[14px] font-medium text-ink">
         {label}
       </Label>
       <div className="mt-2">{children}</div>

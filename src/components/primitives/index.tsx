@@ -127,7 +127,7 @@ export function Metric({
     <div className={cn("min-w-0", className)}>
       <p
         className={cn(
-          "truncate text-[13.5px]",
+          "truncate text-[14px]",
           dark ? "text-scan-soft" : "text-ink-soft"
         )}
       >
@@ -145,7 +145,7 @@ export function Metric({
       {hint ? (
         <p
           className={cn(
-            "mt-1.5 text-[13.5px]",
+            "mt-1.5 text-[14px]",
             dark ? "text-scan-soft" : "text-ink-soft"
           )}
         >

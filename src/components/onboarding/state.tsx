@@ -198,7 +198,8 @@ export const local = {
       "Workspace ready",
     ],
     ready: "Workspace ready",
-    redirecting: "Opening your workspace",
+    readyNote:
+      "Your setup is saved in this browser. The entries above can still be reopened if you want to change one.",
     open: "Open workspace",
     pending: "Preparing",
   },
@@ -256,7 +257,14 @@ export function stepName(step: number): string {
   return local.stepNames[step - 1] ?? local.stepNames[0] ?? "";
 }
 
-export function stepMeta(step: number): { title: string; blurb?: string } {
+/**
+ * The heading an entry carries while it is open. The last entry is
+ * the one that changes: it says what it is doing, then what it did.
+ */
+export function stepMeta(
+  step: number,
+  assembled = false
+): { title: string; blurb?: string } {
   switch (step) {
     case 1:
       return { title: local.usage.title, blurb: local.usage.blurb };
@@ -272,7 +280,9 @@ export function stepMeta(step: number): { title: string; blurb?: string } {
     case 5:
       return { title: local.alerts.title, blurb: local.alerts.blurb };
     default:
-      return { title: local.workspace.title };
+      return {
+        title: assembled ? local.workspace.ready : local.workspace.title,
+      };
   }
 }
 
@@ -447,3 +457,12 @@ export function normalizeOnboarding(raw: OnboardingState): OnboardingState {
     completed: raw.completed === true,
   };
 }
+
+/**
+ * How a step takes over Continue: it hands its validator to the flow
+ * and receives the teardown. A callback rather than the ref itself,
+ * so nothing reads a ref during render.
+ */
+export type RegisterAdvance = (
+  attempt: (() => boolean) | null
+) => () => void;

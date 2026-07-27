@@ -160,19 +160,17 @@ function FindingsPanel({ frame }: { frame: ScanFrame }) {
         value={`${frame.matches} potential matches`}
       />
 
-      {/* The one dark surface in the product: a local comparison
-          instrument, the width of the panel, alive only while matching
-          actually runs. */}
-      <div className="mt-5 flex items-center gap-4 rounded-[6px] bg-ink px-4 py-3">
-        <span className="text-[13px] text-page/55">Comparing</span>
+      {/* What is under the needle right now. Withheld, and moving. */}
+      <div className="mt-5 flex items-center gap-4 rounded-[6px] bg-paper px-4 py-3">
+        <span className="shrink-0 text-[13.5px] text-ink-soft">Comparing</span>
         <span className="flex min-w-0 flex-1 items-center gap-2.5 overflow-hidden">
-          <Redacted chars={6} className="!bg-page/25" />
-          <span className="text-page/30">·</span>
-          <Redacted chars={9} className="!bg-page/20" />
-          <span className="text-page/30">·</span>
-          <Redacted chars={4} className="!bg-page/25" />
+          <Redacted chars={6} className="!bg-ink/45" />
+          <span className="text-ink-faint">·</span>
+          <Redacted chars={9} className="!bg-ink/35" />
+          <span className="text-ink-faint">·</span>
+          <Redacted chars={4} className="!bg-ink/45" />
         </span>
-        <span className="shrink-0 font-mono text-[12.5px] tabular text-page/50">
+        <span className="shrink-0 font-mono text-[12.5px] tabular text-accent">
           {frame.sources} src
         </span>
       </div>
@@ -269,7 +267,7 @@ function ExposurePanel({ frame }: { frame: ScanFrame }) {
             <ActivityChart
               data={activitySeries}
               draw={!classifying}
-              tone="light"
+              tone="scan"
               height={86}
             />
           </div>

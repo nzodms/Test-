@@ -44,7 +44,7 @@ export function Field({
     <div className={cn("space-y-2", className)}>
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <Label htmlFor={htmlFor}>{label}</Label>
-        {hint ? <span className="text-[13.5px] text-ink-soft">{hint}</span> : null}
+        {hint ? <span className="text-[14px] text-ink-soft">{hint}</span> : null}
       </div>
       {children}
       {error ? (

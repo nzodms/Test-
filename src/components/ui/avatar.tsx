@@ -14,9 +14,9 @@ import { cn, initials } from "@/lib/utils";
  * the name beside them.
  */
 const SIZES = {
-  xs: "size-6 text-[11px]",
-  sm: "size-7 text-[12px]",
-  md: "size-9 text-[13px]",
+  xs: "size-7 text-[12.5px]",
+  sm: "size-8 text-[13px]",
+  md: "size-9 text-[13.5px]",
   lg: "size-12 text-[16px]",
 } as const;
 

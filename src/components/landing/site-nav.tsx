@@ -7,11 +7,33 @@ import { brand } from "@/config/brand";
 import { routes } from "@/config/navigation";
 import { cn } from "@/lib/utils";
 
+/* ────────────────────────────────────────────────────────────────
+   Strings local to the header.
+   ──────────────────────────────────────────────────────────────── */
+
+const text = {
+  reference: "public scan",
+  demo: "Start a demo scan",
+  workspace: "Demo workspace",
+  signIn: "Sign in",
+} as const;
+
+const entries = [
+  { label: text.demo, href: routes.onboardingDemo },
+  { label: text.workspace, href: routes.dashboard },
+] as const;
+
 /**
- * A file header, not a navigation bar.
+ * The header carries the issuing identity and the ways into the
+ * product. There is no marketing menu — the product below is the
+ * argument.
  *
- * It carries the issuing identity and the two ways into the product.
- * There is no marketing menu: the file below is the argument.
+ * At 375px three text entries and a mark cannot share one row
+ * without colliding, so the phone gets a deliberate two-tier header
+ * instead of a hidden link or a hamburger: identity and sign-in on
+ * top, the two product entries as full-width targets beneath. It
+ * scrolls away on a phone (where vertical space is the scarce
+ * resource) and sticks from the small breakpoint up.
  */
 export function SiteNav({ scanning }: { scanning: boolean }) {
   const [scrolled, setScrolled] = React.useState(false);
@@ -23,57 +45,86 @@ export function SiteNav({ scanning }: { scanning: boolean }) {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  const settled = scrolled || scanning;
+
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 border-b transition-colors duration-300",
-        scrolled || scanning
+        "relative z-40 border-b transition-colors duration-300 sm:sticky sm:top-0",
+        settled
           ? "border-edge bg-canvas/92 backdrop-blur-md"
           : "border-transparent bg-transparent"
       )}
     >
-      <div className="mx-auto flex h-16 w-full max-w-[1240px] items-center gap-4 px-5 sm:px-8">
-        <Link
-          href={routes.home}
-          className="flex items-baseline gap-2.5"
-          aria-label={`${brand.name} — home`}
-        >
-          <LogoMark size={19} className="translate-y-[3px]" />
-          <span className="text-[16px] font-medium tracking-tight text-ink">
-            {brand.name}
-          </span>
-          <span
-            aria-hidden
-            className="hidden font-mono text-[12px] text-ink-faint sm:inline"
+      <div className="mx-auto w-full max-w-[1240px] px-5 sm:px-8">
+        <div className="flex h-14 items-center gap-4 sm:h-16">
+          <Link
+            href={routes.home}
+            className="flex items-baseline gap-2.5 rounded-xs"
+            aria-label={`${brand.name} — home`}
           >
-            / public scan
-          </span>
-        </Link>
+            <LogoMark size={19} className="translate-y-[3px]" />
+            <span className="text-subject text-[16px] text-ink">
+              {brand.name}
+            </span>
+            <span
+              aria-hidden
+              className="hidden font-mono text-[12.5px] text-ink-soft md:inline"
+            >
+              / {text.reference}
+            </span>
+          </Link>
 
-        <nav
-          aria-label="Primary"
-          className="ml-auto flex items-center gap-1 sm:gap-2"
-        >
-          <Link
-            href={routes.onboardingDemo}
-            className="flex h-11 items-center rounded-[3px] px-3 text-[14.5px] text-ink-soft transition-colors hover:text-ink"
+          <nav
+            aria-label="Product"
+            className="ml-auto hidden items-center gap-1 sm:flex"
           >
-            Open a file
-          </Link>
-          <Link
-            href={routes.dashboard}
-            className="hidden h-11 items-center rounded-[3px] px-3 text-[14.5px] text-ink-soft transition-colors hover:text-ink sm:flex"
-          >
-            Demo workspace
-          </Link>
+            {entries.map((entry) => (
+              <Link
+                key={entry.href}
+                href={entry.href}
+                className="flex h-11 items-center rounded-xs px-3 text-[14.5px] text-ink-soft transition-colors hover:text-ink"
+              >
+                {entry.label}
+              </Link>
+            ))}
+            <Link
+              href={routes.signIn}
+              className="ml-1 flex h-11 items-center rounded-sm border border-edge-strong px-4 text-[14.5px] text-ink transition-colors hover:bg-page"
+            >
+              {text.signIn}
+            </Link>
+          </nav>
+
+          {/* Phone: identity and the account entry share the top row. */}
           <Link
             href={routes.signIn}
-            className="flex h-11 items-center rounded-[3px] border border-edge-strong px-4 text-[14.5px] text-ink transition-colors hover:bg-page"
+            className="ml-auto flex h-11 items-center rounded-sm border border-edge-strong px-4 text-[15px] text-ink transition-colors hover:bg-page sm:hidden"
           >
-            Sign in
+            {text.signIn}
           </Link>
-        </nav>
+        </div>
       </div>
+
+      {/* Phone: the two product entries, as full-width targets. */}
+      <nav
+        aria-label="Product"
+        className="grid grid-cols-2 border-t border-edge-faint sm:hidden"
+      >
+        {entries.map((entry, i) => (
+          <Link
+            key={entry.href}
+            href={entry.href}
+            className={cn(
+              "flex h-12 items-center justify-center text-[15px] text-ink-soft",
+              "transition-colors active:bg-page",
+              i === 1 && "border-l border-edge-faint"
+            )}
+          >
+            {entry.label}
+          </Link>
+        ))}
+      </nav>
     </header>
   );
 }

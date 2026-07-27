@@ -24,6 +24,7 @@ import {
   profileCountLabel,
   type OnboardingState,
   type OnboardingUpdate,
+  type RegisterAdvance,
 } from "./state";
 
 /** "" when empty (allowed), null when the value cannot be a URL. */
@@ -51,12 +52,12 @@ function normalizeProfileUrl(raw: string): string | null {
 export function StepProfile({
   state,
   update,
-  advanceRef,
+  registerAdvance,
 }: {
   state: OnboardingState;
   update: OnboardingUpdate;
   /** Continue commits whatever is typed, so nothing is lost. */
-  advanceRef: React.RefObject<(() => boolean) | null>;
+  registerAdvance: RegisterAdvance;
 }) {
   const reduced = useReducedMotion() ?? false;
   const [username, setUsername] = React.useState("");
@@ -67,10 +68,29 @@ export function StepProfile({
   const [adding, setAdding] = React.useState(false);
   const [lastAdded, setLastAdded] = React.useState<string | null>(null);
   const usernameRef = React.useRef<HTMLInputElement>(null);
+  const addAnotherRef = React.useRef<HTMLButtonElement>(null);
+  /** Where focus should land once the form has opened or closed. */
+  const refocus = React.useRef<"form" | "list" | null>(null);
 
   const count = state.profiles.length;
   const hasProfiles = count > 0;
   const formOpen = !hasProfiles || adding;
+
+  /* Adding a profile closes the form and removing the last one opens
+     it: either way the control that was focused is unmounted, and
+     without this focus falls to the body. Kept in a ref so the check
+     costs nothing and never schedules a render. */
+  React.useEffect(() => {
+    const target = refocus.current;
+    if (target === null) return;
+    if (target === "list" && !formOpen) {
+      refocus.current = null;
+      addAnotherRef.current?.focus();
+    } else if (target === "form" && formOpen) {
+      refocus.current = null;
+      usernameRef.current?.focus();
+    }
+  });
 
   /** Returns true when a profile was recorded. */
   const commit = React.useCallback((): boolean => {
@@ -128,13 +148,11 @@ export function StepProfile({
       if (state.profiles.length > 0) return true;
       return commit();
     };
-    advanceRef.current = attempt;
-    return () => {
-      if (advanceRef.current === attempt) advanceRef.current = null;
-    };
+    return registerAdvance(attempt);
   });
 
   const remove = (id: string) => {
+    if (count <= 1) refocus.current = "form";
     update((prev) => ({
       ...prev,
       profiles: prev.profiles.filter((profile) => profile.id !== id),
@@ -148,8 +166,13 @@ export function StepProfile({
           noValidate
           onSubmit={(event) => {
             event.preventDefault();
-            commit();
-            usernameRef.current?.focus();
+            if (commit()) {
+              /* The form closes behind a successful add — send focus
+                 to the control that replaces it. */
+              refocus.current = "list";
+            } else {
+              usernameRef.current?.focus();
+            }
           }}
         >
           <div className="grid gap-5 sm:grid-cols-[minmax(0,1fr)_11rem] sm:gap-4">
@@ -189,7 +212,13 @@ export function StepProfile({
                 </SelectTrigger>
                 <SelectContent>
                   {(Object.keys(platformLabels) as Platform[]).map((key) => (
-                    <SelectItem key={key} value={key} className="py-2 text-[14.5px]">
+                    <SelectItem
+                      key={key}
+                      value={key}
+                      /* 44px rows on a phone — the shared item sits
+                         at 40px, which is under the floor. */
+                      className="min-h-11 py-2 text-[15px] sm:min-h-9 sm:text-[14.5px]"
+                    >
                       {platformLabels[key]}
                     </SelectItem>
                   ))}
@@ -313,11 +342,12 @@ export function StepProfile({
           {!formOpen ? (
             <Button
               type="button"
+              ref={addAnotherRef}
               variant="ghost"
               size="lg"
               onClick={() => {
+                refocus.current = "form";
                 setAdding(true);
-                window.setTimeout(() => usernameRef.current?.focus(), 0);
               }}
               className="mt-4 h-12 w-full justify-start px-0 text-[15px] sm:h-11 sm:w-auto sm:px-3"
             >

@@ -143,7 +143,7 @@ function DropdownMenuShortcut({
 }: React.HTMLAttributes<HTMLSpanElement>) {
   return (
     <span
-      className={cn("ml-auto font-mono text-[12.5px] text-ink-faint", className)}
+      className={cn("ml-auto font-mono text-[12.5px] text-ink-soft", className)}
       {...props}
     />
   );

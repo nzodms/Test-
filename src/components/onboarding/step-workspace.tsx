@@ -6,6 +6,7 @@ import { VerificationSeal } from "@/components/file/file-parts";
 import { Button } from "@/components/ui/button";
 import { motionTokens } from "@/lib/motion";
 import { cn } from "@/lib/utils";
+import { pad2 } from "./chrome";
 import {
   accountLabel,
   alertsLabel,
@@ -17,9 +18,8 @@ import {
   type OnboardingState,
 } from "./state";
 
-/** Five lines, ~2.6s of assembly, then the workspace opens. */
+/** Five lines, ~2.6s, and then the workspace is there to be opened. */
 const LINE_MS = 520;
-const HANDOVER_MS = 1000;
 
 function detailFor(index: number, state: OnboardingState): string {
   switch (index) {
@@ -41,7 +41,11 @@ function detailFor(index: number, state: OnboardingState): string {
  *
  * Each line is written into the record with the value it was given,
  * so the last thing the person sees is their own setup read back to
- * them. When the last line lands, the workspace opens.
+ * them. Opening the workspace is then their move, not a timer's:
+ * a redirect fired at the end of an animation gives nobody time to
+ * read it, breaks the back button, and — where the dashboard is
+ * gated — drops an unauthenticated person on the sign-in page with
+ * no explanation of why.
  */
 export function StepWorkspace({
   state,
@@ -87,13 +91,6 @@ export function StepWorkspace({
 
   const done = completed >= total;
 
-  /* The last step hands over to the workspace on its own. */
-  React.useEffect(() => {
-    if (!done) return;
-    const timer = setTimeout(onFinish, reduced ? 600 : HANDOVER_MS);
-    return () => clearTimeout(timer);
-  }, [done, onFinish, reduced]);
-
   return (
     <div>
       <div className="flex items-baseline justify-between gap-4">
@@ -129,7 +126,7 @@ export function StepWorkspace({
               className="grid grid-cols-[2.5rem_minmax(0,1fr)] items-baseline gap-x-3 border-t border-edge py-3.5 sm:grid-cols-[3rem_minmax(0,1fr)_auto] sm:gap-x-4"
             >
               <span className="font-mono text-[12.5px] tabular text-ink-soft">
-                {String(index + 1).padStart(3, "0")}
+                {pad2(index + 1)}
               </span>
               <span
                 className={cn(
@@ -166,14 +163,15 @@ export function StepWorkspace({
           }}
           className="mt-8 border-t border-edge pt-7"
         >
+          {/* The heading of this entry has already changed to
+              "Workspace ready" — this states what that means rather
+              than saying it a second time in a larger size. */}
           <p
             role="status"
-            className="text-display text-[26px] text-ink sm:text-[32px]"
+            className="max-w-[54ch] text-[15px] leading-relaxed text-ink-soft"
           >
-            {local.workspace.ready}
-          </p>
-          <p className="mt-2 text-[15px] text-ink-soft">
-            {local.workspace.redirecting}
+            <span className="sr-only">{local.workspace.ready}. </span>
+            {local.workspace.readyNote}
           </p>
 
           <div className="mt-7 flex flex-col gap-5 sm:flex-row-reverse sm:items-center sm:justify-between">
@@ -185,7 +183,7 @@ export function StepWorkspace({
             >
               {local.workspace.open}
             </Button>
-            <VerificationSeal state="required" />
+            <VerificationSeal state="required" className="text-[14px]" />
           </div>
         </motion.div>
       ) : null}

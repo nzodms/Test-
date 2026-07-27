@@ -41,6 +41,7 @@ import {
   subjectUsername,
   type OnboardingState,
   type OnboardingUpdate,
+  type RegisterAdvance,
 } from "./state";
 
 /** How long a resume note stays before it fades out of the way. */
@@ -71,12 +72,43 @@ export function OnboardingFlow() {
   const [maxStep, setMaxStep] = React.useState(1);
   const [navigated, setNavigated] = React.useState(false);
   const [attempted, setAttempted] = React.useState(false);
+  const [assembled, setAssembled] = React.useState(false);
   const [resumeVisible, setResumeVisible] = React.useState(false);
 
   const headingRef = React.useRef<HTMLHeadingElement>(null);
   const openRef = React.useRef<HTMLDivElement>(null);
-  /** A step may take over Continue to commit what is typed. */
+
+  /* Handed to the open entry as callback refs. Passing the ref
+     objects themselves down through the entry list would be reading
+     a ref during render, which React's compiler rules disallow —
+     these are stable functions that only run at commit. */
+  const setHeading = React.useCallback((node: HTMLHeadingElement | null) => {
+    headingRef.current = node;
+  }, []);
+  const setOpenRoot = React.useCallback((node: HTMLDivElement | null) => {
+    openRef.current = node;
+  }, []);
+  /**
+   * A step may take over Continue: it validates, reports its own
+   * reason next to the control that caused it, and returns whether
+   * the entry can be left. When a step owns the check the generic
+   * guard is not raised as well — one problem, one message.
+   */
   const advanceRef = React.useRef<(() => boolean) | null>(null);
+
+  /* Steps register through this callback rather than receiving the ref
+     itself: handing a ref object to a function during render is what
+     React's compiler rules forbid, and a stable registrar is the same
+     thing without the hazard. */
+  const registerAdvance = React.useCallback(
+    (attempt: (() => boolean) | null) => {
+      advanceRef.current = attempt;
+      return () => {
+        if (advanceRef.current === attempt) advanceRef.current = null;
+      };
+    },
+    []
+  );
 
   /* One-time hydration from localStorage. The stored value can only be
      read after mount (there is no window during SSR), so these are the
@@ -111,8 +143,7 @@ export function OnboardingFlow() {
   }, []);
 
   const guard = stepGuard(state);
-  const meta = stepMeta(state.step);
-  const isLastStep = state.step === TOTAL_STEPS;
+  const meta = stepMeta(state.step, assembled);
   const subject = subjectUsername(state);
   const reference = caseReference(subject);
 
@@ -132,6 +163,7 @@ export function OnboardingFlow() {
       const target = Math.min(TOTAL_STEPS, Math.max(1, step));
       setNavigated(true);
       setAttempted(false);
+      setAssembled(false);
       setResumeVisible(false);
       setMaxStep((previous) => Math.max(previous, target));
       update((prev) => ({ ...prev, step: target }));
@@ -142,9 +174,18 @@ export function OnboardingFlow() {
   const handleNext = React.useCallback(() => {
     if (stepGuard(state) !== null) {
       /* An entry can resolve its own guard — step 02 records whatever
-         is typed rather than making the person press Add first. */
-      if (advanceRef.current?.() === true) {
-        goTo(state.step + 1);
+         is typed rather than making the person press Add first, and
+         step 05 marks the email field itself. When a step owns the
+         check it also owns the message. */
+      const attempt = advanceRef.current;
+      if (attempt) {
+        if (attempt()) {
+          goTo(state.step + 1);
+        } else {
+          /* The entry has just marked the control that caused it —
+             drop any generic guard so there is only one message. */
+          setAttempted(false);
+        }
         return;
       }
       setAttempted(true);
@@ -171,12 +212,14 @@ export function OnboardingFlow() {
     removeStored(ONBOARDING_KEY);
     setNavigated(true);
     setAttempted(false);
+    setAssembled(false);
     setResumeVisible(false);
     setMaxStep(1);
     setState(DEFAULT_ONBOARDING);
   }, []);
 
   const handleAssembled = React.useCallback(() => {
+    setAssembled(true);
     update((prev) => (prev.completed ? prev : { ...prev, completed: true }));
   }, [update]);
 
@@ -185,14 +228,32 @@ export function OnboardingFlow() {
     router.push(routes.dashboard);
   }, [router, update]);
 
-  /* An entry already written stays written, even after stepping back.
-     The last entry is never jumped to — it creates the workspace. */
+  /* An entry already written stays written, even after stepping back —
+     including from the last entry, which would otherwise be a dead
+     end. The last entry itself is never jumped to: it is reached by
+     creating the workspace. */
   const railItems: RailItem[] = STEPS.map((step) => ({
     label: stepName(step),
     state:
       step === state.step ? "active" : step <= maxStep ? "done" : "pending",
-    reachable: !isLastStep && step < TOTAL_STEPS && step <= maxStep,
+    reachable: step < TOTAL_STEPS && step <= maxStep && step !== state.step,
   }));
+
+  /* The open entry's body is built once, above the entry list: a step
+     registers itself through `registerAdvance`, and building that
+     inside the entry list would hand a ref-bearing callback around
+     while the list renders. */
+  const isFinalStep = state.step === TOTAL_STEPS;
+  const openBody = isFinalStep ? null : (
+    <StepBody state={state} update={update} registerAdvance={registerAdvance} />
+  );
+  const workspaceBody = (
+    <StepWorkspace
+      state={state}
+      onAssembled={handleAssembled}
+      onFinish={handleFinish}
+    />
+  );
 
   return (
     <div className="min-h-dvh bg-canvas">
@@ -207,11 +268,7 @@ export function OnboardingFlow() {
           {/* The index, in the margin — persistent across every step */}
           <div className="hidden lg:block">
             <div className="sticky top-28">
-              <SetupRail
-                reference={reference}
-                items={railItems}
-                onSelect={goTo}
-              />
+              <SetupRail items={railItems} onSelect={goTo} />
             </div>
           </div>
 
@@ -220,46 +277,38 @@ export function OnboardingFlow() {
               <>
                 <ResumeNote visible={resumeVisible} />
 
-                {/* Small screens carry the marker inline instead */}
+                {/* Small screens carry the counter inline instead. The
+                    reference is only repeated where the header has had
+                    to drop it. */}
                 <p className="mb-4 font-mono text-[12.5px] tabular text-ink-soft lg:hidden">
                   <span className="sr-only">
                     {local.stepCounter(state.step)} · {reference}
                   </span>
                   <span aria-hidden>
                     {pad2(state.step)} / {pad2(TOTAL_STEPS)}
-                    <span className="px-2">·</span>
-                    {reference}
+                    <span className="px-2 md:hidden">·</span>
+                    <span className="md:hidden">{reference}</span>
                   </span>
                 </p>
 
-                <ReportPage className="px-4 py-1 sm:px-8 sm:py-2">
-                  {isLastStep ? (
-                    <OpenStep
-                      first
-                      index={state.step}
-                      title={meta.title}
-                      headingRef={headingRef}
-                      rootRef={openRef}
-                    >
-                      <StepWorkspace
-                        state={state}
-                        onAssembled={handleAssembled}
-                        onFinish={handleFinish}
-                      />
-                    </OpenStep>
-                  ) : (
-                    STEPS.filter((step) => step < TOTAL_STEPS).map((step) => {
-                      if (step === state.step) {
-                        return (
-                          <OpenStep
-                            key={step}
-                            first={step === 1}
-                            index={step}
-                            title={meta.title}
-                            blurb={meta.blurb}
-                            headingRef={headingRef}
-                            rootRef={openRef}
-                            actions={
+                <ReportPage className="px-4 py-2 sm:px-8 sm:py-3">
+                  {/* All six entries stay on the page. The one being
+                      answered is open — including the last, so the
+                      record you built stays readable while it commits. */}
+                  {STEPS.map((step) => {
+                    const isFinal = step === TOTAL_STEPS;
+                    if (step === state.step) {
+                      return (
+                        <OpenStep
+                          key={step}
+                          first={step === 1}
+                          index={step}
+                          title={meta.title}
+                          blurb={meta.blurb}
+                          headingRef={setHeading}
+                          rootRef={setOpenRoot}
+                          actions={
+                            isFinal ? undefined : (
                               <StepActions
                                 primaryLabel={
                                   step === TOTAL_STEPS - 1
@@ -271,41 +320,39 @@ export function OnboardingFlow() {
                                 showBack={step > 1}
                                 message={attempted ? guard : null}
                               />
-                            }
-                          >
-                            {renderStep(state, update, advanceRef)}
-                          </OpenStep>
-                        );
-                      }
-                      return (
-                        <ClosedStep
-                          key={step}
-                          first={step === 1}
-                          index={step}
-                          name={stepName(step)}
-                          value={stepValue(step, state)}
-                          done={step <= maxStep}
-                          onOpen={() => goTo(step)}
-                        />
+                            )
+                          }
+                        >
+                          {isFinal ? workspaceBody : openBody}
+                        </OpenStep>
                       );
-                    })
-                  )}
+                    }
+                    return (
+                      <ClosedStep
+                        key={step}
+                        first={step === 1}
+                        index={step}
+                        name={stepName(step)}
+                        value={stepValue(step, state)}
+                        done={!isFinal && step <= maxStep}
+                        onOpen={() => goTo(step)}
+                      />
+                    );
+                  })}
                 </ReportPage>
 
-                {!isLastStep ? (
-                  <div className="mt-5 flex flex-col gap-1 px-1 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-                    <p className="text-[14px] text-ink-soft">
-                      {local.storageNote}
-                    </p>
-                    <button
-                      type="button"
-                      onClick={handleRestart}
-                      className="inline-flex h-11 items-center self-start rounded-xs text-[14.5px] text-ink-soft underline decoration-edge-strong underline-offset-4 transition-colors hover:text-ink"
-                    >
-                      {local.restart}
-                    </button>
-                  </div>
-                ) : null}
+                <div className="mt-5 flex flex-col gap-1 px-1 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+                  <p className="text-[14px] text-ink-soft">
+                    {local.storageNote}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleRestart}
+                    className="inline-flex h-11 items-center self-start rounded-xs text-[14.5px] text-ink-soft underline decoration-edge-strong underline-offset-4 transition-colors hover:text-ink"
+                  >
+                    {local.restart}
+                  </button>
+                </div>
               </>
             ) : (
               <FlowSkeleton />
@@ -317,23 +364,43 @@ export function OnboardingFlow() {
   );
 }
 
-function renderStep(
-  state: OnboardingState,
-  update: OnboardingUpdate,
-  advanceRef: React.RefObject<(() => boolean) | null>
-): React.ReactNode {
+/**
+ * The body of whichever entry is open. A component rather than a
+ * helper call: `registerAdvance` closes over a ref, and React's
+ * compiler rules allow handing that to JSX but not to a plain
+ * function during render.
+ */
+function StepBody({
+  state,
+  update,
+  registerAdvance,
+}: {
+  state: OnboardingState;
+  update: OnboardingUpdate;
+  registerAdvance: RegisterAdvance;
+}) {
   switch (state.step) {
     case 1:
       return <StepUsage state={state} update={update} />;
     case 2:
       return (
-        <StepProfile state={state} update={update} advanceRef={advanceRef} />
+        <StepProfile
+          state={state}
+          update={update}
+          registerAdvance={registerAdvance}
+        />
       );
     case 3:
       return <StepRelationship state={state} update={update} />;
     case 4:
       return <StepMonitoring state={state} update={update} />;
     default:
-      return <StepAlerts state={state} update={update} />;
+      return (
+        <StepAlerts
+          state={state}
+          update={update}
+          registerAdvance={registerAdvance}
+        />
+      );
   }
 }

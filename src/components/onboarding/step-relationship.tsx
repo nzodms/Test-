@@ -77,7 +77,12 @@ export function StepRelationship({
         <h2 className="text-[15px] font-medium text-ink">
           {local.relationship.methodsHeading}
         </h2>
-        <ol className="mt-3">
+        {/* Stated before the list, not after it: whether any of this
+            is available yet is the first thing worth knowing. */}
+        <p className="mt-1.5 text-[14px] text-ink-soft">
+          {local.relationship.methodsNote}
+        </p>
+        <ol className="mt-4 border-b border-edge">
           {local.relationship.methods.map((method, index) => (
             <li
               key={method.name}
@@ -100,9 +105,6 @@ export function StepRelationship({
             </li>
           ))}
         </ol>
-        <p className="mt-3 border-t border-edge pt-3 text-[14px] text-ink-soft">
-          {local.relationship.methodsNote}
-        </p>
       </div>
     </div>
   );

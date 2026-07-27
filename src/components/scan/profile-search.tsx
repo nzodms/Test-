@@ -13,6 +13,7 @@ import {
 import { copy } from "@/config/product";
 import { parseSearchQuery, platformLabels, type Platform } from "@/lib/validation";
 import { motionTokens } from "@/lib/motion";
+import { InstrumentAtRest } from "./instrument-at-rest";
 import { cn } from "@/lib/utils";
 
 const CONDITIONS: Array<[string, string]> = [
@@ -73,11 +74,12 @@ export function ProfileSearch({
         };
 
   /* Deliberately asymmetric: the search holds the left of the measure
-     and the scope sits in the margin beside it. A centred box under a
-     centred line is the shape of every search-first template. */
+     and the instrument sits beside it, idle. A centred box under a
+     centred line is the shape of every search-first template — and it
+     would show none of the product. */
   return (
-    <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_248px] lg:gap-16">
-      <div className="min-w-0 max-w-[620px]">
+    <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-14">
+      <div className="min-w-0 max-w-[600px] lg:pt-2">
       <motion.p
         {...enter(0)}
         className="text-title text-[21px] text-ink sm:text-[24px]"
@@ -197,22 +199,25 @@ export function ProfileSearch({
         </button>{" "}
         against a demonstration dataset to see exactly what Argus produces.
       </motion.p>
+
+      <motion.dl {...enter(0.16)} className="mt-9 border-t border-edge pt-6">
+        <div className="grid gap-x-10 gap-y-4 sm:grid-cols-3">
+          {CONDITIONS.map(([term, def]) => (
+            <div key={term} className="min-w-0">
+              <dt className="text-[14px] font-medium text-ink">{term}</dt>
+              <dd className="mt-1 text-[13.5px] leading-relaxed text-ink-soft">
+                {def}
+              </dd>
+            </div>
+          ))}
+        </div>
+      </motion.dl>
       </div>
 
-      {/* The terms of the search, in the margin */}
-      <motion.dl {...enter(0.18)} className="min-w-0 lg:pt-1">
-        <div className="mb-1 hidden lg:block">
-          <span className="block h-px w-full bg-ink/20" />
-        </div>
-        {CONDITIONS.map(([term, def]) => (
-          <div key={term} className="border-t border-edge py-3 lg:first:border-t-0">
-            <dt className="text-[14.5px] text-ink">{term}</dt>
-            <dd className="mt-1 text-[13.5px] leading-relaxed text-ink-soft">
-              {def}
-            </dd>
-          </div>
-        ))}
-      </motion.dl>
+      {/* The instrument itself, idle and waiting for a name */}
+      <div className="min-w-0">
+        <InstrumentAtRest />
+      </div>
     </div>
   );
 }

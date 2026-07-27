@@ -210,7 +210,7 @@ function SummarySection() {
   const prev = activitySeries[activitySeries.length - 2]!;
 
   return (
-    <div className="grid gap-9 lg:grid-cols-[minmax(0,1fr)_minmax(0,300px)] lg:gap-14">
+    <div className="grid gap-9 lg:grid-cols-[minmax(0,1fr)_minmax(0,320px)] lg:gap-12">
       <div className="min-w-0">
         <p className="max-w-lg text-[16px] leading-relaxed text-ink">
           {scanTotals.matches} potential matches were found across{" "}
@@ -231,27 +231,71 @@ function SummarySection() {
           />
           <SummaryFact label="Monitoring" value="Not started" muted />
         </dl>
+
+        <div className="mt-8 border-t border-edge pt-5">
+          <p className="text-[14px] text-ink-soft">Withheld until verified</p>
+          <ul className="mt-2.5 flex flex-wrap gap-x-7 gap-y-1.5">
+            {[
+              "Exact source addresses",
+              "Evidence previews",
+              "Full findings register",
+              "Removal requests",
+            ].map((item) => (
+              <li
+                key={item}
+                className="flex items-baseline gap-2 text-[14.5px] text-ink-soft"
+              >
+                <Lock
+                  className="size-3 shrink-0 translate-y-[2px]"
+                  aria-hidden
+                />
+                {item}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
-      <div className="min-w-0 border-t border-edge pt-5 lg:border-l lg:border-t-0 lg:pl-8 lg:pt-0">
-        <p className="text-[14px] text-ink-soft">Withheld until verified</p>
-        <ul className="mt-3">
-          {[
-            "Exact source addresses",
-            "Evidence previews",
-            "Full findings register",
-            "Removal requests",
-          ].map((item) => (
-            <li
-              key={item}
-              className="flex items-baseline gap-2.5 border-t border-edge py-2.5 text-[14.5px] text-ink-soft"
-            >
-              <Lock className="size-3 shrink-0 translate-y-[2px]" aria-hidden />
-              {item}
-            </li>
-          ))}
-        </ul>
+      {/* The one analytic panel in the report keeps the environment of
+          the instrument that produced it — the reading is light, the
+          measurement stays deep. */}
+      <AnalysisPanel />
+    </div>
+  );
+}
+
+/**
+ * A measurement, still on the instrument's surface.
+ *
+ * Not a dark card for contrast's sake: exposure and the curve are the
+ * two things here that were *computed* rather than counted, and they
+ * keep the environment they were computed in.
+ */
+function AnalysisPanel() {
+  return (
+    <div className="surface-active min-w-0 rounded-[10px] px-5 py-6 shadow-lift">
+      <div className="flex items-baseline justify-between gap-4">
+        <p className="text-[14px] text-ink-soft">Exposure status</p>
+        <p className="font-mono text-[12.5px] tabular text-ink-faint">
+          {exposureLevel.score}/100
+        </p>
       </div>
+
+      <div className="mt-4">
+        <ExposureStatus score={exposureLevel.score} />
+      </div>
+
+      <div className="mt-7">
+        <p className="text-[13.5px] text-ink-soft">Detection activity</p>
+        <div className="mt-2.5 h-[92px]">
+          <ActivityChart data={activitySeries} draw tone="scan" height={92} />
+        </div>
+      </div>
+
+      <p className="mt-4 border-t border-edge pt-4 text-[13.5px] leading-relaxed text-ink-soft">
+        Rising: the material is reaching new sources faster than it is being
+        removed.
+      </p>
     </div>
   );
 }
@@ -374,26 +418,28 @@ function FindingDetail() {
         duration: motionTokens.duration.base,
         ease: motionTokens.ease.enter,
       }}
-      className="list-none overflow-hidden bg-page"
+      className="-mx-3 list-none overflow-hidden bg-page"
     >
-      <dl className="grid gap-x-10 px-3 pb-4 pt-1 sm:grid-cols-2">
+      <dl className="grid gap-x-12 gap-y-1 px-3 pb-4 pl-[3.5rem] pt-1 sm:grid-cols-2">
         {[
           ["Full address", 22],
           ["Page title", 18],
           ["First seen at", 12],
           ["Evidence", 15],
         ].map(([label, chars]) => (
-          <div
-            key={label as string}
-            className="flex items-baseline justify-between gap-4 py-1.5"
-          >
-            <dt className="text-[14px] text-ink-soft">{label}</dt>
-            <dd>
+          <div key={label as string} className="flex items-baseline gap-4 py-1">
+            <dt className="w-[7.5rem] shrink-0 text-[14px] text-ink-soft">
+              {label}
+            </dt>
+            <dd className="min-w-0">
               <Redacted chars={chars as number} />
             </dd>
           </div>
         ))}
       </dl>
+      <p className="px-3 pb-4 pl-[3.5rem] text-[13.5px] text-ink-soft">
+        Withheld at the source — these characters are never sent to this page.
+      </p>
     </motion.li>
   );
 }
@@ -439,22 +485,38 @@ function TimelineSection() {
 
 function ExposureSection() {
   return (
-    <div className="grid gap-9 sm:grid-cols-[minmax(0,260px)_minmax(0,1fr)] sm:gap-14">
-      <ExposureStatus
-        score={exposureLevel.score}
-        size="lead"
-        note="Weighted from match volume, confidence, and how many separate sources carry the content."
-      />
-      <div className="min-w-0">
-        <p className="text-[14px] text-ink-soft">Detection activity</p>
-        <div className="mt-3 h-[132px]">
-          <ActivityChart data={activitySeries} draw tone="light" height={132} />
+    <div>
+      <div className="surface-active rounded-[10px] px-6 py-7 shadow-lift sm:px-8 sm:py-8">
+        <div className="grid gap-9 sm:grid-cols-[minmax(0,260px)_minmax(0,1fr)] sm:gap-12">
+          <ExposureStatus
+            score={exposureLevel.score}
+            size="lead"
+            note="Weighted from match volume, confidence, and how many separate sources carry the content."
+          />
+          <div className="min-w-0">
+            <div className="flex items-baseline justify-between gap-4">
+              <p className="text-[14px] text-ink-soft">Detection activity</p>
+              <p className="font-mono text-[12.5px] tabular text-ink-faint">
+                8 weeks
+              </p>
+            </div>
+            <div className="mt-3 h-[132px]">
+              <ActivityChart
+                data={activitySeries}
+                draw
+                tone="scan"
+                height={132}
+              />
+            </div>
+          </div>
         </div>
-        <p className="mt-4 text-[15px] leading-relaxed text-ink">
-          Eight weeks of detections. Exposure rises when the same material
-          reaches new sources faster than it is removed.
-        </p>
       </div>
+
+      <p className="mt-5 max-w-xl text-[15px] leading-relaxed text-ink">
+        Exposure rises when the same material reaches new sources faster than
+        it is removed. Monitoring keeps this figure current instead of leaving
+        you with one reading.
+      </p>
     </div>
   );
 }

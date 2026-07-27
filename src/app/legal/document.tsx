@@ -34,7 +34,7 @@ export function DocHead({
       <p className="mt-6 max-w-[54ch] text-[18px] leading-[1.6] text-graphite">
         {lead}
       </p>
-      <p className="mt-8 font-mono text-[12.5px] text-ink-faint">{updated}</p>
+      <p className="mt-8 font-mono text-[12.5px] text-ink-soft">{updated}</p>
     </header>
   );
 }
@@ -95,7 +95,7 @@ export function DocSection({
     >
       <span
         aria-hidden
-        className="font-mono text-[12.5px] tabular text-ink-faint lg:absolute lg:-left-16 lg:top-[0.35rem]"
+        className="font-mono text-[12.5px] tabular text-ink-soft lg:absolute lg:-left-16 lg:top-[0.35rem]"
       >
         {number}
       </span>
@@ -146,7 +146,7 @@ export function DocDefinitions({
           <dt className="text-subject text-[16px] text-ink">
             {item.term}
             {item.note ? (
-              <span className="ml-2 font-mono text-[12.5px] text-ink-faint">
+              <span className="ml-2 font-mono text-[12.5px] text-ink-soft">
                 {item.note}
               </span>
             ) : null}

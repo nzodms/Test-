@@ -58,6 +58,7 @@ export function ActivityChart({
 }) {
   const reduced = useReducedMotion();
   const gradientId = React.useId();
+  const clipId = React.useId();
 
   const w = 320;
   const h = height;
@@ -121,6 +122,23 @@ export function ActivityChart({
           <stop offset="0%" stopColor={palette.fill} stopOpacity={palette.fillTo} />
           <stop offset="100%" stopColor={palette.fill} stopOpacity="0" />
         </linearGradient>
+
+        {/* The reveal.
+            Not `pathLength`: that is implemented with stroke dashes,
+            and this chart is drawn in a 320-unit viewBox stretched to
+            whatever width the container is. Under that non-uniform
+            scale the dash pattern renders unevenly and the line comes
+            out in pieces. A clip that grows is scale-independent. */}
+        <clipPath id={clipId}>
+          <motion.rect
+            x="0"
+            y="0"
+            height={h}
+            initial={{ width: still ? w : 0 }}
+            animate={{ width: shown ? w : 0 }}
+            transition={{ duration: strokeSeconds, ease: "linear" }}
+          />
+        </clipPath>
       </defs>
 
       {/* Reference lines. Static — they are the paper, not the mark. */}
@@ -137,8 +155,9 @@ export function ActivityChart({
         />
       ))}
 
+      <g clipPath={`url(#${clipId})`}>
       {/* Baseline — extends under the stroke as it travels. */}
-      <motion.line
+      <line
         x1={padX}
         x2={w - padX}
         y1={h - padY}
@@ -146,9 +165,6 @@ export function ActivityChart({
         stroke={palette.grid}
         strokeWidth="1"
         vectorEffect="non-scaling-stroke"
-        initial={{ pathLength: still ? 1 : 0 }}
-        animate={{ pathLength: shown ? 1 : 0 }}
-        transition={{ duration: strokeSeconds, ease: "linear" }}
       />
 
       {/* Recurrence signal — quieter, drawn a beat behind. */}
@@ -170,7 +186,7 @@ export function ActivityChart({
       />
 
       {/* The measurement itself. */}
-      <motion.path
+      <path
         d={linePath}
         fill="none"
         stroke={palette.line}
@@ -178,9 +194,6 @@ export function ActivityChart({
         strokeLinecap="round"
         strokeLinejoin="round"
         vectorEffect="non-scaling-stroke"
-        initial={{ pathLength: still ? 1 : 0 }}
-        animate={{ pathLength: shown ? 1 : 0 }}
-        transition={{ duration: strokeSeconds, ease: "linear" }}
       />
 
       {/* Weekly ticks, each arriving as the stroke passes over it. */}
@@ -228,6 +241,7 @@ export function ActivityChart({
           }}
         />
       ) : null}
+      </g>
     </svg>
   );
 }

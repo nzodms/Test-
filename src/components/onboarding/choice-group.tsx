@@ -113,12 +113,14 @@ export function ChoiceGroup<T extends string>({
               selected ? "bg-page" : "hover:bg-page/60"
             )}
           >
-            {/* The choice, marked in the margin of the rule */}
+            {/* The choice, marked in the margin of the rule. The mark
+                grows from the margin — transform only, no reflow. */}
             <span
               aria-hidden
               className={cn(
-                "absolute left-0 top-[-1px] h-px transition-all duration-200",
-                selected ? "w-8 bg-accent" : "w-0 bg-transparent"
+                "absolute left-0 top-[-1px] h-px w-8 origin-left bg-accent",
+                "transition-transform duration-200",
+                selected ? "scale-x-100" : "scale-x-0"
               )}
             />
             <SelectionMark selected={selected} />

@@ -22,7 +22,7 @@ const text = {
   sealedNote:
     "Sealed values are withheld at the source: the characters are never sent to this page, so there is nothing to recover.",
   libraryNote: (matches: number) =>
-    `${matches} findings sit behind covers like this one across the demonstration library.`,
+    `The demonstration workspace behind this cover holds ${matches} findings.`,
   noWorkspace: "No workspace yet?",
   openDemo: "Set one up with demonstration data",
   home: "Back to the public scan",
@@ -162,14 +162,17 @@ function SealedCover({
         </p>
       </div>
 
+      {/* The withheld subject names the report, but the request to
+          open it is what this screen is about — this stays a clear
+          step below the heading rather than competing with it. */}
       <p
         className={cn(
-          "text-display mt-7 flex items-baseline gap-1 text-ink",
-          compact ? "text-[26px]" : "text-[40px]"
+          "text-subject mt-7 flex items-baseline gap-1 text-ink",
+          compact ? "text-[20px]" : "text-[28px]"
         )}
         aria-label={text.subjectAria}
       >
-        @<Redacted chars={11} className="!h-[0.6em]" />
+        @<Redacted chars={11} className="!h-[0.66em]" />
       </p>
 
       <dl className="mt-7">
@@ -198,7 +201,7 @@ function SealedCover({
               {formatLongDateUTC(DEMO_ANCHOR)}
             </p>
           </div>
-          <VerificationSeal state="required" className="mt-5" />
+          <VerificationSeal state="required" className="mt-5 text-[14px]" />
         </div>
       )}
     </div>

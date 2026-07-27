@@ -85,10 +85,10 @@ export default function LegalLayout({ children }: { children: ReactNode }) {
           <div className="mt-8 h-px w-full bg-edge" />
 
           <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
-            <p className="max-w-[60ch] text-[13.5px] leading-relaxed text-ink-soft">
+            <p className="max-w-[60ch] text-[14px] leading-relaxed text-ink-soft">
               {text.rights} · {text.demo}
             </p>
-            <p className="shrink-0 font-mono text-[12.5px] text-ink-faint">
+            <p className="shrink-0 font-mono text-[12.5px] text-ink-soft">
               {brand.domain}
             </p>
           </div>
