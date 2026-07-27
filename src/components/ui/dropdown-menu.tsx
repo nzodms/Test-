@@ -19,7 +19,8 @@ const DropdownMenuContent = React.forwardRef<
       ref={ref}
       sideOffset={sideOffset}
       className={cn(
-        "z-50 min-w-44 overflow-hidden rounded-md border border-edge-strong bg-paper p-1 shadow-float",
+        "z-50 min-w-48 overflow-hidden rounded-sm border border-edge-strong bg-page p-1",
+        "shadow-[0_10px_30px_-18px_rgb(22_23_26/0.45)]",
         "data-[state=open]:animate-fade-in",
         className
       )}
@@ -36,7 +37,8 @@ const DropdownMenuSubContent = React.forwardRef<
   <DropdownMenuPrimitive.SubContent
     ref={ref}
     className={cn(
-      "z-50 min-w-40 overflow-hidden rounded-md border border-edge-strong bg-paper p-1 shadow-float",
+      "z-50 min-w-44 overflow-hidden rounded-sm border border-edge-strong bg-page p-1",
+      "shadow-[0_10px_30px_-18px_rgb(22_23_26/0.45)]",
       className
     )}
     {...props}
@@ -44,11 +46,14 @@ const DropdownMenuSubContent = React.forwardRef<
 ));
 DropdownMenuSubContent.displayName = "DropdownMenuSubContent";
 
+/* 40px rows on phones so a menu is thumb-usable, 32px from sm up
+   where it is driven by a pointer. */
 const itemClasses = cn(
-  "relative flex cursor-default select-none items-center gap-2 rounded-sm px-2.5 py-1.5 text-[13px] text-ink-soft outline-none",
+  "relative flex min-h-10 cursor-default select-none items-center gap-2.5 sm:min-h-8",
+  "rounded-xs px-2.5 py-1.5 text-sm text-ink-soft outline-none",
   "data-highlighted:bg-mineral data-highlighted:text-ink",
-  "data-disabled:pointer-events-none data-disabled:opacity-45",
-  "[&_svg]:size-3.5 [&_svg]:shrink-0 [&_svg]:text-ink-soft data-highlighted:[&_svg]:text-ink"
+  "data-disabled:pointer-events-none data-disabled:text-ink-faint",
+  "[&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-ink-faint data-highlighted:[&_svg]:text-ink-soft"
 );
 
 const DropdownMenuItem = React.forwardRef<
@@ -82,7 +87,7 @@ const DropdownMenuCheckboxItem = React.forwardRef<
   >
     <span className="absolute left-2.5 flex size-3.5 items-center justify-center">
       <DropdownMenuPrimitive.ItemIndicator>
-        <Check className="size-3.5 text-accent" />
+        <Check className="size-3.5 text-accent" aria-hidden />
       </DropdownMenuPrimitive.ItemIndicator>
     </span>
     {children}
@@ -100,7 +105,7 @@ const DropdownMenuSubTrigger = React.forwardRef<
     {...props}
   >
     {children}
-    <ChevronRight className="ml-auto size-3.5" />
+    <ChevronRight className="ml-auto size-3.5" aria-hidden />
   </DropdownMenuPrimitive.SubTrigger>
 ));
 DropdownMenuSubTrigger.displayName = "DropdownMenuSubTrigger";
@@ -111,7 +116,10 @@ const DropdownMenuLabel = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.Label
     ref={ref}
-    className={cn("px-2.5 py-1.5 text-[13px] font-medium text-ink-soft", className)}
+    className={cn(
+      "px-2.5 pb-1 pt-2 text-[13.5px] font-medium text-ink-soft",
+      className
+    )}
     {...props}
   />
 ));
@@ -135,7 +143,7 @@ function DropdownMenuShortcut({
 }: React.HTMLAttributes<HTMLSpanElement>) {
   return (
     <span
-      className={cn("ml-auto font-mono text-2xs text-ink-soft", className)}
+      className={cn("ml-auto font-mono text-[12.5px] text-ink-faint", className)}
       {...props}
     />
   );

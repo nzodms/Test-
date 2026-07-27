@@ -7,7 +7,10 @@ import { cn } from "@/lib/utils";
 
 /**
  * Side drawer built on the Radix Dialog primitive.
- * Slides in from the right (default) or left.
+ *
+ * It slides because it comes from an edge and returns to it — the
+ * motion states where the panel lives, which is the only reason a
+ * panel is allowed to move at all.
  */
 
 const Drawer = DialogPrimitive.Root;
@@ -22,26 +25,30 @@ const DrawerContent = React.forwardRef<
   }
 >(({ className, children, side = "right", widthClassName, ...props }, ref) => (
   <DialogPrimitive.Portal>
-    <DialogPrimitive.Overlay
-      className="fixed inset-0 z-50 bg-ink/25 backdrop-blur-[2px] data-[state=open]:animate-fade-in"
-    />
+    <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-ink/30 data-[state=open]:animate-fade-in" />
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed inset-y-0 z-50 flex w-full flex-col border-edge-strong bg-paper shadow-float",
+        "fixed inset-y-0 z-50 flex w-full flex-col border-edge-strong bg-page",
+        "shadow-[0_0_60px_-24px_rgb(22_23_26/0.5)]",
         widthClassName ?? "max-w-md",
         side === "right"
-          ? "right-0 border-l data-[state=open]:animate-[drawer-in-right_0.35s_cubic-bezier(0.32,0.72,0,1)] data-[state=closed]:animate-[drawer-out-right_0.25s_ease-in_both]"
-          : "left-0 border-r data-[state=open]:animate-[drawer-in-left_0.35s_cubic-bezier(0.32,0.72,0,1)] data-[state=closed]:animate-[drawer-out-left_0.25s_ease-in_both]",
+          ? "right-0 border-l data-[state=open]:animate-[drawer-in-right_0.4s_cubic-bezier(0.22,1,0.36,1)] data-[state=closed]:animate-[drawer-out-right_0.28s_cubic-bezier(0.4,0,1,1)_both]"
+          : "left-0 border-r data-[state=open]:animate-[drawer-in-left_0.4s_cubic-bezier(0.22,1,0.36,1)] data-[state=closed]:animate-[drawer-out-left_0.28s_cubic-bezier(0.4,0,1,1)_both]",
         className
       )}
       {...props}
     >
       {children}
       <DialogPrimitive.Close
-        className="absolute right-4 top-4 rounded-sm p-1 text-ink-soft transition-colors hover:bg-mineral hover:text-ink"
+        className={cn(
+          "absolute right-2.5 top-3 inline-flex size-11 items-center justify-center sm:size-8",
+          "rounded-sm text-ink-soft transition-colors duration-150",
+          "hover:bg-mineral hover:text-ink active:bg-mineral-deep",
+          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        )}
       >
-        <X className="size-4" />
+        <X className="size-4" aria-hidden />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>
@@ -55,7 +62,7 @@ function DrawerHeader({
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("border-b border-edge px-6 py-5 pr-12", className)}
+      className={cn("border-b border-edge px-5 py-5 pr-16 sm:px-6", className)}
       {...props}
     />
   );
@@ -67,7 +74,10 @@ function DrawerBody({
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn("flex-1 overflow-y-auto scrollbar-quiet px-6 py-5", className)}
+      className={cn(
+        "flex-1 overflow-y-auto scrollbar-quiet px-5 py-5 sm:px-6",
+        className
+      )}
       {...props}
     />
   );
@@ -80,7 +90,7 @@ function DrawerFooter({
   return (
     <div
       className={cn(
-        "flex items-center justify-end gap-2 border-t border-edge px-6 py-4",
+        "flex items-center justify-end gap-2 border-t border-edge px-5 py-4 sm:px-6",
         className
       )}
       {...props}

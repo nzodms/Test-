@@ -21,7 +21,7 @@ export interface ScanSession {
 }
 
 /** How wide the surface sits in each state, in px. */
-const MEASURE = { search: 660, scan: 1080, report: 1080 } as const;
+const MEASURE = { search: 940, scan: 1080, report: 1080 } as const;
 
 /**
  * The surface.

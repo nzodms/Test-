@@ -11,8 +11,8 @@ const Label = React.forwardRef<
   <LabelPrimitive.Root
     ref={ref}
     className={cn(
-      "text-[13px] font-medium text-ink-soft",
-      "peer-disabled:cursor-not-allowed peer-disabled:opacity-60",
+      "text-sm font-medium text-ink",
+      "peer-disabled:cursor-not-allowed peer-disabled:text-ink-faint",
       className
     )}
     {...props}
@@ -20,7 +20,11 @@ const Label = React.forwardRef<
 ));
 Label.displayName = "Label";
 
-/** Form field wrapper: label + control + error message, wired for a11y. */
+/**
+ * Form field wrapper: label + control + message, wired for a11y.
+ * The hint sits with the label; the error replaces nothing and
+ * pushes nothing — it is announced and it stays readable at 14px.
+ */
 export function Field({
   label,
   htmlFor,
@@ -37,14 +41,14 @@ export function Field({
   className?: string;
 }) {
   return (
-    <div className={cn("space-y-1.5", className)}>
-      <div className="flex items-baseline justify-between">
+    <div className={cn("space-y-2", className)}>
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <Label htmlFor={htmlFor}>{label}</Label>
-        {hint ? <span className="text-xs text-ink-soft">{hint}</span> : null}
+        {hint ? <span className="text-[13.5px] text-ink-soft">{hint}</span> : null}
       </div>
       {children}
       {error ? (
-        <p className="text-[13px] text-crit" role="alert">
+        <p className="text-sm text-crit" role="alert">
           {error}
         </p>
       ) : null}

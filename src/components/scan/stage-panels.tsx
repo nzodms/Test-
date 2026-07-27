@@ -151,7 +151,6 @@ function SourcesPanel({ frame }: { frame: ScanFrame }) {
 /* ── 03 Findings ───────────────────────────────────────────────── */
 
 function FindingsPanel({ frame }: { frame: ScanFrame }) {
-  const reduced = useReducedMotion();
   const shown = featuredMatches.slice(0, frame.findingsShown);
 
   return (
@@ -179,34 +178,24 @@ function FindingsPanel({ frame }: { frame: ScanFrame }) {
       </div>
 
       <ul className="mt-2">
-        <AnimatePresence initial={false}>
-          {shown.map((m, i) => (
-            <motion.div
-              key={m.id}
-              initial={reduced ? false : { opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: motionTokens.duration.fast,
-                ease: motionTokens.ease.enter,
-              }}
-            >
-              <FindingRow
-                index={i + 1}
-                subject={m.matchType}
-                confidence={m.confidence}
-                meta={formatDateUTC(m.detectedAt)}
-                source={
-                  <RedactedDomain
-                    head={m.redaction.head}
-                    tail={m.redaction.tail}
-                    hiddenChars={m.redaction.hidden}
-                    className="text-[13.5px] text-ink-soft"
-                  />
-                }
+        {shown.map((m, i) => (
+          <FindingRow
+            key={m.id}
+            entering
+            index={i + 1}
+            subject={m.matchType}
+            confidence={m.confidence}
+            meta={formatDateUTC(m.detectedAt)}
+            source={
+              <RedactedDomain
+                head={m.redaction.head}
+                tail={m.redaction.tail}
+                hiddenChars={m.redaction.hidden}
+                className="text-[13.5px] text-ink-soft"
               />
-            </motion.div>
-          ))}
-        </AnimatePresence>
+            }
+          />
+        ))}
       </ul>
     </div>
   );

@@ -24,29 +24,31 @@ const documents = [
   { label: copy.legal.footerLinks.terms, href: routes.terms },
   { label: copy.legal.footerLinks.contentPolicy, href: routes.contentPolicy },
   { label: copy.legal.footerLinks.takedownPolicy, href: routes.takedownPolicy },
-  { label: text.home, href: routes.home },
 ] as const;
 
 /**
- * A reading environment, not a product screen: one narrow measure,
- * a slim bar that stays out of the way, and a great deal of quiet
- * space around the text.
+ * A reading environment.
+ *
+ * The document is set directly on the working surface — no page
+ * simulation, no stacked-sheet edges, no shadow pretending there is
+ * a desk. One measure, a thin bar that stays out of the way, and a
+ * lot of quiet around the text.
  */
 export default function LegalLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-dvh flex-col">
-      <header className="sticky top-0 z-30 border-b border-edge bg-canvas/90 backdrop-blur-md">
-        <div className="mx-auto flex w-full max-w-[68ch] items-center justify-between gap-4 px-5 py-2.5">
+    <div className="flex min-h-dvh flex-col bg-page">
+      <header className="sticky top-0 z-30 border-b border-edge bg-page/92 backdrop-blur-md">
+        <div className="mx-auto flex w-full max-w-[62rem] items-center justify-between gap-4 px-5 sm:px-8">
           <Link
             href={routes.home}
             aria-label={`${brand.name} — home`}
-            className="inline-flex min-h-11 items-center rounded-sm"
+            className="inline-flex min-h-12 items-center rounded-xs"
           >
             <Logo />
           </Link>
           <Link
             href={routes.home}
-            className="inline-flex min-h-11 items-center gap-1.5 rounded-sm text-[13px] text-ink-soft transition-colors hover:text-ink"
+            className="inline-flex min-h-12 items-center gap-2 rounded-xs text-[14px] text-ink-soft transition-colors hover:text-ink"
           >
             <ArrowLeft className="size-3.5" aria-hidden="true" />
             {text.back}
@@ -54,24 +56,24 @@ export default function LegalLayout({ children }: { children: ReactNode }) {
         </div>
       </header>
 
-      {/* The document sits on a page, on the desk — the same surface
-          every other record in the product is printed on. */}
-      <main className="mx-auto w-full max-w-[76ch] flex-1 px-5 pb-24 pt-10 sm:pb-32 sm:pt-14">
-        <div className="report-page rounded-[3px] px-6 py-12 sm:px-12 sm:py-16">
-          {children}
-        </div>
+      <main className="mx-auto w-full max-w-[62rem] flex-1 px-5 pb-24 pt-12 sm:px-8 sm:pb-32 sm:pt-20">
+        {/* The measure is set here, once. The left gutter on wide
+            screens is where section numbers hang. */}
+        <article className="max-w-[64ch] lg:ml-16">{children}</article>
       </main>
 
-      <footer className="border-t border-edge bg-paper/60">
-        <div className="mx-auto w-full max-w-[68ch] px-5 py-10">
+      <footer className="border-t border-edge">
+        <div className="mx-auto w-full max-w-[62rem] px-5 py-12 sm:px-8">
           <nav aria-label={text.documents}>
-            <h2 className="text-label">{text.documents}</h2>
-            <ul className="mt-3 grid gap-x-8 sm:grid-cols-2">
+            <h2 className="text-[14px] font-medium text-ink-soft">
+              {text.documents}
+            </h2>
+            <ul className="mt-2 flex flex-col sm:flex-row sm:flex-wrap sm:gap-x-10">
               {documents.map((doc) => (
                 <li key={doc.href}>
                   <Link
                     href={doc.href}
-                    className="inline-flex min-h-11 items-center text-[14px] text-ink-soft transition-colors hover:text-ink"
+                    className="inline-flex min-h-11 items-center rounded-xs text-[15px] text-ink transition-colors hover:text-accent"
                   >
                     {doc.label}
                   </Link>
@@ -80,13 +82,15 @@ export default function LegalLayout({ children }: { children: ReactNode }) {
             </ul>
           </nav>
 
-          <div className="mt-8 h-px w-full edge-fade-x" />
+          <div className="mt-8 h-px w-full bg-edge" />
 
           <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
-            <p className="text-2xs leading-relaxed text-ink-soft">
+            <p className="max-w-[60ch] text-[13.5px] leading-relaxed text-ink-soft">
               {text.rights} · {text.demo}
             </p>
-            <p className="text-data shrink-0 text-ink-faint">{brand.domain}</p>
+            <p className="shrink-0 font-mono text-[12.5px] text-ink-faint">
+              {brand.domain}
+            </p>
           </div>
         </div>
       </footer>

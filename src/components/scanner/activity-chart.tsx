@@ -2,14 +2,49 @@
 
 import * as React from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import { motionTokens } from "@/lib/motion";
 import type { ActivityPoint } from "@/lib/scan/types";
 
-/**
- * Bespoke activity chart — hand-drawn SVG, no chart library, so it
- * belongs to the design system. A primary detections line that
- * draws itself, plus a quieter recurrence signal. `draw` gates the
- * reveal so it animates in sync with the scan assembling.
- */
+/* ════════════════════════════════════════════════════════════════
+   Detection activity.
+
+   Hand-built SVG, no chart library, so it belongs to the design
+   system rather than importing someone else's.
+
+   The line is DRAWN, not faded in: the stroke travels left to right
+   at a constant rate, the baseline extends underneath it, the tick
+   for each week appears as the line passes over it, and the end
+   marker lands last. Reading order and drawing order are the same,
+   which is what makes it read as a measurement being taken instead
+   of a graphic being revealed.
+
+   Under `prefers-reduced-motion` nothing animates at all: the final
+   state renders on the first frame.
+   ════════════════════════════════════════════════════════════════ */
+
+type Tone = "scan" | "light";
+
+/** Two environments, two palettes. Nothing else changes. */
+const PALETTE: Record<
+  Tone,
+  { line: string; recurrence: string; grid: string; fill: string; fillTo: number }
+> = {
+  scan: {
+    line: "#45b3bd",
+    recurrence: "#8f9699",
+    grid: "rgb(244 245 242 / 0.07)",
+    fill: "#45b3bd",
+    fillTo: 0.2,
+  },
+  light: {
+    line: "#10666e",
+    recurrence: "#92959c",
+    grid: "rgb(22 23 26 / 0.07)",
+    fill: "#10666e",
+    fillTo: 0.12,
+  },
+};
+
 export function ActivityChart({
   data,
   draw,
@@ -18,105 +53,181 @@ export function ActivityChart({
 }: {
   data: ActivityPoint[];
   draw: boolean;
-  tone?: "scan" | "light";
+  tone?: Tone;
   height?: number;
 }) {
   const reduced = useReducedMotion();
+  const gradientId = React.useId();
+
   const w = 320;
   const h = height;
   const padX = 6;
   const padY = 14;
-  const max = Math.max(...data.map((d) => d.detections)) * 1.15;
 
-  const x = (i: number) => padX + (i / (data.length - 1)) * (w - padX * 2);
+  const palette = PALETTE[tone];
+
+  /* Guard the degenerate cases so a one-point or all-zero series
+     renders a flat baseline instead of NaN paths. */
+  const span = Math.max(1, data.length - 1);
+  const peak = Math.max(
+    1,
+    ...data.map((d) => Math.max(d.detections, d.recurrences))
+  );
+  const max = peak * 1.15;
+
+  const x = (i: number) => padX + (i / span) * (w - padX * 2);
   const y = (v: number) => h - padY - (v / max) * (h - padY * 2);
 
-  const linePath = data
-    .map((d, i) => `${i === 0 ? "M" : "L"} ${x(i).toFixed(1)} ${y(d.detections).toFixed(1)}`)
-    .join(" ");
-  const areaPath = `${linePath} L ${x(data.length - 1)} ${h - padY} L ${x(0)} ${h - padY} Z`;
-  const recurPath = data
-    .map((d, i) => `${i === 0 ? "M" : "L"} ${x(i).toFixed(1)} ${y(d.recurrences).toFixed(1)}`)
-    .join(" ");
+  const line = (key: "detections" | "recurrences") =>
+    data
+      .map(
+        (d, i) => `${i === 0 ? "M" : "L"} ${x(i).toFixed(1)} ${y(d[key]).toFixed(1)}`
+      )
+      .join(" ");
 
-  const dark = tone === "scan";
-  const primary = dark ? "#45b3bd" : "#10666e";
-  const secondary = dark ? "#8f9699" : "#6e706b";
-  const grid = dark ? "rgb(244 245 242 / 0.06)" : "rgb(17 18 16 / 0.06)";
+  const linePath = line("detections");
+  const recurPath = line("recurrences");
+  const areaPath = `${linePath} L ${x(span).toFixed(1)} ${h - padY} L ${x(0).toFixed(1)} ${h - padY} Z`;
 
-  const drawn = draw || reduced;
+  const last = data[data.length - 1];
+  const first = data[0];
+
+  /* One clock for the whole drawing, so every part is phrased
+     against the same stroke rather than each picking its own delay. */
+  const still = Boolean(reduced);
+  const shown = draw || still;
+  const strokeSeconds = still ? 0 : 1.05;
+  const at = (fraction: number) => (still ? 0 : strokeSeconds * fraction);
+
+  const trend =
+    first && last
+      ? last.detections > first.detections
+        ? "rising"
+        : last.detections < first.detections
+          ? "falling"
+          : "flat"
+      : "flat";
 
   return (
     <svg
       viewBox={`0 0 ${w} ${h}`}
       className="h-full w-full"
       role="img"
-      aria-label={`Detection activity over ${data.length} weeks, trending upward`}
+      aria-label={`Detection activity across ${data.length} weeks, ${trend}. Peak ${peak} detections in a week.`}
       preserveAspectRatio="none"
     >
-      {/* horizontal gridlines */}
-      {[0.25, 0.5, 0.75].map((f) => (
+      <defs>
+        <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={palette.fill} stopOpacity={palette.fillTo} />
+          <stop offset="100%" stopColor={palette.fill} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+
+      {/* Reference lines. Static — they are the paper, not the mark. */}
+      {[0.33, 0.66].map((f) => (
         <line
           key={f}
           x1={padX}
           x2={w - padX}
           y1={padY + f * (h - padY * 2)}
           y2={padY + f * (h - padY * 2)}
-          stroke={grid}
+          stroke={palette.grid}
           strokeWidth="1"
+          vectorEffect="non-scaling-stroke"
         />
       ))}
 
-      {/* area fill */}
-      <defs>
-        <linearGradient id={`act-fill-${tone}`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={primary} stopOpacity={dark ? 0.22 : 0.14} />
-          <stop offset="100%" stopColor={primary} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <motion.path
-        d={areaPath}
-        fill={`url(#act-fill-${tone})`}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: drawn ? 1 : 0 }}
-        transition={{ duration: 0.6, delay: 0.3 }}
+      {/* Baseline — extends under the stroke as it travels. */}
+      <motion.line
+        x1={padX}
+        x2={w - padX}
+        y1={h - padY}
+        y2={h - padY}
+        stroke={palette.grid}
+        strokeWidth="1"
+        vectorEffect="non-scaling-stroke"
+        initial={{ pathLength: still ? 1 : 0 }}
+        animate={{ pathLength: shown ? 1 : 0 }}
+        transition={{ duration: strokeSeconds, ease: "linear" }}
       />
 
-      {/* recurrence signal (dashed, quiet) */}
+      {/* Recurrence signal — quieter, drawn a beat behind. */}
       <motion.path
         d={recurPath}
         fill="none"
-        stroke={secondary}
+        stroke={palette.recurrence}
         strokeWidth="1"
         strokeDasharray="2 3"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: drawn ? 0.7 : 0 }}
-        transition={{ duration: 0.5, delay: 0.5 }}
+        strokeLinecap="round"
+        vectorEffect="non-scaling-stroke"
+        initial={{ opacity: still ? 0.65 : 0 }}
+        animate={{ opacity: shown ? 0.65 : 0 }}
+        transition={{
+          duration: still ? 0 : motionTokens.duration.slow,
+          delay: at(0.45),
+          ease: motionTokens.ease.standard,
+        }}
       />
 
-      {/* primary detections line — draws itself */}
+      {/* The measurement itself. */}
       <motion.path
         d={linePath}
         fill="none"
-        stroke={primary}
+        stroke={palette.line}
         strokeWidth="1.75"
         strokeLinecap="round"
         strokeLinejoin="round"
-        initial={{ pathLength: reduced ? 1 : 0 }}
-        animate={{ pathLength: drawn ? 1 : 0 }}
-        transition={{ duration: reduced ? 0 : 0.9, ease: [0.22, 1, 0.36, 1] }}
+        vectorEffect="non-scaling-stroke"
+        initial={{ pathLength: still ? 1 : 0 }}
+        animate={{ pathLength: shown ? 1 : 0 }}
+        transition={{ duration: strokeSeconds, ease: "linear" }}
       />
 
-      {/* end marker */}
-      <motion.circle
-        cx={x(data.length - 1)}
-        cy={y(data[data.length - 1]!.detections)}
-        r="2.5"
-        fill={primary}
-        initial={{ scale: 0 }}
-        animate={{ scale: drawn ? 1 : 0 }}
-        transition={{ duration: 0.3, delay: reduced ? 0 : 0.9 }}
+      {/* Weekly ticks, each arriving as the stroke passes over it. */}
+      {data.map((d, i) => (
+        <motion.circle
+          key={d.week}
+          cx={x(i)}
+          cy={y(d.detections)}
+          r="1.4"
+          fill={palette.line}
+          initial={{ opacity: still ? 0.55 : 0 }}
+          animate={{ opacity: shown ? 0.55 : 0 }}
+          transition={{
+            duration: still ? 0 : motionTokens.duration.instant,
+            delay: at(i / span),
+          }}
+        />
+      ))}
+
+      {/* Area under the curve, filled in behind the finished line. */}
+      <motion.path
+        d={areaPath}
+        fill={`url(#${gradientId})`}
+        initial={{ opacity: still ? 1 : 0 }}
+        animate={{ opacity: shown ? 1 : 0 }}
+        transition={{
+          duration: still ? 0 : motionTokens.duration.slow,
+          delay: at(0.6),
+          ease: motionTokens.ease.enter,
+        }}
       />
+
+      {/* Where the reading currently stands. */}
+      {last ? (
+        <motion.circle
+          cx={x(span)}
+          cy={y(last.detections)}
+          r="2.75"
+          fill={palette.line}
+          initial={{ opacity: still ? 1 : 0 }}
+          animate={{ opacity: shown ? 1 : 0 }}
+          transition={{
+            duration: still ? 0 : motionTokens.duration.fast,
+            delay: at(1),
+          }}
+        />
+      ) : null}
     </svg>
   );
 }

@@ -17,7 +17,7 @@ const DialogOverlay = React.forwardRef<
   <DialogPrimitive.Overlay
     ref={ref}
     className={cn(
-      "fixed inset-0 z-50 bg-ink/30 backdrop-blur-[2px]",
+      "fixed inset-0 z-50 bg-ink/35",
       "data-[state=open]:animate-fade-in",
       className
     )}
@@ -26,6 +26,12 @@ const DialogOverlay = React.forwardRef<
 ));
 DialogOverlay.displayName = "DialogOverlay";
 
+/**
+ * The dialog is a real surface above the page, so it keeps one
+ * contact shadow — it has to sit above the overlay to be read as
+ * separate. Everything else is a hairline and a radius that is
+ * deliberately tighter than a card's.
+ */
 const DialogContent = React.forwardRef<
   React.ComponentRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
@@ -35,9 +41,10 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-1/2 top-1/2 z-50 w-[calc(100vw-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2",
-        "rounded-lg border border-edge-strong bg-paper p-6 shadow-float",
-        "data-[state=open]:animate-fade-up",
+        "fixed left-1/2 top-1/2 z-50 w-[calc(100vw-1.5rem)] max-w-lg -translate-x-1/2 -translate-y-1/2",
+        "rounded-md border border-edge-strong bg-page p-5 sm:p-6",
+        "shadow-[0_16px_48px_-24px_rgb(22_23_26/0.5)]",
+        "data-[state=open]:animate-fade-in",
         "max-h-[85dvh] overflow-y-auto scrollbar-quiet",
         className
       )}
@@ -46,11 +53,13 @@ const DialogContent = React.forwardRef<
       {children}
       <DialogPrimitive.Close
         className={cn(
-          "absolute right-4 top-4 rounded-sm p-1 text-ink-soft transition-colors",
-          "hover:bg-mineral hover:text-ink"
+          "absolute right-2.5 top-2.5 inline-flex size-11 items-center justify-center sm:size-8",
+          "rounded-sm text-ink-soft transition-colors duration-150",
+          "hover:bg-mineral hover:text-ink active:bg-mineral-deep",
+          "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         )}
       >
-        <X className="size-4" />
+        <X className="size-4" aria-hidden />
         <span className="sr-only">Close</span>
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>
@@ -62,7 +71,7 @@ function DialogHeader({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("mb-4 space-y-1.5 pr-8", className)} {...props} />;
+  return <div className={cn("mb-5 space-y-2 pr-10", className)} {...props} />;
 }
 
 function DialogFooter({
@@ -72,7 +81,7 @@ function DialogFooter({
   return (
     <div
       className={cn(
-        "mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
+        "mt-6 flex flex-col-reverse gap-2 border-t border-edge pt-5 sm:flex-row sm:justify-end",
         className
       )}
       {...props}
@@ -86,7 +95,7 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Title
     ref={ref}
-    className={cn("text-title text-base text-ink", className)}
+    className={cn("text-title text-[17px] text-ink", className)}
     {...props}
   />
 ));
@@ -98,7 +107,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn("text-sm text-ink-soft", className)}
+    className={cn("text-sm leading-relaxed text-ink-soft", className)}
     {...props}
   />
 ));

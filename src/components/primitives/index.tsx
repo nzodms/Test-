@@ -91,7 +91,7 @@ export function DataRow({
       {status ? <StatusIndicator status={status} /> : null}
       <span
         className={cn(
-          "min-w-0 flex-1 truncate text-[13px]",
+          "min-w-0 flex-1 truncate text-sm",
           mono && "text-data"
         )}
       >
@@ -125,24 +125,30 @@ export function Metric({
   const dark = tone === "scan";
   return (
     <div className={cn("min-w-0", className)}>
-      <p className={cn("truncate text-2xs", dark ? "text-scan-faint" : "text-ink-soft")}>
+      <p
+        className={cn(
+          "truncate text-[13.5px]",
+          dark ? "text-scan-soft" : "text-ink-soft"
+        )}
+      >
         {label}
       </p>
       <p
         className={cn(
-          "tabular mt-1 tracking-tight",
-          emphasis ? "text-3xl font-semibold" : "text-xl font-medium",
-          dark
-            ? emphasis
-              ? "text-accent-bright"
-              : "text-scan-ink"
-            : "text-ink"
+          "text-figure mt-2",
+          emphasis ? "text-[34px]" : "text-[22px]",
+          dark ? "text-scan-ink" : "text-ink"
         )}
       >
         {value}
       </p>
       {hint ? (
-        <p className={cn("mt-0.5 text-2xs", dark ? "text-scan-soft" : "text-ink-soft")}>
+        <p
+          className={cn(
+            "mt-1.5 text-[13.5px]",
+            dark ? "text-scan-soft" : "text-ink-soft"
+          )}
+        >
           {hint}
         </p>
       ) : null}
@@ -262,14 +268,14 @@ export function TimelineEntry({
         <span
           aria-hidden
           className={cn(
-            "absolute left-[13px] top-7 h-[calc(100%-1rem)] w-px",
+            "absolute left-[14px] top-8 h-[calc(100%-1.25rem)] w-px",
             complete ? "bg-accent/40" : "bg-edge"
           )}
         />
       ) : null}
       <span
         className={cn(
-          "relative z-10 flex size-[26px] shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold tabular",
+          "relative z-10 flex size-7 shrink-0 items-center justify-center rounded-full border font-mono text-[12.5px] font-medium tabular",
           active
             ? "border-accent bg-accent text-[#f6fbfb]"
             : complete

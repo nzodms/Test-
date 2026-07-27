@@ -281,6 +281,7 @@ export function FindingRow({
   action,
   onClick,
   selected = false,
+  entering = false,
 }: {
   index: number;
   subject: string;
@@ -290,7 +291,10 @@ export function FindingRow({
   action?: React.ReactNode;
   onClick?: () => void;
   selected?: boolean;
+  /** Dropping into a register that is still being written. */
+  entering?: boolean;
 }) {
+  const reduced = useReducedMotion();
   const label =
     confidence === "high"
       ? "High confidence"
@@ -335,8 +339,22 @@ export function FindingRow({
     selected && "bg-page"
   );
 
+  /* The entry animation lives on the <li> itself — wrapping the row in
+     a motion.div would put a <div> straight inside the <ul>. */
+  const enter =
+    entering && !reduced
+      ? {
+          initial: { opacity: 0, y: -8 },
+          animate: { opacity: 1, y: 0 },
+          transition: {
+            duration: motionTokens.duration.fast,
+            ease: motionTokens.ease.enter,
+          },
+        }
+      : {};
+
   return (
-    <li className="list-none">
+    <motion.li className="list-none" {...enter}>
       {onClick ? (
         <button type="button" onClick={onClick} className={shell}>
           {body}
@@ -344,7 +362,7 @@ export function FindingRow({
       ) : (
         <div className={shell}>{body}</div>
       )}
-    </li>
+    </motion.li>
   );
 }
 

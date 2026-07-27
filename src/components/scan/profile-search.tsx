@@ -15,10 +15,10 @@ import { parseSearchQuery, platformLabels, type Platform } from "@/lib/validatio
 import { motionTokens } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 
-const CONDITIONS = [
-  "Public sources only",
-  "Sensitive details protected",
-  "Ownership verification required",
+const CONDITIONS: Array<[string, string]> = [
+  ["Public sources only", "Indexed pages, forums, mirrors, public channels and archives."],
+  ["Sensitive details protected", "Exact addresses and evidence are withheld until you verify."],
+  ["Ownership verification required", "Only the profile owner can open the full report."],
 ];
 
 /**
@@ -72,8 +72,12 @@ export function ProfileSearch({
           },
         };
 
+  /* Deliberately asymmetric: the search holds the left of the measure
+     and the scope sits in the margin beside it. A centred box under a
+     centred line is the shape of every search-first template. */
   return (
-    <div className="max-w-[620px]">
+    <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_248px] lg:gap-16">
+      <div className="min-w-0 max-w-[620px]">
       <motion.p
         {...enter(0)}
         className="text-title text-[21px] text-ink sm:text-[24px]"
@@ -175,36 +179,40 @@ export function ProfileSearch({
           </Select>
         </div>
 
-        <div className="mt-4">
-          {error ? (
-            <p role="alert" className="text-[14px] text-crit">
-              {error}
-            </p>
-          ) : (
-            <ul className="flex flex-wrap gap-x-6 gap-y-1.5">
-              {CONDITIONS.map((c) => (
-                <li key={c} className="text-[13.5px] text-ink-soft">
-                  {c}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        {error ? (
+          <p role="alert" className="mt-4 text-[14px] text-crit">
+            {error}
+          </p>
+        ) : null}
       </motion.form>
 
-      <motion.div {...enter(0.12)} className="mt-8 border-t border-edge pt-5">
-        <p className="text-[14.5px] text-ink-soft">
-          Not your profile yet?{" "}
-          <button
-            type="button"
-            onClick={() => onScan("grn.louann", "onlyfans", "grn.louann")}
-            className="text-ink underline decoration-edge-strong underline-offset-[4px] transition-colors hover:decoration-ink"
-          >
-            Run a sample scan
-          </button>{" "}
-          against a demonstration dataset to see exactly what Argus produces.
-        </p>
-      </motion.div>
+      <motion.p {...enter(0.12)} className="mt-6 text-[14.5px] text-ink-soft">
+        Not your profile yet?{" "}
+        <button
+          type="button"
+          onClick={() => onScan("grn.louann", "onlyfans", "grn.louann")}
+          className="text-ink underline decoration-edge-strong underline-offset-[4px] transition-colors hover:decoration-ink"
+        >
+          Run a sample scan
+        </button>{" "}
+        against a demonstration dataset to see exactly what Argus produces.
+      </motion.p>
+      </div>
+
+      {/* The terms of the search, in the margin */}
+      <motion.dl {...enter(0.18)} className="min-w-0 lg:pt-1">
+        <div className="mb-1 hidden lg:block">
+          <span className="block h-px w-full bg-ink/20" />
+        </div>
+        {CONDITIONS.map(([term, def]) => (
+          <div key={term} className="border-t border-edge py-3 lg:first:border-t-0">
+            <dt className="text-[14.5px] text-ink">{term}</dt>
+            <dd className="mt-1 text-[13.5px] leading-relaxed text-ink-soft">
+              {def}
+            </dd>
+          </div>
+        ))}
+      </motion.dl>
     </div>
   );
 }

@@ -50,15 +50,19 @@ pnpm build          # production build
 
 ## Routes
 
-| Route                                                                                                        | Purpose                                                        |
-| ------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------- |
-| `/`                                                                                                          | Arrival → live scan → selective lock → claim, then 4 sequences |
-| `/onboarding`                                                                                                | Six-step setup, works without auth, resumable                  |
-| `/onboarding?mode=demo`                                                                                      | Same flow, explicitly badged as demo                           |
-| `/sign-in`                                                                                                   | Sign in (password, plus Google when Supabase is configured)    |
-| `/dashboard`                                                                                                 | Demo workspace overview                                        |
-| `/dashboard/findings` `/sources` `/monitoring` `/takedowns` `/profiles` `/settings`                          | Workspace sections                                              |
-| `/legal/privacy` `/terms` `/content-policy` `/takedown-policy`                                               | Policy pages                                                    |
+| Route                                                          | Purpose                                                     |
+| -------------------------------------------------------------- | ----------------------------------------------------------- |
+| `/`                                                            | Search → live scan → report, then two supporting sequences  |
+| `/onboarding`                                                  | Six-step setup, no auth, resumable from local storage       |
+| `/onboarding?mode=demo`                                        | Same flow, explicitly badged as demonstration               |
+| `/sign-in`                                                     | Sign in (password, plus Google when Supabase is configured) |
+| `/dashboard`                                                   | The file library — every profile file in the workspace      |
+| `/dashboard/<reference>`                                       | One profile file: profile, status, findings, sources, timeline, actions |
+| `/legal/privacy` `/terms` `/content-policy` `/takedown-policy` | Policy pages                                                |
+
+Neither onboarding route is ever gated: they are reachable from the
+navigation, from the report's CTA, from the demo workspace, and from
+the mobile layout.
 
 The route map lives in `src/config/navigation.ts`; nothing hardcodes a
 path.

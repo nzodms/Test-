@@ -4,49 +4,45 @@ import * as React from "react";
 import * as AvatarPrimitive from "@radix-ui/react-avatar";
 import { cn, initials } from "@/lib/utils";
 
-/** A name maps to a stable muted hue, so the same person always
- *  renders identically. Light-surface treatment. */
-function nameHue(name: string): number {
-  let h = 0;
-  for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) % 360;
-  return h;
-}
+/**
+ * Initials on a mineral disc.
+ *
+ * The previous version mapped each name to its own hue, which turned
+ * any roster into confetti and put colour — the product's scarcest
+ * signal — on the one thing that carries no state. Everyone now gets
+ * the same quiet treatment; identity is carried by the initials and
+ * the name beside them.
+ */
+const SIZES = {
+  xs: "size-6 text-[11px]",
+  sm: "size-7 text-[12px]",
+  md: "size-9 text-[13px]",
+  lg: "size-12 text-[16px]",
+} as const;
 
 const Avatar = React.forwardRef<
   React.ComponentRef<typeof AvatarPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof AvatarPrimitive.Root> & {
     name: string;
-    size?: "xs" | "sm" | "md" | "lg";
+    size?: keyof typeof SIZES;
   }
->(({ className, name, size = "md", ...props }, ref) => {
-  const hue = nameHue(name);
-  const sizeClasses = {
-    xs: "size-5 text-[9px]",
-    sm: "size-6 text-[10px]",
-    md: "size-8 text-xs",
-    lg: "size-12 text-base",
-  }[size];
-  return (
-    <AvatarPrimitive.Root
-      ref={ref}
-      className={cn(
-        "relative flex shrink-0 items-center justify-center overflow-hidden rounded-full border border-edge font-medium",
-        sizeClasses,
-        className
-      )}
-      style={{
-        backgroundColor: `oklch(0.9 0.035 ${hue})`,
-        color: `oklch(0.38 0.07 ${hue})`,
-      }}
-      title={name}
-      {...props}
-    >
-      <AvatarPrimitive.Fallback delayMs={0}>
-        {initials(name)}
-      </AvatarPrimitive.Fallback>
-    </AvatarPrimitive.Root>
-  );
-});
+>(({ className, name, size = "md", ...props }, ref) => (
+  <AvatarPrimitive.Root
+    ref={ref}
+    className={cn(
+      "relative flex shrink-0 select-none items-center justify-center overflow-hidden",
+      "rounded-full border border-edge bg-mineral font-medium text-ink-soft",
+      SIZES[size],
+      className
+    )}
+    title={name}
+    {...props}
+  >
+    <AvatarPrimitive.Fallback delayMs={0} className="tabular">
+      {initials(name)}
+    </AvatarPrimitive.Fallback>
+  </AvatarPrimitive.Root>
+));
 Avatar.displayName = "Avatar";
 
 export { Avatar };

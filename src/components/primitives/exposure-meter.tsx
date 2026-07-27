@@ -26,18 +26,16 @@ export function ExposureMeter({
   const label = BANDS[band]!;
   const shown = reveal || Boolean(reduced);
 
-  const fill =
-    band >= 3 ? "bg-crit" : band >= 2 ? "bg-warn" : "bg-ink/45";
-  const text =
-    band >= 3 ? "text-crit" : band >= 2 ? "text-warn" : "text-ink";
+  const fill = band >= 3 ? "bg-crit" : band >= 2 ? "bg-warn" : "bg-graphite";
+  const text = band >= 3 ? "text-crit" : band >= 2 ? "text-warn" : "text-ink";
 
   return (
     <div className={className}>
       <div className="flex items-baseline justify-between gap-4">
-        <span className="text-[15px] text-ink-soft">Exposure level</span>
-        <span className={cn("text-[17px] font-medium", text)}>{label}</span>
+        <span className="text-[15px] text-ink-soft">Exposure status</span>
+        <span className={cn("text-subject text-[17px]", text)}>{label}</span>
       </div>
-      <div className="mt-2.5 flex gap-1.5" aria-hidden>
+      <div className="mt-3 flex gap-1.5" aria-hidden>
         {BANDS.map((_, i) => (
           <div
             key={i}
