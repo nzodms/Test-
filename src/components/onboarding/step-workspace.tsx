@@ -91,8 +91,16 @@ export function StepWorkspace({
 
   const done = completed >= total;
 
+  /* The one moment in setup where Argus is doing the work rather
+     than asking for it — so it runs on the same surface the scan
+     does, and hands back to the light when the workspace is there. */
   return (
-    <div>
+    <div
+      className={cn(
+        "surface-shift -mx-4 rounded-[10px] px-4 py-6 sm:-mx-6 sm:px-6",
+        done ? "surface-resting" : "surface-active shadow-lift"
+      )}
+    >
       <div className="flex items-baseline justify-between gap-4">
         <p className="text-[14.5px] text-ink-soft">{local.workspace.assembly}</p>
         <p className="font-mono text-[12.5px] tabular text-ink-soft">
@@ -103,7 +111,10 @@ export function StepWorkspace({
       {/* Progress, drawn as a rule filling — not a bar in a track. */}
       <div aria-hidden className="relative mt-3 h-px w-full bg-edge">
         <motion.span
-          className="absolute inset-y-0 left-0 w-full origin-left bg-graphite"
+          className={cn(
+            "absolute inset-y-0 left-0 w-full origin-left",
+            done ? "bg-graphite" : "bg-accent"
+          )}
           initial={{ scaleX: 0 }}
           animate={{ scaleX: completed / total }}
           transition={{

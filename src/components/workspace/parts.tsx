@@ -60,8 +60,10 @@ export function Figure({
   return (
     <span className={cn("text-figure", TONE[tone], className)}>
       {value}
+      {/* The suffix scales with the figure, but never below the
+          readable floor: a /100 at 12px on a phone is decoration. */}
       {suffix ? (
-        <span className="ml-[0.16em] text-[0.46em] font-medium tracking-normal text-ink-soft">
+        <span className="ml-[0.16em] text-[max(0.78rem,0.46em)] font-medium tracking-normal text-ink-soft">
           {suffix}
         </span>
       ) : null}

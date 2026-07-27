@@ -128,27 +128,31 @@ export function StatusPanel({
           ) : null}
         </div>
 
-        {/* ── The period ───────────────────────────────────────────── */}
+        {/* ── The period ───────────────────────────────────────────
+            Measured rather than counted, so it keeps the environment
+            of the instrument that measured it. */}
         <div className="min-w-0">
-          <h3 className="text-subject text-[15.5px] text-ink">
-            Detection activity
-          </h3>
-          <p className="mt-1 text-[13.5px] text-ink-soft">
-            Detections per week, last eight weeks.
-          </p>
+          <div className="surface-active rounded-[10px] px-5 py-6 shadow-lift">
+            <h3 className="text-subject text-[15.5px] text-ink">
+              Detection activity
+            </h3>
+            <p className="mt-1 text-[13.5px] text-ink-soft">
+              Detections per week, last eight weeks.
+            </p>
 
-          <div className="mt-4 h-[150px]">
-            <ActivityChart data={activitySeries} draw tone="light" height={150} />
-          </div>
-          <div className="mt-1 flex items-baseline justify-between font-mono text-[12.5px] text-ink-soft">
-            <span>8 weeks ago</span>
-            <span>this week</span>
-          </div>
+            <div className="mt-4 h-[150px]">
+              <ActivityChart data={activitySeries} draw tone="scan" height={150} />
+            </div>
+            <div className="mt-1 flex items-baseline justify-between font-mono text-[12.5px] text-ink-soft">
+              <span>8 weeks ago</span>
+              <span>this week</span>
+            </div>
 
-          <dl className="mt-6">
-            <Measure label="Peak week" value={peak} />
-            <Measure label="Recurrences in period" value={recurrences} />
-          </dl>
+            <dl className="mt-5">
+              <Measure label="Peak week" value={peak} />
+              <Measure label="Recurrences in period" value={recurrences} />
+            </dl>
+          </div>
 
           <p className="mt-6 border-t border-edge pt-4 text-[14px] leading-relaxed text-ink-soft">
             {file.monitoring === "paused"

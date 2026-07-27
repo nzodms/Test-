@@ -129,7 +129,7 @@ export function FileLibrary() {
                           : "scale-x-[0.35] bg-edge-strong"
                       )}
                     />
-                    <span className="font-mono text-[12px] tabular text-ink-faint">
+                    <span className="font-mono text-[12.5px] tabular text-ink-faint">
                       {refNumber(i)}
                     </span>
                     <span
@@ -187,6 +187,8 @@ export function FileLibrary() {
           </p>
 
           <Readout shelf={shelf.id} files={files} />
+
+          {shelf.id === "active" ? <NextAction files={files} /> : null}
 
           {shelf.id === "unverified" ? (
             <SealedShelf files={files} />
@@ -290,6 +292,92 @@ function Readout({ shelf, files }: { shelf: ShelfId; files: FileRecord[] }) {
         </div>
       ))}
     </dl>
+  );
+}
+
+/* ── What to do first ──────────────────────────────────────────
+   An agency does not open a workspace to browse it. One panel says
+   which file is most exposed and what it is waiting on, and it keeps
+   the environment of the instrument that worked it out. */
+
+function NextAction({ files }: { files: FileRecord[] }) {
+  const reduced = useReducedMotion();
+
+  /* Most exposed first, then whoever is waiting on the most
+     decisions — a sealed file cannot be acted on, so it never wins. */
+  const priority = [...files]
+    .filter((f) => f.verified)
+    .sort(
+      (a, b) =>
+        b.exposureScore - a.exposureScore ||
+        b.awaitingReview - a.awaitingReview
+    )[0];
+
+  if (!priority) return null;
+
+  const waiting =
+    priority.awaitingReview > 0
+      ? `${priority.awaitingReview} findings are waiting on a decision`
+      : priority.removalsOpen > 0
+        ? `${priority.removalsOpen} removal requests are open`
+        : "Monitoring is current — nothing is outstanding";
+
+  return (
+    <motion.div
+      initial={reduced ? false : { opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{
+        duration: motionTokens.duration.slow,
+        ease: motionTokens.ease.enter,
+      }}
+      className="surface-active mt-9 rounded-[10px] px-5 py-6 shadow-lift sm:px-7"
+    >
+      <div className="flex flex-wrap items-start justify-between gap-x-8 gap-y-5">
+        <div className="min-w-0">
+          <p className="font-mono text-[12.5px] tracking-[0.04em] text-accent">
+            HIGHEST EXPOSURE
+          </p>
+          <p className="text-display mt-2.5 text-[26px] text-ink sm:text-[30px]">
+            @{priority.username}
+          </p>
+          <p className="mt-1.5 text-[14.5px] text-ink-soft">
+            {priority.platform}
+            <span className="px-2 text-ink-faint">·</span>
+            {waiting}
+          </p>
+        </div>
+
+        <dl className="flex shrink-0 gap-x-10">
+          <div>
+            <dd>
+              <Figure
+                value={priority.exposureScore}
+                suffix="/100"
+                tone="warn"
+                className="text-[26px]"
+              />
+            </dd>
+            <dt className="mt-1.5 text-[13.5px] text-ink-soft">exposure</dt>
+          </div>
+          <div>
+            <dd>
+              <Figure value={priority.newFindings} className="text-[26px]" />
+            </dd>
+            <dt className="mt-1.5 text-[13.5px] text-ink-soft">new</dt>
+          </div>
+        </dl>
+      </div>
+
+      <Link
+        href={`/dashboard/${priority.slug}`}
+        className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-[6px] bg-accent px-5 text-[14.5px] font-medium text-scan transition-opacity duration-150 hover:opacity-90"
+      >
+        Open this file
+        <span aria-hidden className="font-mono text-[13px]">
+          →
+        </span>
+      </Link>
+    </motion.div>
   );
 }
 
@@ -593,7 +681,7 @@ function ShelfPicker({
         className="flex h-12 w-full items-center justify-between gap-3 rounded-[6px] border border-edge-strong bg-page px-4 text-left"
       >
         <span className="flex min-w-0 items-baseline gap-2.5">
-          <span className="font-mono text-[12px] tabular text-ink-faint">
+          <span className="font-mono text-[12.5px] tabular text-ink-faint">
             {refNumber(activeIndex)}
           </span>
           <span className="text-subject truncate text-[15.5px] text-ink">
@@ -641,7 +729,7 @@ function ShelfPicker({
                     active ? "bg-mineral/70" : "bg-transparent"
                   )}
                 >
-                  <span className="font-mono text-[12px] tabular text-ink-faint">
+                  <span className="font-mono text-[12.5px] tabular text-ink-faint">
                     {refNumber(i)}
                   </span>
                   <span
